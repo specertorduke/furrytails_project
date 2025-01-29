@@ -17,4 +17,6 @@ export default {
         },
     },
     plugins: [],
+    important: true, 
+    prefix: 'tw-',
 };

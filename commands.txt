@@ -1,0 +1,6 @@
+npm vite build
+
+npm run dev
+    ctrl c to stop
+
+@csrf - security for forms
