@@ -4,14 +4,46 @@
 @import 'tailwindcss/utilities';
 
 
+/* Nav Styles */
+.nav-link {
+    transition: all 0.3s ease;
+}
+.nav-link:hover {
+    background-color: #24CFF4;
+    color: white;
+}
+.nav-link.active {
+    background-color: #24CFF4;
+    color: white;
+}
+.nav-link.active i {
+    color: white;
+}
+.nav-link i {
+    transition: color 0.3s ease;
+}
+
 /* color & fonts */
+body {
+    font-family: 'Poppins', sans-serif !important;
+}
+
 .font-poppins {
     font-family: 'Poppins', sans-serif !important;
 }
 
 .bgcolor-1 {
     background-color: #EDF9FA !important;
-}  /* caution: somehow doesn't work for inline classes gr */
+}  /* caution: somehow doesn't work for inline classes grr */
 
+/* Disablers */
+::-ms-reveal,
+input[type="password"]::-ms-reveal {
+    display: none !important;
+}
 
+input[type="password"]::-webkit-reveal,
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    display: none !important;
+}
 

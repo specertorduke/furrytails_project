@@ -4,3 +4,10 @@ npm run dev
     ctrl c to stop
 
 @csrf - security for forms
+
+php artisan optimize:clear
+php artisan route:clear
+
+php artisan make:controller RegisterController
+
+php artisan make:migration create_users_table
