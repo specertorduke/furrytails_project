@@ -3,6 +3,21 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* general styles */
+
+
+/* button styles */
+.button-hover{
+    background-color: white !important;
+    transition: color 0.5s ease;
+    transition: background-color 0.5s ease;
+}
+
+.button-hover:hover{
+    background-color: #24CFF4 !important;
+    color: white;
+}
+
 
 /* Nav Styles */
 .nav-link {
@@ -14,7 +29,7 @@
 }
 .nav-link.active {
     background-color: #24CFF4;
-    color: white;
+    color: white !important;
 }
 .nav-link.active i {
     color: white;

@@ -11,10 +11,10 @@
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
 </head>
-<body class="tw-bg-gray-100 tw-font-poppins">
+<body class="tw-bg-gray-100 tw-font-poppins tw-h-full">
     <div class="tw-flex tw-h-full">
         <!-- Sidebar -->
-        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-h-full tw-p-4 tw-flex tw-flex-col tw-justify-between">
+        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between">
             <div>
                 <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b tw-border-gray-200">
                     <img src="{{ asset('images/business-logo/logo-square.png') }}" alt="Business Logo" class="tw-w-12 tw-h-12">
@@ -26,7 +26,7 @@
                 <nav class="tw-mt-6">
                     <ul class="tw-space-y-4 tw-p-2">
                         <li>
-                            <a href="{{ route('content.dashboard') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" onclick="loadContent(event, '{{ route('content.dashboard') }}')">
+                            <a href="{{ route('content.dashboard') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white active" onclick="loadContent(event, '{{ route('content.dashboard') }}')">
                                 <i class="fas fa-tachometer-alt tw-mr-2"></i> Dashboard
                             </a>
                         </li>
@@ -64,14 +64,14 @@
                 </nav>
             </div>
             <div class="tw-px-2 tw-pt-9">
-                <a href="{{ route('login') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <a href="{{ route('login') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white">
                     <i class="fas fa-sign-out-alt tw-mr-2"></i> Logout
                 </a>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="tw-flex-1 tw-p-6 tw-overflow-y-auto tw-bg-[#F4FFFF]" id="main-content">
+        <div class="tw-flex-1 tw-p-6 tw-overflow-y-auto tw-bg-[#e2fdfd] font-poppins" id="main-content">
             @include('content.dashboard')
         </div>
     </div>

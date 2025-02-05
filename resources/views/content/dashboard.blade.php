@@ -4,8 +4,11 @@
         <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p>
         <h1 class="tw-text-2xl tw-font-bold">Dashboard</h1>
     </div>
-    <div class="tw-flex tw-items-center">
-        <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-border tw-rounded-md tw-shadow-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-indigo-500">
+    <div class="tw-flex tw-items-center tw-py-3 tw-px-4 tw-bg-white tw-rounded-[2rem] tw-shadow-md">
+        <div class="tw-flex tw-items-center tw-bg-blue-50 tw-rounded-[2rem] tw-shadow-sm">
+            <i class="fa fa-search tw-ml-4 tw-text-gray-500"></i>
+            <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-bg-blue-50 tw-rounded-[2rem] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-indigo-500">
+        </div>
         <div class="tw-relative tw-ml-4">
             <img src="{{ asset('images\icons\signIn.png') }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer" onclick="toggleDropdown()">
             <div id="dropdown" class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-hidden">
@@ -17,15 +20,26 @@
 </div>
 
 <!-- Buttons -->
-<div class="tw-flex tw-justify-center tw-space-x-4 tw-mb-6">
-    <button class="tw-bg-blue-500 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-blue-600">
-        Add Appointment
+<div class="tw-flex tw-justify-center tw-gap-4 tw-space-x-4 tw-mb-6">
+    <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 button-hover">
+        <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full">
+            <i class="fa-solid fa-calendar tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
+        </div>
+        <span class="text-blue-900 tw-font-bold">Add Appointment</span>
     </button>
-    <button class="tw-bg-green-500 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-green-600">
-        Add Boarding
+
+    <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 button-hover">
+        <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full">
+            <i class="fa-solid fa-bookmark tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
+        </div>
+        <span class="text-blue-900 tw-font-bold">Add Boarding</span>
     </button>
-    <button class="tw-bg-purple-500 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-purple-600">
-        Add Pet
+
+    <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 button-hover">
+        <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full">
+            <i class="fa-solid fa-paw tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
+        </div>
+        <span class="text-blue-900 tw-font-bold">Add Pet</span>
     </button>
 </div>
 
@@ -69,6 +83,48 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-20</td>
+                        <td class="tw-p-2">2025-02-25</td>
+                        <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Confirmed</td>
+                    </tr>
                     <tr class="tw-border-b hover:tw-bg-gray-100">
                         <td class="tw-p-2">2025-02-20</td>
                         <td class="tw-p-2">2025-02-25</td>
