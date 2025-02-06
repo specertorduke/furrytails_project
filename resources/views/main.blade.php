@@ -8,13 +8,15 @@
     <link rel="icon" href="{{ asset('favicon.png') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
-</head>
+</head> 
 <body class="tw-bg-gray-100 tw-font-poppins tw-h-full">
     <div class="tw-flex tw-h-full">
         <!-- Sidebar -->
-        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between">
+        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-full">
             <div>
                 <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b tw-border-gray-200">
                     <img src="{{ asset('images/business-logo/logo-square.png') }}" alt="Business Logo" class="tw-w-12 tw-h-12">
@@ -71,7 +73,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="tw-flex-1 tw-p-6 tw-overflow-y-auto tw-bg-[#e2fdfd] font-poppins" id="main-content">
+        <div class="tw-flex-1 tw-h-screen tw-p-6 tw-overflow-y-auto tw-bg-[#f7ffff] font-poppins tw-ml-[16rem]" id="main-content">
             @include('content.dashboard')
         </div>
     </div>

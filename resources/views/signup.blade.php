@@ -93,7 +93,7 @@
                             By creating an account, you agree to our <a href="#" class="tw-text-indigo-600 hover:tw-underline">Terms of Use</a> and <a href="#" class="tw-text-indigo-600 hover:tw-underline">Privacy Policy</a>.
                         </div>
 
-                        <button type="submit" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-blue-400 tw-block tw-mx-auto">
+                        <button type="submit" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] tw-block tw-mx-auto">
                             Create Account
                         </button>
                     </form>

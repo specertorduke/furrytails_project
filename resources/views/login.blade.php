@@ -65,7 +65,7 @@
                             <a href="#" class="tw-text-sm tw-text-indigo-600 hover:tw-underline">Forget your password</a>
                         </div>
 
-                        <button type="submit" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-3 tw-px-8 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-blue-400 tw-block tw-mx-auto">
+                        <button type="submit" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-3 tw-px-8 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] tw-block tw-mx-auto">
                             Sign in
                         </button>
                     </form>

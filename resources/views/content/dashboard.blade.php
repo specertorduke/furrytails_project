@@ -7,7 +7,7 @@
     <div class="tw-flex tw-items-center tw-py-3 tw-px-4 tw-bg-white tw-rounded-[2rem] tw-shadow-md">
         <div class="tw-flex tw-items-center tw-bg-blue-50 tw-rounded-[2rem] tw-shadow-sm">
             <i class="fa fa-search tw-ml-4 tw-text-gray-500"></i>
-            <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-bg-blue-50 tw-rounded-[2rem] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-indigo-500">
+            <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-bg-blue-50 tw-rounded-[2rem] focus:tw-outline-none">
         </div>
         <div class="tw-relative tw-ml-4">
             <img src="{{ asset('images\icons\signIn.png') }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer" onclick="toggleDropdown()">
