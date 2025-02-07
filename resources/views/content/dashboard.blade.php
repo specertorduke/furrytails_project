@@ -1,4 +1,4 @@
-<!-- filepath: /c:/xampp/htdocs/dashboard/furrytails_project/resources/views/content/partials/dashboard.blade.php -->
+<!-- filepath: /c:/xampp/htdocs/dashboard/furrytails_project/resources/views/content/dashboard.blade.php -->
 <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
     <div>
         <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p>
@@ -10,7 +10,7 @@
             <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-bg-blue-50 tw-rounded-[2rem] focus:tw-outline-none">
         </div>
         <div class="tw-relative tw-ml-4">
-            <img src="{{ asset('images\icons\signIn.png') }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer" onclick="toggleDropdown()">
+            <img src="{{ asset('images/icons/signIn.png') }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer" onclick="toggleDropdown()">
             <div id="dropdown" class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-hidden">
                 <a href="#" class="tw-block tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100">Account Settings</a>
                 <a href="{{ route('logout') }}" class="tw-block tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100">Logout</a>
@@ -52,17 +52,23 @@
             <table class="tw-w-full">
                 <thead>
                     <tr class="tw-border-b">
-                        <th class="tw-p-2 tw-text-left">Date</th>
-                        <th class="tw-p-2 tw-text-left">Time</th>
-                        <th class="tw-p-2 tw-text-left">Pet</th>
-                        <th class="tw-p-2 tw-text-left">Service</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('appointments', 0)">Date</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('appointments', 1)">Time</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('appointments', 2)">Pet</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('appointments', 3)">Service</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="appointments">
                     <tr class="tw-border-b hover:tw-bg-gray-100">
                         <td class="tw-p-2">2025-02-15</td>
                         <td class="tw-p-2">10:00 AM</td>
                         <td class="tw-p-2">Buddy</td>
+                        <td class="tw-p-2">Grooming</td>
+                    </tr>
+                    <tr class="tw-border-b hover:tw-bg-gray-100">
+                        <td class="tw-p-2">2025-02-15</td>
+                        <td class="tw-p-2">10:00 AM</td>
+                        <td class="tw-p-2">Addy</td>
                         <td class="tw-p-2">Grooming</td>
                     </tr>
                     <!-- Add more rows as needed -->
@@ -76,55 +82,13 @@
             <table class="tw-w-full">
                 <thead>
                     <tr class="tw-border-b">
-                        <th class="tw-p-2 tw-text-left">Start Date</th>
-                        <th class="tw-p-2 tw-text-left">End Date</th>
-                        <th class="tw-p-2 tw-text-left">Pet</th>
-                        <th class="tw-p-2 tw-text-left">Status</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('boarding', 0)">Start Date</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('boarding', 1)">End Date</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('boarding', 2)">Pet</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('boarding', 3)">Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
-                    <tr class="tw-border-b hover:tw-bg-gray-100">
-                        <td class="tw-p-2">2025-02-20</td>
-                        <td class="tw-p-2">2025-02-25</td>
-                        <td class="tw-p-2">Buddy</td>
-                        <td class="tw-p-2">Confirmed</td>
-                    </tr>
+                <tbody id="boarding">
                     <tr class="tw-border-b hover:tw-bg-gray-100">
                         <td class="tw-p-2">2025-02-20</td>
                         <td class="tw-p-2">2025-02-25</td>
@@ -140,16 +104,19 @@
     <!-- Registered Pets Sidebar -->
     <div class="md:tw-col-span-1">
         <div class="tw-bg-white tw-shadow-sm tw-rounded-lg tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
-            <h2 class="tw-text-xl tw-font-bold tw-mb-4">Registered Pets</h2>
+            <div class="tw-flex tw-justify-between tw-items-center tw-mb-4">
+                <h2 class="tw-text-xl tw-font-bold">Registered Pets</h2>
+                <a href="{{ route('pets') }}" class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-md tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#159cbb]">See All</a>
+            </div>
             <table class="tw-w-full">
                 <thead>
                     <tr class="tw-border-b">
-                        <th class="tw-p-2 tw-text-left">Name</th>
-                        <th class="tw-p-2 tw-text-left">Type</th>
-                        <th class="tw-p-2 tw-text-left">Status</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('pets', 0)">Name</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('pets', 1)">Type</th>
+                        <th class="tw-p-2 tw-text-left" onclick="sortTable('pets', 2)">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="pets">
                     <tr class="tw-border-b hover:tw-bg-gray-100">
                         <td class="tw-p-2">Buddy</td>
                         <td class="tw-p-2">Dog</td>
@@ -161,3 +128,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    function sortTable(tableId, columnIndex) {
+        const table = document.getElementById(tableId);
+        const rows = Array.from(table.rows);
+        const header = rows.shift(); // Remove the header row
+        const sortedRows = rows.sort((a, b) => {
+            const aText = a.cells[columnIndex].innerText;
+            const bText = b.cells[columnIndex].innerText;
+            return aText.localeCompare(bText);
+        });
+        table.innerHTML = '';
+        table.appendChild(header);
+        sortedRows.forEach(row => table.appendChild(row));
+    }
+</script>

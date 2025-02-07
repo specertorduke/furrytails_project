@@ -5,9 +5,17 @@ npm run dev
 
 @csrf - security for forms
 
+php artisan cache:clear
 php artisan optimize:clear
 php artisan route:clear
 
 php artisan make:controller RegisterController
 
 php artisan make:migration create_users_table
+
+php artisan migrate:rollback
+
+php artisan migrate
+
+php artisan db:seed
+

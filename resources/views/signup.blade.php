@@ -43,13 +43,13 @@
                         @csrf
                         <div class="tw-flex tw-space-x-4">
                             <div class="tw-w-1/2">
-                                <label for="first_name" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">First Name</label>
-                                <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" required 
+                                <label for="firstName" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">First Name</label>
+                                <input type="text" id="firstName" name="firstName" value="{{ old('firstName') }}" required 
                                     class="tw-mt-1 tw-w-full tw-px-3 tw-py-2 tw-border tw-rounded-md tw-shadow-sm focus:tw-ring-indigo-500 focus:tw-border-indigo-500">
                             </div>
                             <div class="tw-w-1/2">
-                                <label for="last_name" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}" required 
+                                <label for="lastName" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" value="{{ old('lastName') }}" required 
                                     class="tw-mt-1 tw-w-full tw-px-3 tw-py-2 tw-border tw-rounded-md tw-shadow-sm focus:tw-ring-indigo-500 focus:tw-border-indigo-500">
                             </div>
                         </div>
@@ -77,8 +77,11 @@
                             <div class="tw-relative">
                                 <input type="password" id="password" name="password" required 
                                     class="tw-mt-1 tw-w-full tw-px-3 tw-py-2 tw-border tw-rounded-md tw-shadow-sm focus:tw-ring-indigo-500 focus:tw-border-indigo-500">
-                                <span class="tw-text-xs tw-text-gray-500">Use 8 or more characters with a mix of letters, numbers & symbols</span>
+                                <span onclick="togglePassword()" class="tw-absolute tw-inset-y-0 tw-right-0 tw-flex tw-items-center tw-pr-3 tw-text-gray-400 hover:tw-text-gray-600 tw-cursor-pointer tw-transition-colors tw-duration-200">
+                                    <i class="fa-regular fa-eye tw-text-lg" id="toggleIcon"></i>
+                                </span>
                             </div>
+                            <span class="tw-text-xs tw-text-gray-500">Tip: Use 8 or more characters with a mix of letters, numbers & symbols</span>
                         </div>
 
                         <div>
@@ -105,5 +108,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+
 </body>
 </html>

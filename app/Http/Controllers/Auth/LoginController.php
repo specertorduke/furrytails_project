@@ -21,9 +21,10 @@ class LoginController extends Controller
             $loginType => $request->login,
             'password' => $request->password,
         ];
-
+        
         if (Auth::attempt($credentials)) {
             // Authentication passed...
+            $request->session()->regenerate();
             return redirect()->intended(route('main'));
         }
 
