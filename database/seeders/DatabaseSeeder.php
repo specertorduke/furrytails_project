@@ -76,7 +76,6 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Buddy',
                 'species' => 'Dog',
                 'breed' => 'Golden Retriever',
-                'petImage' => null,
                 'petNotes' => 'Very friendly',
                 'age' => 3,
                 'userID' => 1, // FK to the inserted user above

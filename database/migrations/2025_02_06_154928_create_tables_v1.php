@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('firstName');
             $table->string('lastName');
             $table->string('email')->unique();
+            $table->string('userImage')->nullable()->default('userImages/default.png');
             $table->string('username')->unique();
             $table->string('phone');
             $table->string('password');
@@ -48,7 +49,7 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('species', 50);
             $table->string('breed', 50)->nullable();
-            $table->binary('petImage')->nullable();
+            $table->string('petImage')->nullable()->default('petImages/default.png');
             $table->text('petNotes')->nullable();
             $table->tinyInteger('age')->nullable();
             $table->unsignedBigInteger('userID');

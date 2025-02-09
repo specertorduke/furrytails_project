@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Pet;
 use App\Models\Appointment;
@@ -17,7 +18,7 @@ class DashboardController extends Controller
         $boardingReservations = BoardingReservation::where('startDate', '>=', now())->orderBy('startDate', 'asc')->get();
 
         // Fetch registered pets
-        $pets = Pet::all();
+        $pets = Pet::where('userID', Auth::id())->get();
 
         return view('content.dashboard', compact('appointments', 'boardingReservations', 'pets'));
     }
