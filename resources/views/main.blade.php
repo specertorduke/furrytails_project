@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FurryTails</title>
+    <title>@yield('title','Dashboard')</title>
     <link rel="icon" href="{{ asset('favicon.png') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
 </head> 
-<body class="tw-bg-gray-100 tw-font-poppins tw-h-full">
-    <div class="tw-flex tw-h-full">
+<body class="tw-bg-gray-100 tw-font-poppins tw-h-screen">
+    <div class="tw-flex tw-h-screen">
         <!-- Sidebar -->
-        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-full">
+        <div class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-screen">
             <div>
                 <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b tw-border-gray-200">
                     <img src="{{ asset('images/business-logo/logo-square.png') }}" alt="Business Logo" class="tw-w-12 tw-h-12">
@@ -26,7 +26,7 @@
                 <nav class="tw-mt-6">
                     <ul class="tw-space-y-4 tw-p-2">
                         <li>
-                            <a href="{{ route('content.dashboard') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white active" onclick="loadContent(event, '{{ route('content.dashboard') }}')">
+                            <a href="{{ route('dashboard') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white active" onclick="loadContent(event, '{{ route('dashboard') }}')">
                                 <i class="fas fa-tachometer-alt tw-mr-2"></i> Dashboard
                             </a>
                         </li>
@@ -63,20 +63,37 @@
                     </ul>
                 </nav>
             </div>
-            <div class="tw-px-2 tw-pt-9">
-                <a href="{{ route('login') }}" class="nav-link tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white">
-                    <i class="fas fa-sign-out-alt tw-mr-2"></i> Logout
-                </a>
+            <div class="tw-px-2">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="nav-link tw-flex tw-items-center tw-w-full tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" id="logout-button">
+                        <i class="fas fa-sign-out-alt tw-mr-2"></i> Logout
+                    </button>
+                </form>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="tw-flex-1 tw-h-screen tw-p-6 tw-overflow-y-auto tw-bg-[#f7ffff] font-poppins tw-ml-[16rem]" id="main-content">
-            @include('content.dashboard')
+        <div class="tw-flex-1 tw-h-screen tw-ml-[16rem] tw-overflow-y-auto font-poppins">
+            <div id="main-content" class="">
+                @yield('content')
+            </div>
         </div>
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    if (link.id === 'logout-button') {
+                        return; // Bypass loadContent for logout button
+                    }
+                    loadContent(event, link.getAttribute('href'));
+                });
+            });
+        });
+
         function toggleDropdown() {
             const dropdown = document.getElementById('dropdown');
             dropdown.classList.toggle('tw-hidden');
@@ -84,32 +101,53 @@
 
         function loadContent(event, url) {
             event.preventDefault();
+            history.pushState(null, '', url);
             fetch(url)
                 .then(response => response.text())
                 .then(html => {
-                    document.getElementById('main-content').innerHTML = html;
-                    updateActiveLink(event.target);
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('#main-content');
+                    const title = doc.querySelector('title');
+                    if (content) {
+                        document.getElementById('main-content').innerHTML = content.innerHTML;
+                        if (title) {
+                            document.title = title.innerText;
+                        }
+                        updateActiveLink(url); // Pass the URL here
+                    } else {
+                        console.error('Error: #main-content not found in the fetched HTML.');
+                    }
+                })
+            .catch(error => console.error('Error loading content:', error));
+        }
+
+        window.addEventListener('popstate', function() {
+            const url = location.pathname;
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('#main-content');
+                    if (content) {
+                        document.getElementById('main-content').innerHTML = content.innerHTML;
+                        updateActiveLink(url); // Update active link on popstate
+                    } else {
+                        console.error('Error: #main-content not found in the fetched HTML.');
+                    }
                 })
                 .catch(error => console.error('Error loading content:', error));
-        }
+        });
 
-        function updateActiveLink(target) {
+        function updateActiveLink(url) {
             const links = document.querySelectorAll('.nav-link');
-            links.forEach(link => link.classList.remove('active'));
-            target.closest('.nav-link').classList.add('active');
-        }
-
-        // Close the dropdown if the user clicks outside of it
-        window.onclick = function(event) {
-            if (!event.target.matches('.tw-rounded-full')) {
-                const dropdowns = document.getElementsByClassName('tw-hidden');
-                for (let i = 0; i < dropdowns.length; i++) {
-                    const openDropdown = dropdowns[i];
-                    if (!openDropdown.classList.contains('tw-hidden')) {
-                        openDropdown.classList.add('tw-hidden');
-                    }
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === url) {
+                    link.classList.add('active');
                 }
-            }
+            });
         }
     </script>
 </body>
