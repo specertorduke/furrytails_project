@@ -82,6 +82,16 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => 'Moodeng',
+                'species' => 'Hippopotamus',
+                'breed' => 'Pygmy Hippo',
+                'petNotes' => 'Loves Biting',
+                'age' => 2,
+                'userID' => 1, // FK to the inserted user above
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         // 5. APPOINTMENTS
