@@ -87,9 +87,18 @@ class DatabaseSeeder extends Seeder
         // 5. APPOINTMENTS
         DB::table('appointments')->insert([
             [
-                'date' => '2025-02-15',
+                'date' => '2025-03-15',
                 'time' => '10:00:00',
                 'serviceID' => 1, // FK to the inserted service
+                'petID' => 1,     // FK to the inserted pet
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'date' => '2025-03-15',
+                'time' => '10:00:00',
+                'serviceID' => 2, // FK to the inserted service
                 'petID' => 1,     // FK to the inserted pet
                 'status' => 'Pending',
                 'created_at' => now(),
@@ -109,6 +118,16 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'boardingType' => 'Overnight',
+                'startDate' => '2025-03-06',
+                'endDate' => '2025-03-08',
+                'serviceID' => 3, // FK to the inserted service
+                'petID' => 1, // FK to the inserted pet
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         // 7. PAYMENTS
@@ -117,10 +136,17 @@ class DatabaseSeeder extends Seeder
                 'amount' => 200.00,
                 'timestamp' => now(),
                 'method' => 'Cash',
-                'serviceID' => 1, // FK to the inserted appointment
                 'status' => 'Pending',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'payable_id' => 1, // ID of the related appointment or boarding reservation
+                'payable_type' => Appointment::class, // Class name of the related model
+            ],
+            [
+                'amount' => 300.00,
+                'timestamp' => now(),
+                'method' => 'Credit Card',
+                'status' => 'Completed',
+                'payable_id' => 1, // ID of the related appointment or boarding reservation
+                'payable_type' => BoardingReservation::class, // Class name of the related model
             ],
         ]);
     }

@@ -12,6 +12,7 @@ class Appointment extends Model
     protected $primaryKey = 'appointmentID';
 
     protected $fillable = [
+        'appointmentID',
         'date',
         'time',
         'serviceID',
@@ -27,5 +28,15 @@ class Appointment extends Model
     public function service()
     {
         return $this->belongsTo(Service::class, 'serviceID');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userID');
+    }
+
+    public function payments()
+    {
+        return $this->morphMany(Payment::class, 'payable');
     }
 }

@@ -13,6 +13,7 @@ class BoardingReservation extends Model
     protected $primaryKey = 'reservationID';
 
     protected $fillable = [
+        'reservationID',
         'boardingType',
         'startDate',
         'endDate',
@@ -29,5 +30,15 @@ class BoardingReservation extends Model
     public function service()
     {
         return $this->belongsTo(Service::class, 'serviceID');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userID');
+    }
+
+    public function payments()
+    {
+        return $this->morphMany(Payment::class, 'payable');
     }
 }

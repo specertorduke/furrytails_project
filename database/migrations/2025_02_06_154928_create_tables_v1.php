@@ -97,9 +97,8 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->timestamp('timestamp');
             $table->string('method')->nullable();
-            $table->unsignedBigInteger('serviceID')->nullable();
             $table->string('status', 50)->default('Pending');
-            $table->foreign('serviceID')->references('serviceID')->on('services')->onDelete('set null');
+            $table->morphs('payable'); // Adds payable_id and payable_type columns
             $table->timestamps();
         });
     }

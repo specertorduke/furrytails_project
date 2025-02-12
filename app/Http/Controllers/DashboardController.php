@@ -11,14 +11,22 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Fetch upcoming appointments
-        $appointments = Appointment::where('date', '>=', now())->orderBy('date', 'asc')->get();
-
-        // Fetch upcoming boarding reservations
-        $boardingReservations = BoardingReservation::where('startDate', '>=', now())->orderBy('startDate', 'asc')->get();
-
-        // Fetch registered pets
+        // Fetch pets that belong to the authenticated user
         $pets = Pet::where('userID', Auth::id())->get();
+
+        // Fetch upcoming appointments that belong to the authenticated user's pets
+        $appointments = Appointment::whereHas('pet', function ($query) {
+            $query->where('userID', Auth::id());
+        })->where('date', '>=', now())
+          ->orderBy('date', 'asc')
+          ->get();
+
+        // Fetch upcoming boarding reservations that belong to the authenticated user's pets
+        $boardingReservations = BoardingReservation::whereHas('pet', function ($query) {
+            $query->where('userID', Auth::id());
+        })->where('startDate', '>=', now())
+          ->orderBy('startDate', 'asc')
+          ->get();
 
         return view('content.dashboard', compact('appointments', 'boardingReservations', 'pets'));
     }
