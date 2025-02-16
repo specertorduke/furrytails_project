@@ -7,7 +7,7 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -23,6 +23,9 @@ Route::get('/main', function () {
     return view('main');
 })->middleware('auth')->name('main');
 
+Route::get('/', function () {
+    return view('home');
+})->name('home');
 //content routes
 
 Route::middleware('auth')->group(function () {
