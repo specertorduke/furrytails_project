@@ -14,7 +14,7 @@
             <div class="tw-flex tw-items-center tw-py-[0.60rem] tw-px-4 tw-bg-white tw-rounded-[2rem] tw-shadow-md w-100 w-md-auto">
                 <div class="tw-flex tw-items-center tw-bg-blue-50 tw-rounded-[2rem] tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-bg-white hover:tw-shadow-lg w-100">
                     <i class="fa fa-search tw-ml-4 tw-text-gray-500"></i>
-                    <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-outline-none tw-bg-blue-50 tw-rounded-[2rem] tw-transition-all tw-duration-300 hover:tw-bg-white focus:tw-outline-none w-100">
+                    <input type="text" placeholder="Search..." class="tw-px-4 tw-py-2 tw-outline-none tw-bg-blue-50 tw-rounded-[2rem] tw-transition-all tw-duration-300 hover:tw-bg-white w-100 remove-flowbite-form">
                 </div>
                 <div class="tw-relative tw-ml-4">
                     <img src="{{ asset('storage/' . Auth::user()->userImage) }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer tw-transition-all tw-duration-300 hover:tw-brightness-75 tw-object-cover" onclick="toggleDropdown()">
@@ -34,13 +34,13 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex flex-wrap justify-content-center gap-3">
-                <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
+                <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
                     <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full group-hover:tw-bg-white">
                         <i class="fa-solid fa-calendar tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
                     </div>
                     <span class="text-blue-900 tw-font-bold">Add Appointment</span>
                 </button>
-                <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
+                <button type="button" data-modal-target="addBoarding-modal" data-modal-toggle="addBoarding-modal" class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
                     <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full group-hover:tw-bg-white">
                         <i class="fa-solid fa-bookmark tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
                     </div>

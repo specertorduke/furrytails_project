@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
@@ -25,8 +26,8 @@
     transition: all 0.3s ease;
 }
 .nav-link:hover {
-    background-color: #24CFF4;
-    color: white;
+    background-color: #a3f1fe;
+    color: #065881 !important;
 }
 .nav-link.active {
     background-color: #24CFF4;
@@ -52,6 +53,27 @@ body {
     background-color: #EDF9FA !important;
 }  /* caution: somehow doesn't work for inline classes grr */
 
+/* Overriding */
+.tw-outline-none {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.remove-flowbite-form {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.remove-flowbite-form:focus,
+.remove-flowbite-form:active,
+.remove-flowbite-form:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
 /* Disablers */
 ::-ms-reveal,
 input[type="password"]::-ms-reveal {
@@ -62,4 +84,5 @@ input[type="password"]::-webkit-reveal,
 input[type="password"]::-webkit-credentials-auto-fill-button {
     display: none !important;
 }
+
 

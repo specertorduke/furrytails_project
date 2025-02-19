@@ -81,37 +81,37 @@
                 <nav class="tw-mt-6" id="nav">
                     <ul class="tw-space-y-4 tw-p-2">
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white active" href="{{ route('dashboard') }}" onclick="loadContent(event, '{{ route('dashboard') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 active" href="{{ route('dashboard') }}" onclick="loadContent(event, '{{ route('dashboard') }}')">
                                 <i class="fas fa-tachometer-alt nav-i tw-mr-2"></i> <span>Dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.explore') }}" onclick="loadContent(event, '{{ route('content.explore') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.explore') }}" onclick="loadContent(event, '{{ route('content.explore') }}')">
                                 <i class="fas fa-search nav-i tw-mr-2"></i> <span>Explore</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.manage') }}" onclick="loadContent(event, '{{ route('content.manage') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.manage') }}" onclick="loadContent(event, '{{ route('content.manage') }}')">
                                 <i class="fas fa-cogs nav-i tw-mr-2"></i> <span>Manage</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.pets') }}" onclick="loadContent(event, '{{ route('content.pets') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.pets') }}" onclick="loadContent(event, '{{ route('content.pets') }}')">
                                 <i class="fas fa-paw nav-i tw-mr-2"></i> <span>Pets</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.history') }}" onclick="loadContent(event, '{{ route('content.history') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.history') }}" onclick="loadContent(event, '{{ route('content.history') }}')">
                                 <i class="fas fa-history nav-i tw-mr-2"></i> <span>History</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.account') }}" onclick="loadContent(event, '{{ route('content.account') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.account') }}" onclick="loadContent(event, '{{ route('content.account') }}')">
                                 <i class="fas fa-user nav-i tw-mr-2"></i> <span>Account</span>
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" href="{{ route('content.about') }}" onclick="loadContent(event, '{{ route('content.about') }}')">
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.about') }}" onclick="loadContent(event, '{{ route('content.about') }}')">
                                 <i class="fas fa-info-circle nav-i tw-mr-2"></i> <span>About Us</span>
                             </a>
                         </li>
@@ -121,7 +121,7 @@
             <div class="tw-px-2">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="nav-link tw-flex tw-items-center tw-w-full tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500 hover:tw-text-white" id="logout-button">
+                    <button type="submit" class="nav-link tw-flex tw-items-center tw-w-full tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" id="logout-button">
                         <i class="fas fa-sign-out-alt tw-mr-2"></i> <span>Logout</span>
                     </button>
                 </form>
@@ -204,6 +204,7 @@
                     const title = doc.querySelector('title');
                     if (content) {
                         document.getElementById('main-content').innerHTML = content.innerHTML;
+                        document.dispatchEvent(new Event('contentChanged'));
                         if (title) {
                             document.title = title.innerText;
                         }
@@ -211,6 +212,7 @@
                         if (window.innerWidth < 769) {
                             applyCollapsedState();
                         }
+                        initFlowbite();
                     } else {
                         console.error('Error: #main-content not found in the fetched HTML.');
                     }
@@ -229,6 +231,7 @@
                     if (content) {
                         document.getElementById('main-content').innerHTML = content.innerHTML;
                         updateActiveLink(url); // Update active link on popstate
+                        initFlowbite();
                     } else {
                         console.error('Error: #main-content not found in the fetched HTML.');
                     }
@@ -285,5 +288,11 @@
             }
         }
     </script>
+    @include('modals.add-appointment')
+    @include('modals.add-boarding')
+    @include('modals.add-pet')
+    @include('modals.payment-modal')
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>
 </html>

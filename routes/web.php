@@ -26,10 +26,10 @@ Route::get('/main', function () {
 Route::get('/', function () {
     return view('home');
 })->name('home');
-//content routes
 
+//content routes
 Route::middleware('auth')->group(function () {
-    Route::get('/content/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/content/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
     Route::get('/content/pets', [ContentController::class, 'petsContent'])->name('content.pets');
