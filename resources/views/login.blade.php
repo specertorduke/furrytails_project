@@ -63,7 +63,7 @@
                         </div>
                         
                         <div class="tw-text-right">
-                            <a href="#" class="tw-text-sm tw-text-indigo-600 hover:tw-underline">Forget your password</a>
+                            <a href="#" class="tw-text-sm tw-text-indigo-600 hover:tw-underline">Forgot your password</a>
                         </div>
 
                         <button type="submit" class="tw-bg-[#24CFF4] tw-text-white tw-font-bold tw-py-3 tw-px-8 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-[#63e4fd] focus:tw-bg-[#038cb7] tw-block tw-mx-auto">
