@@ -53,7 +53,7 @@
                         </select>
                     </div>
                 </div>
-                <button type="button" data-modal-target="payment-modal" data-modal-toggle="payment-modal" data-is-boarding="false" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center dark:bg-blue-600 dark:hover:tw-bg-blue-700 dark:focus:tw-ring-blue-800">
+                <button type="submit" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                     <svg class="tw-me-1 tw--ms-1 tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
                     </svg>
@@ -63,3 +63,70 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const appointmentModal = document.getElementById('addAppointment-modal');
+    const form = appointmentModal.querySelector('form');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // ... existing validation code ...
+
+        Swal.fire({
+            title: 'Confirm Appointment',
+            text: 'Would you like to proceed with the payment?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#24CFF4',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Get payment modal and its elements
+                const paymentModal = document.getElementById('payment-modal');
+                
+                if (paymentModal) {
+                    // Update payment modal content
+                    const modalTitle = paymentModal.querySelector('#modal-title');
+                    const detailsLabel = paymentModal.querySelector('#details-label');
+                    const submitButtonText = paymentModal.querySelector('#submit-button-text');
+                    const appointmentDetails = paymentModal.querySelector('#appointment-details');
+                    
+                    // Get selected values
+                    const petName = document.getElementById('selected-pet').options[document.getElementById('selected-pet').selectedIndex].text;
+                    const date = document.getElementById('appointment-date').value;
+                    const time = document.getElementById('appointment-time').value;
+                    const service = document.getElementById('service').value;
+                    
+                    // Update modal text
+                    if (modalTitle) modalTitle.textContent = 'Appointment Payment';
+                    if (detailsLabel) detailsLabel.textContent = 'Appointment';
+                    if (submitButtonText) submitButtonText.textContent = 'Add Appointment';
+                    if (appointmentDetails) {
+                        appointmentDetails.value = `Pet: ${petName}\nService: ${service}\nDate: ${date}\nTime: ${time}`;
+                    }
+                    
+                    // Hide appointment modal first
+                    appointmentModal.classList.add('tw-hidden');
+                    
+                    // Show payment modal after a small delay
+                    setTimeout(() => {
+                        paymentModal.classList.remove('tw-hidden');
+                    }, 100);
+                }
+            }
+        });
+    });
+
+    // Add close button handler
+    const closeBtn = appointmentModal.querySelector('[data-modal-toggle="addAppointment-modal"]');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            appointmentModal.classList.add('tw-hidden');
+        });
+    }
+});
+</script>

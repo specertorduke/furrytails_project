@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
@@ -41,17 +44,34 @@
         .nav-i.collapsed {
             margin: 0 !important;
         }
+
         @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+                overflow-y: auto; /* Add scrolling */
+                max-height: 100vh; /* Ensure full height */
+                -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            }
+            #sidebar.show {
+                transform: translateX(0);
+                width: 256px !important;
+                padding: 1rem !important;
+            }
+            #sidebar.collapsed {
+                width: 64px !important;
+                padding: 0.2rem !important;
+                transform: translateX(0);
+            }
             #main-content {
-                margin-left: 64px !important;
+                margin-left: 0 !important;
+            }
+            #main-content.show {
+                margin-left: 256px !important;
             }
             #main-content.collapsed {
                 margin-left: 64px !important;
             }
             #header {
-                margin-left: 191px !important;
-            }
-            #header.collapsed {
                 margin-left: 0 !important;
             }
             #logo.collapsed {
@@ -61,6 +81,7 @@
                 display: block !important;
             }
         }
+
         @media (min-width: 769px) {
             .d-md-none {
                 display: none !important;
@@ -147,7 +168,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             AOS.init({
         once: true
-            }););
+            });
             applyCollapsedState();
 
             const links = document.querySelectorAll('.nav-link');
@@ -159,31 +180,6 @@
                     loadContent(event, link.getAttribute('href'));
                 });
             });
-
-            function handleResize() {
-            const sidebar = document.getElementById('sidebar');
-            const header = document.getElementById('header');
-            const mainContent = document.getElementById('main-content');
-            const logo = document.getElementById('logo');
-            const navLinks = document.querySelectorAll('.nav-a');
-            const navIcons = document.querySelectorAll('.nav-i');
-
-                if (window.innerWidth >= 769) {
-                    sidebar.classList.remove('collapsed');
-                    mainContent.classList.remove('collapsed');
-                    header.classList.remove('collapsed');
-                    logo.classList.remove('collapsed');
-                    navLinks.forEach(link => link.classList.remove('collapsed'));
-                    navIcons.forEach(icon => icon.classList.remove('collapsed'));
-                } else {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('collapsed');
-                    header.classList.add('collapsed');
-                    logo.classList.add('collapsed');
-                    navLinks.forEach(link => link.classList.add('collapsed'));
-                    navIcons.forEach(icon => icon.classList.add('collapsed'));
-                }
-            }
 
             // Initial check
             handleResize();
@@ -262,34 +258,100 @@
             const navLinks = document.querySelectorAll('.nav-a');
             const navIcons = document.querySelectorAll('.nav-i');
 
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('collapsed');
-            header.classList.toggle('collapsed');
-            logo.classList.toggle('collapsed');
-            navLinks.forEach(link => link.classList.toggle('collapsed'));
-            navIcons.forEach(icon => icon.classList.toggle('collapsed'));
+            // Get current state
+            const isHidden = !sidebar.classList.contains('show') && !sidebar.classList.contains('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
 
-            // Save the current state in localStorage
-            const collapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', collapsed);
-        }
+            // Reset all classes first
+            sidebar.classList.remove('show', 'collapsed');
+            mainContent.classList.remove('show', 'collapsed');
+            header.classList.remove('show', 'collapsed');
+            logo.classList.remove('show', 'collapsed');
+            navLinks.forEach(link => link.classList.remove('show', 'collapsed'));
+            navIcons.forEach(icon => icon.classList.remove('show', 'collapsed'));
 
-        function applyCollapsedState() {
-            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            const sidebar = document.getElementById('sidebar');
-            const header = document.getElementById('header');
-            const mainContent = document.getElementById('main-content');
-            const logo = document.getElementById('logo');
-            const navLinks = document.querySelectorAll('.nav-a');
-            const navIcons = document.querySelectorAll('.nav-i');
-        
-            if (collapsed) {
+            if (isHidden) {
+                // If hidden, show fully
+                sidebar.classList.add('show');
+                mainContent.classList.add('show');
+                header.classList.add('show');
+                logo.classList.add('show');
+            } else if (!isCollapsed) {
+                // If showing fully, collapse
                 sidebar.classList.add('collapsed');
                 mainContent.classList.add('collapsed');
                 header.classList.add('collapsed');
                 logo.classList.add('collapsed');
                 navLinks.forEach(link => link.classList.add('collapsed'));
                 navIcons.forEach(icon => icon.classList.add('collapsed'));
+            }
+            // If collapsed, will reset to hidden state (no classes)
+
+            // Save the current state in localStorage
+            const state = isHidden ? 'show' : (!isCollapsed ? 'collapsed' : 'hidden');
+            localStorage.setItem('sidebarState', state);
+        }
+
+        // Update the handleResize function
+        function handleResize() {
+            const sidebar = document.getElementById('sidebar');
+            const header = document.getElementById('header');
+            const mainContent = document.getElementById('main-content');
+            const logo = document.getElementById('logo');
+            const navLinks = document.querySelectorAll('.nav-a');
+            const navIcons = document.querySelectorAll('.nav-i');
+
+            if (window.innerWidth >= 769) {
+                // Reset mobile classes
+                sidebar.classList.remove('show', 'collapsed');
+                mainContent.classList.remove('show', 'collapsed');
+                header.classList.remove('show', 'collapsed');
+                logo.classList.remove('show', 'collapsed');
+                navLinks.forEach(link => link.classList.remove('show', 'collapsed'));
+                navIcons.forEach(icon => icon.classList.remove('show', 'collapsed'));
+            } else {
+                // Apply saved state or default to hidden
+                const savedState = localStorage.getItem('sidebarState') || 'hidden';
+                if (savedState === 'show') {
+                    sidebar.classList.add('show');
+                    mainContent.classList.add('show');
+                } else if (savedState === 'collapsed') {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('collapsed');
+                    navLinks.forEach(link => link.classList.add('collapsed'));
+                    navIcons.forEach(icon => icon.classList.add('collapsed'));
+                }
+            }
+        }
+
+        // Update the applyCollapsedState function
+        function applyCollapsedState() {
+            if (window.innerWidth < 769) {
+                const savedState = localStorage.getItem('sidebarState') || 'hidden';
+                const sidebar = document.getElementById('sidebar');
+                const header = document.getElementById('header');
+                const mainContent = document.getElementById('main-content');
+                const logo = document.getElementById('logo');
+                const navLinks = document.querySelectorAll('.nav-a');
+                const navIcons = document.querySelectorAll('.nav-i');
+
+                // Reset all classes first
+                sidebar.classList.remove('show', 'collapsed');
+                mainContent.classList.remove('show', 'collapsed');
+                header.classList.remove('show', 'collapsed');
+                logo.classList.remove('show', 'collapsed');
+                navLinks.forEach(link => link.classList.remove('show', 'collapsed'));
+                navIcons.forEach(icon => icon.classList.remove('show', 'collapsed'));
+
+                if (savedState === 'show') {
+                    sidebar.classList.add('show');
+                    mainContent.classList.add('show');
+                } else if (savedState === 'collapsed') {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('collapsed');
+                    navLinks.forEach(link => link.classList.add('collapsed'));
+                    navIcons.forEach(icon => icon.classList.add('collapsed'));
+                }
             }
         }
     </script>

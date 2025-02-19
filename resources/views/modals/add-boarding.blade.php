@@ -47,7 +47,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" data-modal-target="payment-modal" data-modal-toggle="payment-modal" data-is-boarding="true" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center dark:bg-blue-600 dark:hover:tw-bg-blue-700 dark:focus:tw-ring-blue-800">
+                <button type="submit" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                     <svg class="tw-me-1 tw--ms-1 tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
                     </svg>
@@ -60,11 +60,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const boardingModal = document.getElementById('addBoarding-modal');
     const boardingTierSelect = document.getElementById('boarding-tier');
     const dateFields = document.getElementById('date-fields');
     const startDate = document.getElementById('start-date');
     const endDate = document.getElementById('end-date');
+    const form = boardingModal.querySelector('form');
 
+    // Reset date fields on page load
+    dateFields.classList.add('tw-hidden');
+    startDate.removeAttribute('required');
+    endDate.removeAttribute('required');
+
+    // Handle boarding tier changes
     boardingTierSelect.addEventListener('change', function() {
         if (this.value === 'long-term') {
             dateFields.classList.remove('tw-hidden');
@@ -74,7 +82,95 @@ document.addEventListener('DOMContentLoaded', function() {
             dateFields.classList.add('tw-hidden');
             startDate.removeAttribute('required');
             endDate.removeAttribute('required');
+            startDate.value = '';
+            endDate.value = '';
         }
     });
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Check if all required fields are filled
+        const pet = document.getElementById('selected-pet').value;
+        const tier = document.getElementById('boarding-tier').value;
+        
+        if (!pet || pet === 'Select Pet' || !tier || tier === 'Select Tier') {
+            Swal.fire({
+                title: 'Missing Information',
+                text: 'Please fill in all required fields',
+                icon: 'warning',
+                confirmButtonColor: '#24CFF4',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Additional validation for long-term boarding
+        if (tier === 'long-term' && (!startDate.value || !endDate.value)) {
+            Swal.fire({
+                title: 'Missing Dates',
+                text: 'Please select both start and end dates',
+                icon: 'warning',
+                confirmButtonColor: '#24CFF4',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Show confirmation dialog
+        Swal.fire({
+            title: 'Confirm Boarding',
+            text: 'Would you like to proceed with the payment?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#24CFF4',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Get payment modal and update its content
+                const paymentModal = document.getElementById('payment-modal');
+                if (paymentModal) {
+                    const modalTitle = paymentModal.querySelector('#modal-title');
+                    const detailsLabel = paymentModal.querySelector('#details-label');
+                    const submitButtonText = paymentModal.querySelector('#submit-button-text');
+                    const boardingDetails = paymentModal.querySelector('#appointment-details');
+                    
+                    // Get selected values
+                    const petName = document.getElementById('selected-pet').options[document.getElementById('selected-pet').selectedIndex].text;
+                    
+                    // Update modal text
+                    if (modalTitle) modalTitle.textContent = 'Boarding Payment';
+                    if (detailsLabel) detailsLabel.textContent = 'Boarding';
+                    if (submitButtonText) submitButtonText.textContent = 'Add Boarding';
+                    if (boardingDetails) {
+                        let details = `Pet: ${petName}\nTier: ${tier}`;
+                        if (tier === 'long-term') {
+                            details += `\nStart Date: ${startDate.value}\nEnd Date: ${endDate.value}`;
+                        }
+                        boardingDetails.value = details;
+                    }
+                    
+                    // Hide boarding modal
+                    boardingModal.classList.add('tw-hidden');
+                    
+                    // Show payment modal
+                    setTimeout(() => {
+                        paymentModal.classList.remove('tw-hidden');
+                    }, 100);
+                }
+            }
+        });
+    });
+
+    // Handle close button
+    const closeBtn = boardingModal.querySelector('[data-modal-toggle="addBoarding-modal"]');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            boardingModal.classList.add('tw-hidden');
+        });
+    }
 });
 </script>

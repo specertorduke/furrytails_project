@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Buddy',
                 'species' => 'Dog',
-                'breed' => 'Golden Retriever',
+                'petType' => 'Golden Retriever',
                 'petNotes' => 'Very friendly',
                 'age' => 3,
                 'userID' => 1, // FK to the inserted user above
@@ -151,7 +151,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Moodeng',
                 'species' => 'Hippopotamus',
-                'breed' => 'Pygmy Hippo',
+                'petType' => 'Pygmy Hippo',
                 'petNotes' => 'Loves Biting',
                 'age' => 2,
                 'userID' => 1, // FK to the inserted user above
@@ -205,7 +205,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
-        
+
         // PAYMENTS
         DB::table('payments')->insert([
             [

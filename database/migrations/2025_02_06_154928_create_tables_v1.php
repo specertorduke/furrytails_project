@@ -49,7 +49,7 @@ return new class extends Migration
             $table->id('petID');
             $table->string('name', 50);
             $table->string('species', 50);
-            $table->string('breed', 50)->nullable();
+            $table->string('petType', 50)->nullable();
             $table->string('petImage')->nullable()->default('petImages/default.png');
             $table->text('petNotes')->nullable();
             $table->tinyInteger('age')->nullable();

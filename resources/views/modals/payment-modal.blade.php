@@ -5,8 +5,8 @@
         <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-sm dark:tw-bg-gray-700 tw-transform tw-transition-all">
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t dark:tw-border-gray-600 tw-border-gray-200">
-                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-white">Payment</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-200 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center dark:tw-hover:tw-bg-gray-600 dark:tw-hover:tw-text-white" data-modal-toggle="payment-modal">
+                <h3 id="modal-title" class="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-white">Payment</h3>
+                <button type="button" id="close-payment-modal" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-200 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center dark:tw-hover:tw-bg-gray-600 dark:tw-hover:tw-text-white">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -53,7 +53,7 @@
                         <!-- Dynamic payment fields will be inserted here -->
                     </div>                    
                 </div>
-                <button type="submit" data-modal-target="confirm-modal" data-modal-toggle="confirm-modal" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center dark:bg-blue-600 dark:hover:tw-bg-blue-700 dark:focus:tw-ring-blue-800">
+                <button type="submit" class="tw-text-white tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center dark:bg-blue-600 dark:hover:tw-bg-blue-700 dark:focus:tw-ring-blue-800">
                     <svg class="tw-me-1 tw--ms-1 tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
                     </svg>
@@ -64,45 +64,73 @@
     </div>
 </div>
 
-@include('modals.confirmation')
-@include('modals.success')
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const paymentModal = document.getElementById('payment-modal');
     const submitButtonText = document.getElementById('submit-button-text');
     const modalTitle = document.getElementById('modal-title');
     const detailsLabel = document.getElementById('details-label');
+    const form = paymentModal.querySelector('form');
+    const closeBtn = document.getElementById('close-payment-modal');
 
+    // Handle close button
+    closeBtn.addEventListener('click', function() {
+        paymentModal.classList.add('tw-hidden');
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const paymentMethod = document.getElementById('payment-method').value;
+        if (!paymentMethod) {
+            Swal.fire({
+                title: 'Missing Information',
+                text: 'Please select a payment method',
+                icon: 'warning',
+                confirmButtonColor: '#24CFF4',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Show confirmation dialog
+        Swal.fire({
+            title: 'Confirm Payment',
+            text: 'Would you like to proceed with this payment?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#24CFF4',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Payment processed successfully',
+                    icon: 'success',
+                    confirmButtonColor: '#24CFF4'
+                }).then(() => {
+                    // Reset and close modal
+                    form.reset();
+                    paymentModal.classList.add('tw-hidden');
+                });
+            }
+        });
+    });
+
+    // Update modal text based on type
     document.addEventListener('click', function(e) {
         if (e.target.dataset.modalTarget === 'payment-modal') {
             const isBoarding = e.target.dataset.isBoarding === 'true';
             const type = isBoarding ? 'Boarding' : 'Appointment';
             
-            // Update all text elements
             submitButtonText.textContent = `Add ${type}`;
-            modalTitle.textContent = type;
-            detailsLabel.textContent = type;
-        }
-    });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Listen for payment modal button click to update confirmation modal
-    document.addEventListener('click', function(e) {
-        if (e.target.dataset.modalTarget === 'confirm-modal') {
-            const isBoarding = document.querySelector('[data-is-boarding="true"]') !== null;
-            const type = isBoarding ? 'boarding' : 'appointment';
-            
-            // Update confirmation modal text
-            document.getElementById('confirm-type').textContent = type;
-            
-            // Update success modal text when confirm button is clicked
-            document.getElementById('confirm-yes').addEventListener('click', function() {
-                document.getElementById('success-type').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            });
+            if (modalTitle) modalTitle.textContent = type;
+            if (detailsLabel) detailsLabel.textContent = type;
+            paymentModal.classList.remove('tw-hidden');
         }
     });
 });

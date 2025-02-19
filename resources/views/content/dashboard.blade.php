@@ -46,7 +46,7 @@
                     </div>
                     <span class="text-blue-900 tw-font-bold">Add Boarding</span>
                 </button>
-                <button class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
+                <button type="button" data-modal-target="addPet-modal" data-modal-toggle="addPet-modal" class="tw-flex tw-items-center tw-rounded-2xl tw-shadow-md tw-px-4 tw-py-4 tw-space-x-3 tw-group button-hover">
                     <div class="tw-flex tw-justify-center tw-items-center tw-w-12 tw-h-12 tw-bg-blue-50 tw-p-2 tw-rounded-full group-hover:tw-bg-white">
                         <i class="fa-solid fa-paw tw-text-[1.2rem] tw-text-[#24CFF4]"></i>
                     </div>
