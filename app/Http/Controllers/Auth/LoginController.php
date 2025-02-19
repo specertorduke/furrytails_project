@@ -22,7 +22,7 @@ class LoginController extends Controller
             'password' => $request->password,
         ];
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, true)) {
             // Authentication passed...
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));

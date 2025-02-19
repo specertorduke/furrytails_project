@@ -107,52 +107,6 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        // APPOINTMENTS
-        DB::table('appointments')->insert([
-            [
-                'date' => '2025-03-15',
-                'time' => '10:00:00',
-                'serviceID' => 1, 
-                'petID' => 1,
-                'status' => 'Pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'date' => '2025-03-15',
-                'time' => '10:00:00',
-                'serviceID' => 2, 
-                'petID' => 1,
-                'status' => 'Pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-
-        //BOARDINGS
-        DB::table('boarding_reservations')->insert([
-            [
-                'boardingType' => 'Overnight',
-                'startDate' => '2025-03-01',
-                'endDate' => '2025-03-05',
-                'serviceID' => 8, 
-                'petID' => 1,
-                'status' => 'Pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'boardingType' => 'Overnight',
-                'startDate' => '2025-03-06',
-                'endDate' => '2025-03-08',
-                'serviceID' => 8, 
-                'petID' => 1,
-                'status' => 'Pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-
         // EMPLOYEES
         DB::table('employees')->insert([
             [
@@ -206,6 +160,52 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
+        // APPOINTMENTS
+        DB::table('appointments')->insert([
+            [
+                'date' => '2025-03-15',
+                'time' => '10:00:00',
+                'serviceID' => 1, 
+                'petID' => 1,
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'date' => '2025-03-15',
+                'time' => '10:00:00',
+                'serviceID' => 2, 
+                'petID' => 1,
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        //BOARDINGS
+        DB::table('boarding_reservations')->insert([
+            [
+                'boardingType' => 'Overnight',
+                'startDate' => '2025-03-01',
+                'endDate' => '2025-03-05',
+                'serviceID' => 8, 
+                'petID' => 1,
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'boardingType' => 'Overnight',
+                'startDate' => '2025-03-06',
+                'endDate' => '2025-03-08',
+                'serviceID' => 8, 
+                'petID' => 1,
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        
         // PAYMENTS
         DB::table('payments')->insert([
             [
