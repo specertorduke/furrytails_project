@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid tw-min-h-screen tw-p-6 tw-overflow-y-auto tw-bg-gradient-to-tl tw-to-[#b7f4ff] tw-from-white font-poppins">
     <!-- Header Section -->
-    <div class="row mb-4">
+    <div class="row mb-4" data-aos="fade-down" data-aos-once="true" data-aos-anchor-placement="top-bottom" data-aos-mirror="false">
         <div class="col-12 col-md-6">
             <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p>
             <h1 class="tw-text-2xl tw-font-bold">Dashboard</h1>
@@ -29,7 +29,9 @@
         </div>
     </div>
 
-    <div class="row mb-4">
+    <div class="row mb-4" data-aos="fade-up" data-aos-once="true" 
+     data-aos-anchor-placement="top-bottom"
+     data-aos-mirror="false">
         <div class="col-12">
             <div class="tw-bg-white tw-rounded-2xl tw-p-6 tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg">
                 <h2 class="tw-text-2xl tw-font-bold tw-mb-2">Welcome back, {{ Auth::user()->firstName }}! 👋</h2>
@@ -74,7 +76,9 @@
     </div>
 
     <!-- Buttons Section -->
-    <div class="row mb-4">
+    <div class="row mb-4" data-aos="fade-up" data-aos-once="true" 
+     data-aos-anchor-placement="top-bottom"
+     data-aos-mirror="false">
         <div class="col-12">
             <div class="d-flex flex-wrap justify-content-center gap-3">
                 <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
@@ -105,7 +109,8 @@
         <!-- Left Column -->
         <div class="col-12 col-lg-8 mb-4">
             <!-- Upcoming Appointments -->
-            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 mb-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 mb-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg" data-aos="fade-right" data-aos-once="true" data-aos-anchor-placement="top-bottom"
+            data-aos-mirror="false">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Upcoming Appointments</h2>
                     <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">Edit</a>
@@ -163,7 +168,8 @@
             </div>
 
             <!-- Upcoming Boarding Reservations -->
-            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg" data-aos="fade-right" data-aos-once="true" data-aos-anchor-placement="top-bottom"
+            data-aos-mirror="false">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Current Boarding Reservations</h2>
                     <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">Edit</a>
@@ -219,7 +225,8 @@
             </div>
 
             <!-- Timeline Section -->
-            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg" data-aos="fade-right" data-aos-once="true" data-aos-anchor-placement="top-bottom"
+            data-aos-mirror="false">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Weekly Events Timeline</h2>
                 </div>
@@ -322,7 +329,8 @@
 
         <!-- Registered Pets Sidebar -->
         <div class="col-12 col-lg-4">
-            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg" data-aos="fade-left" data-aos-once="true" data-aos-anchor-placement="top-bottom"
+            data-aos-mirror="false">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Registered Pets</h2>
                     <a href="{{ route('content.pets') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.pets') }}')">See All</a>
@@ -374,7 +382,8 @@
             </div>
 
             <!-- Pet Care Tips Section -->
-            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+            <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg" data-aos="fade-left" data-aos-once="true" data-aos-anchor-placement="top-bottom"
+            data-aos-mirror="false">
                 <h2 class="tw-text-xl tw-font-bold mb-4">Pet Care Tips 🐾</h2>
                 <div class="tw-space-y-4">
                     <div class="tw-flex tw-items-start tw-gap-3 tw-p-3 tw-rounded-xl tw-bg-[#F0FBFF] tw-transition-all hover:tw-shadow-md">
@@ -492,4 +501,20 @@
             downloadIcon.classList.add('tw-hidden');
         }
     }
+
+    document.addEventListener('contentChanged', function() {
+    AOS.init({
+        once: true,
+        duration: 800,
+        offset: 50,
+        disable: 'mobile', // Disable on mobile devices
+        mirror: false, // No disappearing animations
+        anchorPlacement: 'top-bottom', // Trigger animations when the top of element enters bottom of viewport
+        disableMutationObserver: false, // Enable mutation observer
+        startEvent: 'DOMContentLoaded', // When to start animations
+        useClassNames: true, // Enable class names for finer control
+        initClassName: 'aos-init', // Class applied after initialization
+        animatedClassName: 'aos-animate', // Class applied on animation
+    });
+});
 </script>
