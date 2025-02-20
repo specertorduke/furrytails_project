@@ -86,3 +86,27 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 }
 
 
+@keyframes progress {
+    0% {
+        stroke-dashoffset: 283;
+    }
+}
+
+.progress-ring circle {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+@keyframes shadow {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateX(-50%) scale(0.75);
+        opacity: 0.2;
+    }
+}
+
+.animate-shadow {
+    animation: shadow 1s infinite;
+}

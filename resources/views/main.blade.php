@@ -90,6 +90,7 @@
     </style>
 </head>
 <body class="tw-bg-gray-100 tw-font-poppins tw-h-screen">
+    @include('components.loading')
     <div class="tw-flex tw-h-screen">
         <!-- Sidebar -->
         <div id="sidebar" class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-screen tw-transition-all tw-duration-300 tw-ease-in-out">
@@ -108,11 +109,11 @@
                                 <i class="fas fa-tachometer-alt nav-i tw-mr-2"></i> <span>Dashboard</span>
                             </a>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.explore') }}" onclick="loadContent(event, '{{ route('content.explore') }}')">
                                 <i class="fas fa-search nav-i tw-mr-2"></i> <span>Explore</span>
                             </a>
-                        </li>
+                        </li> -->
                         <li>
                             <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.manage') }}" onclick="loadContent(event, '{{ route('content.manage') }}')">
                                 <i class="fas fa-cogs nav-i tw-mr-2"></i> <span>Manage</span>
@@ -194,32 +195,46 @@
         }
 
         function loadContent(event, url) {
-            event.preventDefault();
-            history.pushState(null, '', url);
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const content = doc.querySelector('#main-content');
-                    const title = doc.querySelector('title');
-                    if (content) {
-                        document.getElementById('main-content').innerHTML = content.innerHTML;
-                        document.dispatchEvent(new Event('contentChanged'));
-                        if (title) {
-                            document.title = title.innerText;
-                        }
-                        updateActiveLink(url); // Pass the URL here
-                        if (window.innerWidth < 769) {
-                            applyCollapsedState();
-                        }
-                        initFlowbite();
-                    } else {
-                        console.error('Error: #main-content not found in the fetched HTML.');
+    event.preventDefault();
+    
+    // Show loading screen
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.classList.remove('tw-hidden');
+    
+    history.pushState(null, '', url);
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const content = doc.querySelector('#main-content');
+            const title = doc.querySelector('title');
+            if (content) {
+                setTimeout(() => {  // Add small delay for smoother transition
+                    document.getElementById('main-content').innerHTML = content.innerHTML;
+                    document.dispatchEvent(new Event('contentChanged'));
+                    if (title) {
+                        document.title = title.innerText;
                     }
-                })
-            .catch(error => console.error('Error loading content:', error));
-        }
+                    updateActiveLink(url);
+                    if (window.innerWidth < 769) {
+                        applyCollapsedState();
+                    }
+                    initFlowbite();
+                    
+                    // Hide loading screen
+                    loadingScreen.classList.add('tw-hidden');
+                }, 800);  // Adjust timing as needed
+            } else {
+                console.error('Error: #main-content not found in the fetched HTML.');
+                loadingScreen.classList.add('tw-hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading content:', error);
+            loadingScreen.classList.add('tw-hidden');
+        });
+}
 
         window.addEventListener('popstate', function() {
             const url = location.pathname;
