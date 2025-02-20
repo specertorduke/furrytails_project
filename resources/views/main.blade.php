@@ -90,7 +90,6 @@
     </style>
 </head>
 <body class="tw-bg-gray-100 tw-font-poppins tw-h-screen">
-    @include('components.loading')
     <div class="tw-flex tw-h-screen">
         <!-- Sidebar -->
         <div id="sidebar" class="tw-w-64 tw-bg-white tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-screen tw-transition-all tw-duration-300 tw-ease-in-out">
@@ -153,7 +152,8 @@
         </div>
 
         <!-- Main Content -->
-        <div id="main-content" class="tw-flex-1 tw-h-screen tw-ml-[16rem] tw-overflow-y-auto font-poppins">
+        <div id="main-content" class="tw-flex-1 tw-h-screen tw-ml-[16rem] tw-overflow-y-auto font-poppins tw-relative">
+            @include('components.loading')
             <div id="header" class="tw-flex tw-justify-between tw-items-center tw-p-4 tw-bg-white tw-shadow-md d-md-none">
                 <button class="tw-text-gray-600 tw-text-2xl" onclick="toggleSidebar()">
                     <i class="fas fa-bars tw-text-blue-300"></i>

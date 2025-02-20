@@ -1,4 +1,4 @@
-<div id="loading-screen" class="tw-fixed tw-inset-0 tw-bg-white tw-bg-opacity-90 tw-z-50 tw-hidden tw-flex tw-items-center tw-justify-center">
+<div id="loading-screen" class="tw-absolute tw-inset-0 tw-bg-white tw-bg-opacity-90 tw-z-50 tw-hidden tw-flex tw-items-center tw-justify-center">
     <div class="tw-flex tw-flex-col tw-items-center">
         <!-- Bouncing Dog Animation -->
         <div class="tw-relative tw-w-24 tw-h-24">
