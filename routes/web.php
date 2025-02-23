@@ -8,6 +8,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ManageController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\HistoryController;
+
 
 
 Route::get('/login', function () { return view('login'); })->name('login');
@@ -28,7 +30,7 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
     Route::get('/content/pets', [PetController::class, 'index'])->name('content.pets');
-    Route::get('/content/history', [ContentController::class, 'historyContent'])->name('content.history');
+    Route::get('/content/history', [HistoryController::class, 'index'])->name('content.history');    
     Route::get('/content/account', [ContentController::class, 'accountContent'])->name('content.account');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');

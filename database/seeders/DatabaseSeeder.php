@@ -237,21 +237,70 @@ class DatabaseSeeder extends Seeder
 
         // PAYMENTS
         DB::table('payments')->insert([
+            // Appointment 1 payments (downpayment + balance)
             [
-                'amount' => 200.00,
+                'paymentID' => 1,
+                'amount' => 250.00, // 50% downpayment
+                'timestamp' => now()->subDays(5),
+                'method' => 'Cash',
+                'status' => 'Completed',
+                'type' => 'downpayment',
+                'payable_id' => 1,
+                'payable_type' => 'App\Models\Appointment',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'paymentID' => 2,
+                'amount' => 250.00, // remaining balance
+                'timestamp' => now()->subDays(1),
+                'method' => 'GCash',
+                'status' => 'Completed',
+                'type' => 'balance',
+                'payable_id' => 1,
+                'payable_type' => 'App\Models\Appointment',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Appointment 2 payment (full payment)
+            [
+                'paymentID' => 3,
+                'amount' => 1500.00,
+                'timestamp' => now()->subDays(2),
+                'method' => 'Credit Card',
+                'status' => 'Completed',
+                'type' => 'full',
+                'payable_id' => 2,
+                'payable_type' => 'App\Models\Appointment',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Boarding 1 payments (downpayment only, balance pending)
+            [
+                'paymentID' => 4,
+                'amount' => 1000.00, // 50% downpayment
+                'timestamp' => now()->subDays(7),
+                'method' => 'Bank Transfer',
+                'status' => 'Completed',
+                'type' => 'downpayment',
+                'payable_id' => 1,
+                'payable_type' => 'App\Models\BoardingReservation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'paymentID' => 5,
+                'amount' => 1000.00, // remaining balance
                 'timestamp' => now(),
                 'method' => 'Cash',
                 'status' => 'Pending',
-                'payable_id' => 1, // ID of the related appointment or boarding reservation
-                'payable_type' => Appointment::class, // Class name of the related model
-            ],
-            [
-                'amount' => 300.00,
-                'timestamp' => now(),
-                'method' => 'Credit Card',
-                'status' => 'Completed',
-                'payable_id' => 1, // ID of the related appointment or boarding reservation
-                'payable_type' => BoardingReservation::class, // Class name of the related model
+                'type' => 'balance',
+                'payable_id' => 1,
+                'payable_type' => 'App\Models\BoardingReservation',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
     }

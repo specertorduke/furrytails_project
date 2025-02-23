@@ -30,4 +30,33 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function pets()
+    {
+        return $this->hasMany(Pet::class, 'userID');
+    }
+
+    public function appointments()
+    {
+        return $this->hasManyThrough(
+            Appointment::class,
+            Pet::class,
+            'userID', // Foreign key on pets table
+            'petID',  // Foreign key on appointments table
+            'userID', // Local key on users table
+            'petID'   // Local key on pets table
+        );
+    }
+
+    public function boardingReservations()
+    {
+        return $this->hasManyThrough(
+            BoardingReservation::class,
+            Pet::class,
+            'userID', // Foreign key on pets table
+            'petID',  // Foreign key on boarding_reservations table
+            'userID', // Local key on users table
+            'petID'   // Local key on pets table
+        );
+    }
 }

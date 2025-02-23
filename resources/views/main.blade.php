@@ -171,93 +171,93 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            AOS.init({
-        once: true
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+    once: true
+        });
+        applyCollapsedState();
+
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(link => {
+            link.addEventListener('click', function(event) {
+                if (link.id === 'logout-button') {
+                    return; // Bypass loadContent for logout button
+                }
+                loadContent(event, link.getAttribute('href'));
             });
-            applyCollapsedState();
-
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    if (link.id === 'logout-button') {
-                        return; // Bypass loadContent for logout button
-                    }
-                    loadContent(event, link.getAttribute('href'));
-                });
-            });
-
-            // Initial check
-            handleResize();
-
-            // Add event listener for window resize
-            window.addEventListener('resize', handleResize);
         });
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('dropdown');
-            dropdown.classList.toggle('tw-hidden');
-        }
+        // Initial check
+        handleResize();
 
-        function loadContent(event, url) {
-    event.preventDefault();
-    
-    const loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.classList.remove('tw-hidden');
-    
-    document.dispatchEvent(new Event('contentWillChange'));
+        // Add event listener for window resize
+        window.addEventListener('resize', handleResize);
+    });
 
-    history.pushState(null, '', url);
-    fetch(url)
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const content = doc.querySelector('#main-content');
-            const scripts = doc.querySelectorAll('script');
-            const title = doc.querySelector('title');
-            
-            if (content) {
-                document.getElementById('main-content').innerHTML = content.innerHTML;
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.classList.toggle('tw-hidden');
+    }
+
+    function loadContent(event, url) {
+        event.preventDefault();
+        
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.classList.remove('tw-hidden');
+        
+        document.dispatchEvent(new Event('contentWillChange'));
+
+        history.pushState(null, '', url);
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const content = doc.querySelector('#main-content');
+                const scripts = doc.querySelectorAll('script');
+                const title = doc.querySelector('title');
                 
-                if (title) {
-                    document.title = title.innerText;
-                }
-                updateActiveLink(url);
-                
-                // Execute all scripts from the loaded content
-                scripts.forEach(script => {
-                    if (script.innerHTML) {
-                        const newScript = document.createElement('script');
-                        newScript.textContent = script.innerHTML;
-                        document.body.appendChild(newScript);
+                if (content) {
+                    document.getElementById('main-content').innerHTML = content.innerHTML;
+                    
+                    if (title) {
+                        document.title = title.innerText;
                     }
-                });
-                
-                // Initialize Flowbite
-                if (typeof initFlowbite === 'function') {
-                    initFlowbite();
+                    updateActiveLink(url);
+                    
+                    // Execute all scripts from the loaded content
+                    scripts.forEach(script => {
+                        if (script.innerHTML) {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = script.innerHTML;
+                            document.body.appendChild(newScript);
+                        }
+                    });
+                    
+                    // Initialize Flowbite
+                    if (typeof initFlowbite === 'function') {
+                        initFlowbite();
+                    }
+                    
+                    // Trigger content changed event
+                    document.dispatchEvent(new Event('contentChanged'));
+                    
+                    if (window.innerWidth < 769) {
+                        applyCollapsedState();
+                    }
+                    
+                    loadingScreen.classList.add('tw-hidden');
+                } else {
+                    console.error('Error: #main-content not found in the fetched HTML.');
+                    loadingScreen.classList.add('tw-hidden');
                 }
-                
-                // Trigger content changed event
-                document.dispatchEvent(new Event('contentChanged'));
-                
-                if (window.innerWidth < 769) {
-                    applyCollapsedState();
-                }
-                
+            })
+            .catch(error => {
+                console.error('Error loading content:', error);
                 loadingScreen.classList.add('tw-hidden');
-            } else {
-                console.error('Error: #main-content not found in the fetched HTML.');
-                loadingScreen.classList.add('tw-hidden');
-            }
-        })
-        .catch(error => {
-            console.error('Error loading content:', error);
-            loadingScreen.classList.add('tw-hidden');
-        });
-}
+            });
+    }
 
         window.addEventListener('popstate', function() {
             const url = location.pathname;

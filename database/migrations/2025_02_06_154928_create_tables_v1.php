@@ -103,6 +103,7 @@ return new class extends Migration
             $table->timestamp('timestamp');
             $table->string('method')->nullable();
             $table->string('status', 50)->default('Pending');
+            $table->string('type'); 
             $table->morphs('payable'); // Adds payable_id and payable_type columns
             $table->timestamps();
         });
