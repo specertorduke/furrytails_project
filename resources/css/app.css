@@ -236,3 +236,16 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
         opacity: 0.9 !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
     }
+
+/* Pet Page Styles */
+.species-filter {
+    @apply tw-bg-gray-100 tw-text-gray-600 tw-transition-all tw-duration-200;
+}
+
+.species-filter:hover {
+    @apply tw-bg-gray-200;
+}
+
+.species-filter.active {
+    @apply tw-bg-[#24CFF4] tw-text-white;
+}

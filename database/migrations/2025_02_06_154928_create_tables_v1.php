@@ -50,9 +50,15 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('species', 50);
             $table->string('petType', 50)->nullable();
+            $table->string('gender', 10);  // Add gender
+            $table->date('birthDate');     // Replace age with birthDate
+            $table->decimal('weight', 5, 2)->nullable(); // Add weight in kg
             $table->string('petImage')->nullable()->default('petImages/default.png');
             $table->text('petNotes')->nullable();
-            $table->tinyInteger('age')->nullable();
+            $table->text('medicalHistory')->nullable(); // Add medical history
+            $table->text('allergies')->nullable();      // Add allergies
+            $table->boolean('isVaccinated')->default(false); // Add vaccination status
+            $table->date('lastVaccinationDate')->nullable(); // Add last vaccination date
             $table->unsignedBigInteger('userID');
             $table->foreign('userID')->references('userID')->on('users')->onDelete('cascade');
             $table->timestamps();

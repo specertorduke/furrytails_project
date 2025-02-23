@@ -15,65 +15,113 @@
             </div>
             <!-- Modal body -->
             <form class="tw-p-4 md:tw-p-5" enctype="multipart/form-data">
-                <div class="tw-grid tw-gap-4 tw-mb-4 tw-grid-cols-2">
-                    <div class="tw-col-span-2">
-                        <label for="pet-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Pet Name</label>
-                        <input type="text" name="pet-name" id="pet-name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
-                    </div>
-                    <div class="tw-col-span-2">
-                        <label for="species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Species</label>
-                        <select id="species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-500 tw-focus:tw-border-primary-500 tw-block tw-w-full tw-p-2.5" required>
-                            <option value="" selected>Select Species</option>
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Rabbit">Rabbit</option>
-                            <option value="Hamster">Hamster</option>
-                            <option value="Guinea Pig">Guinea Pig</option>
-                        </select>
-                    </div>
-                    <div class="tw-col-span-2">
-                        <label for="breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Breed/Type</label>
-                        <input type="text" name="breed" id="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
-                    </div>
-                    <div class="tw-col-span-2">
-                        <label for="age" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Age (in years)</label>
-                        <input type="number" name="age" id="age" min="0" max="30" step="0.1" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
-                    </div>
-                    <div class="tw-col-span-2">
-                        <label for="notes" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Notes</label>
-                        <textarea id="notes" name="notes" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="Any special notes about your pet..."></textarea>
-                    </div>
-                    <div class="tw-col-span-2">
-                        <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Pet Image</label>
-                        <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full">
-                            <!-- Upload Area -->
-                            <label for="pet-image" id="upload-area" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-64 tw-border-2 tw-border-gray-300 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100">
-                                <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-5 tw-pb-6">
-                                    <svg class="tw-w-8 tw-h-8 tw-mb-4 tw-text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                    </svg>
-                                    <p class="tw-mb-2 tw-text-sm tw-text-gray-500"><span class="tw-font-semibold">Click to upload</span> or drag and drop</p>
-                                    <p class="tw-text-xs tw-text-gray-500">PNG, JPG or JPEG</p>
-                                </div>
-                                <input id="pet-image" type="file" class="tw-hidden" accept="image/png, image/jpeg, image/jpg" />
-                            </label>
+                <!-- Name field -->
+                <div class="tw-col-span-2 tw-mb-4">
+                    <label for="pet-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Pet Name</label>
+                    <input type="text" name="pet-name" id="pet-name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                </div>
 
-                            <!-- Cropper Area (Hidden by default) -->
-                            <div id="cropper-area" class="tw-hidden tw-w-full">
-                                <div class="tw-relative tw-w-full tw-aspect-square tw-max-w-md tw-mx-auto tw-overflow-hidden">
-                                    <img id="cropper-image" class="tw-max-w-full">
-                                </div>
-                                <div class="tw-flex tw-justify-end tw-mt-4 tw-space-x-2">
-                                    <button type="button" id="cancel-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-gray-500 hover:tw-text-gray-700">Cancel</button>
-                                    <button type="button" id="apply-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-white tw-bg-blue-500 tw-rounded hover:tw-bg-blue-600">Apply Crop</button>
-                                </div>
-                            </div>
+                <!-- Species and Type fields -->
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label for="species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Species</label>
+                    <select id="species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-500 tw-focus:tw-border-primary-500 tw-block tw-w-full tw-p-2.5" required>
+                        <option value="" selected>Select Species</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                        <option value="Rabbit">Rabbit</option>
+                        <option value="Hamster">Hamster</option>
+                        <option value="Guinea Pig">Guinea Pig</option>
+                    </select>
+                </div>
 
-                            <!-- Preview Area (Hidden by default) -->
-                            <div id="preview-area" class="tw-hidden tw-flex tw-flex-col tw-justify-center tw-mt-4">
-                                <img id="preview-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover">
-                                <button type="button" id="change-image" class="tw-text-sm tw-mt-3 tw-text-blue-500 hover:tw-text-blue-700">Change Image</button>
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label for="breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed/Type</label>
+                    <input type="text" name="breed" id="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                </div>
+
+                <!-- Gender and Birth Date fields -->
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label for="gender" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Gender</label>
+                    <select id="gender" name="gender" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-500 tw-focus:tw-border-primary-500 tw-block tw-w-full tw-p-2.5" required>
+                        <option value="" selected>Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label for="birthDate" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Birth Date</label>
+                    <input type="date" name="birthDate" id="birthDate" max="{{ date('Y-m-d') }}" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                </div>
+
+                <!-- Weight and Vaccination Status -->
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label for="weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Weight (kg)</label>
+                    <input type="number" name="weight" id="weight" step="0.01" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5">
+                </div>
+
+                <div class="tw-col-span-1 tw-mb-4">
+                    <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Vaccination Status</label>
+                    <div class="tw-flex tw-items-center tw-gap-4">
+                        <label class="tw-inline-flex tw-items-center">
+                            <input type="checkbox" name="isVaccinated" id="isVaccinated" class="tw-form-checkbox tw-h-4 tw-w-4 tw-text-primary-600">
+                            <span class="tw-ml-2">Vaccinated</span>
+                        </label>
+                        <input type="date" 
+                            name="lastVaccinationDate" 
+                            id="lastVaccinationDate" 
+                            max="{{ date('Y-m-d') }}" 
+                            class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-flex-1 tw-p-2.5 tw-hidden" 
+                            disabled>            
+                    </div>
+                </div>
+
+                <!-- Medical Information -->
+                <div class="tw-col-span-2 tw-mb-4">
+                    <label for="allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Allergies</label>
+                    <input type="text" name="allergies" id="allergies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="List any known allergies">
+                </div>
+
+                <div class="tw-col-span-2 tw-mb-4">
+                    <label for="medicalHistory" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Medical History</label>
+                    <textarea id="medicalHistory" name="medicalHistory" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="Any relevant medical history..."></textarea>
+                </div>
+
+                <!-- Notes field -->
+                <div class="tw-col-span-2 tw-mb-4">
+                    <label for="notes" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Additional Notes</label>
+                    <textarea id="notes" name="notes" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="Any special notes about your pet..."></textarea>
+                </div>
+                <div class="tw-col-span-2 tw-mb-4">
+                    <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Pet Image</label>
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full">
+                        <!-- Upload Area -->
+                        <label for="pet-image" id="upload-area" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-64 tw-border-2 tw-border-gray-300 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100">
+                            <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-5 tw-pb-6">
+                                <svg class="tw-w-8 tw-h-8 tw-mb-4 tw-text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                </svg>
+                                <p class="tw-mb-2 tw-text-sm tw-text-gray-500"><span class="tw-font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="tw-text-xs tw-text-gray-500">PNG, JPG or JPEG</p>
                             </div>
+                            <input id="pet-image" type="file" class="tw-hidden" accept="image/png, image/jpeg, image/jpg" />
+                        </label>
+
+                        <!-- Cropper Area (Hidden by default) -->
+                        <div id="cropper-area" class="tw-hidden tw-w-full">
+                            <div class="tw-relative tw-w-full tw-aspect-square tw-max-w-md tw-mx-auto tw-overflow-hidden">
+                                <img id="cropper-image" class="tw-max-w-full">
+                            </div>
+                            <div class="tw-flex tw-justify-end tw-mt-4 tw-space-x-2">
+                                <button type="button" id="cancel-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-gray-500 hover:tw-text-gray-700">Cancel</button>
+                                <button type="button" id="apply-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-white tw-bg-blue-500 tw-rounded hover:tw-bg-blue-600">Apply Crop</button>
+                            </div>
+                        </div>
+
+                        <!-- Preview Area (Hidden by default) -->
+                        <div id="preview-area" class="tw-hidden tw-flex tw-flex-col tw-justify-center tw-mt-4">
+                            <img id="preview-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover">
+                            <button type="button" id="change-image" class="tw-text-sm tw-mt-3 tw-text-blue-500 hover:tw-text-blue-700">Change Image</button>
                         </div>
                     </div>
                 </div>
@@ -90,6 +138,22 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const isVaccinatedCheckbox = document.getElementById('isVaccinated');
+    const lastVaccinationDateInput = document.getElementById('lastVaccinationDate');
+
+    if (isVaccinatedCheckbox) {
+        isVaccinatedCheckbox.addEventListener('change', function() {
+            lastVaccinationDateInput.classList.toggle('tw-hidden', !this.checked);
+            lastVaccinationDateInput.disabled = !this.checked;
+            if (this.checked) {
+                lastVaccinationDateInput.required = true;
+            } else {
+                lastVaccinationDateInput.required = false;
+                lastVaccinationDateInput.value = '';
+            }
+        });
+    }
+
     let cropper = null;
     const uploadArea = document.getElementById('upload-area');
     const cropperArea = document.getElementById('cropper-area');
