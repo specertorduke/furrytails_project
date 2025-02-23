@@ -63,7 +63,11 @@
     <div class="row g-4">
         @forelse($pets as $pet)
         <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-            <div class="tw-bg-white tw-rounded-2xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:-tw-translate-y-1">
+            <div class="tw-bg-white tw-rounded-2xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:-tw-translate-y-1 tw-relative tw-group">
+                <button onclick="deletePet({{ $pet->petID }})" 
+                    class="tw-absolute tw-top-3 tw-left-3 tw-z-20 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-all tw-duration-200 tw-bg-red-500 tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-red-600 tw-shadow-md">
+                    <i class="fas fa-trash-alt tw-text-sm"></i>
+                </button>
                 <div class="tw-relative">
                     <img src="{{ asset('storage/' . $pet->petImage) }}" 
                         alt="{{ $pet->name }}" 
@@ -148,6 +152,47 @@
 </div>
 
 <script>
+    window.deletePet = function(petId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send delete request
+                fetch(`/pets/${petId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your pet has been removed.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
+
 function initializePetsPage() {
     // Search and filter functionality
     const searchPet = document.getElementById('searchPet');
