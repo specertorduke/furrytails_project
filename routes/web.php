@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountController;
+
 
 
 Route::get('/login', function () {
@@ -29,12 +31,14 @@ Route::get('/', function () {
 
 //content routes
 Route::middleware('auth')->group(function () {
-    Route::get('/content/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/content', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
     Route::get('/content/pets', [ContentController::class, 'petsContent'])->name('content.pets');
     Route::get('/content/history', [ContentController::class, 'historyContent'])->name('content.history');
     Route::get('/content/account', [ContentController::class, 'accountContent'])->name('content.account');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
+    Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+
 });
 
