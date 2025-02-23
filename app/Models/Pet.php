@@ -10,18 +10,9 @@ class Pet extends Model
 
     protected $primaryKey = 'petID';
 
-    protected $fillable = [
-        'name',
-        'species',
-        'breed',
-        'petImage',
-        'petNotes',
-        'age',
-        'userID',
-        'status',
-    ];
+    protected $fillable = ['name', 'species', 'petType', 'petImage', 'petNotes', 'age', 'userID'];
 
-    public function user()
+    public function owner()
     {
         return $this->belongsTo(User::class, 'userID');
     }

@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     @vite('resources/css/app.css')
@@ -197,10 +202,11 @@
         function loadContent(event, url) {
     event.preventDefault();
     
-    // Show loading screen
     const loadingScreen = document.getElementById('loading-screen');
     loadingScreen.classList.remove('tw-hidden');
     
+    document.dispatchEvent(new Event('contentWillChange'));
+
     history.pushState(null, '', url);
     fetch(url)
         .then(response => response.text())
@@ -208,23 +214,39 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const content = doc.querySelector('#main-content');
+            const scripts = doc.querySelectorAll('script');
             const title = doc.querySelector('title');
+            
             if (content) {
-                setTimeout(() => {  // Add small delay for smoother transition
-                    document.getElementById('main-content').innerHTML = content.innerHTML;
-                    document.dispatchEvent(new Event('contentChanged'));
-                    if (title) {
-                        document.title = title.innerText;
+                document.getElementById('main-content').innerHTML = content.innerHTML;
+                
+                if (title) {
+                    document.title = title.innerText;
+                }
+                updateActiveLink(url);
+                
+                // Execute all scripts from the loaded content
+                scripts.forEach(script => {
+                    if (script.innerHTML) {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = script.innerHTML;
+                        document.body.appendChild(newScript);
                     }
-                    updateActiveLink(url);
-                    if (window.innerWidth < 769) {
-                        applyCollapsedState();
-                    }
+                });
+                
+                // Initialize Flowbite
+                if (typeof initFlowbite === 'function') {
                     initFlowbite();
-                    
-                    // Hide loading screen
-                    loadingScreen.classList.add('tw-hidden');
-                }, 800);  // Adjust timing as needed
+                }
+                
+                // Trigger content changed event
+                document.dispatchEvent(new Event('contentChanged'));
+                
+                if (window.innerWidth < 769) {
+                    applyCollapsedState();
+                }
+                
+                loadingScreen.classList.add('tw-hidden');
             } else {
                 console.error('Error: #main-content not found in the fetched HTML.');
                 loadingScreen.classList.add('tw-hidden');
@@ -375,6 +397,12 @@
     @include('modals.add-pet')
     @include('modals.payment-modal')
 
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    @stack('scripts')
 </body>
 </html>

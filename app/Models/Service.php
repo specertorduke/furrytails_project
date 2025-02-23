@@ -11,11 +11,7 @@ class Service extends Model
 
     protected $primaryKey = 'serviceID';
 
-    protected $fillable = [
-        'serviceType',
-        'price',
-        'description',
-    ];
+    protected $fillable = ['name', 'serviceImage', 'serviceType', 'price', 'description'];
 
     public function appointments()
     {

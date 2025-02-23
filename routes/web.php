@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ManageController;
 
 
 Route::get('/login', function () {
@@ -28,7 +29,7 @@ Route::get('/', function () {
 })->name('home');
 
 //content routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from here
     Route::get('/content/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
@@ -36,5 +37,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/content/history', [ContentController::class, 'historyContent'])->name('content.history');
     Route::get('/content/account', [ContentController::class, 'accountContent'])->name('content.account');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
-});
 
+    Route::get('/manage/fetch-appointments', [ManageController::class, 'fetchAppointments'])->name('manage.appointments');
+    Route::get('/manage/fetch-boardings', [ManageController::class, 'fetchBoardings'])->name('manage.boardings');
+
+    // CRUD routes for appointments
+    Route::get('/appointments/{id}', [ManageController::class, 'showAppointment']);
+    Route::put('/appointments/{id}', [ManageController::class, 'updateAppointment']);
+    Route::delete('/appointments/{id}', [ManageController::class, 'deleteAppointment']);
+    
+    // CRUD routes for boardings
+    Route::get('/boardings/{id}', [ManageController::class, 'showBoarding']);
+    Route::put('/boardings/{id}', [ManageController::class, 'updateBoarding']);
+    Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
+});

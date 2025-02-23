@@ -11,14 +11,8 @@ class Appointment extends Model
 
     protected $primaryKey = 'appointmentID';
 
-    protected $fillable = [
-        'appointmentID',
-        'date',
-        'time',
-        'serviceID',
-        'petID',
-        'status',
-    ];
+    protected $fillable = ['date', 'time', 'serviceID', 'petID', 'status'];
+
 
     public function pet()
     {

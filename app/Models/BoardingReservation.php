@@ -12,15 +12,7 @@ class BoardingReservation extends Model
 
     protected $primaryKey = 'reservationID';
 
-    protected $fillable = [
-        'reservationID',
-        'boardingType',
-        'startDate',
-        'endDate',
-        'serviceID',
-        'petID',
-        'status',
-    ];
+    protected $fillable = ['boardingType', 'startDate', 'endDate', 'petID', 'status'];
 
     public function pet()
     {

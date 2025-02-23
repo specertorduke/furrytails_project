@@ -85,10 +85,8 @@ return new class extends Migration
             $table->string('boardingType');
             $table->date('startDate');
             $table->date('endDate');
-            $table->unsignedBigInteger('serviceID');
             $table->unsignedBigInteger('petID');
             $table->string('status', 50)->default('Pending');
-            $table->foreign('serviceID')->references('serviceID')->on('services')->onDelete('cascade');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
             $table->timestamps();
         });
