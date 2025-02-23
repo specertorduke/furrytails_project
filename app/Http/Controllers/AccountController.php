@@ -8,6 +8,16 @@ use App\Models\User;
 
 class AccountController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        $appointmentsCount = $user->appointments()->count();
+        $boardingsCount = $user->boardingReservations()->count();
+        $petsCount = $user->pets()->count();
+
+        return view('content.account', compact('appointmentsCount', 'boardingsCount', 'petsCount'));
+    }
+
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -23,6 +33,7 @@ class AccountController extends Controller
             'email'     => 'required|string|email|max:255|unique:users,email,' . $user->userID . ',userID',
             'phone'     => 'nullable|string|max:255',
             'password'  => 'nullable|string|min:8|confirmed',
+            'profile_image' => 'nullable|image|max:2048'
         ]);
 
         
