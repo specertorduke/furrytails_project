@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ManageController;
 
 
@@ -37,6 +38,8 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
     Route::get('/content/history', [ContentController::class, 'historyContent'])->name('content.history');
     Route::get('/content/account', [ContentController::class, 'accountContent'])->name('content.account');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
+    Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+
 
     Route::get('/manage/fetch-appointments', [ManageController::class, 'fetchAppointments'])->name('manage.appointments');
     Route::get('/manage/fetch-boardings', [ManageController::class, 'fetchBoardings'])->name('manage.boardings');
