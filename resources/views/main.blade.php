@@ -40,6 +40,20 @@
         #sidebar.collapsed .tw-flex-col h1, #sidebar.collapsed .tw-flex-col p {
             display: none;
         }
+        #sidebar.collapsed #logo {
+            justify-content: center;
+            margin-left: 0 !important;
+            padding: 0.5rem 0;
+        }
+
+        #sidebar.collapsed #logo img {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        #sidebar.collapsed #logo .tw-flex-col {
+            display: none;
+        }
         #main-content.collapsed {
             margin-left: 64px !important;
         }
@@ -85,6 +99,20 @@
             }
             .d-md-none {
                 display: block !important;
+            }
+            #sidebar.collapsed #logo {
+                padding: 0.5rem 0;
+                margin-left: 0 !important;
+            }
+
+            #sidebar.collapsed #logo img {
+                width: 2.5rem;
+                height: 2.5rem;
+                margin: 0 auto;
+            }
+
+            #sidebar.collapsed #logo .tw-flex-col {
+                display: none;
             }
         }
 
@@ -328,6 +356,9 @@
             // Save the current state in localStorage
             const state = isHidden ? 'show' : (!isCollapsed ? 'collapsed' : 'hidden');
             localStorage.setItem('sidebarState', state);
+
+            document.dispatchEvent(new Event('sidebarStateChanged'));
+            updateLoadingScreenPosition();
         }
 
         // Update the handleResize function
