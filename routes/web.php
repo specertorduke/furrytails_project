@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\AdminUsersController;
 use App\Http\Controllers\Admin\AdminAppointmentsController;
 use App\Http\Controllers\Admin\AdminBoardingsController;
 use App\Http\Controllers\Admin\AdminServicesController;
-use App\Http\Controllers\Admin\AdminReportsController;
+use App\Http\Controllers\Admin\AdminPaymentsController;
 use App\Http\Controllers\Admin\AdminController;
 
 Route::get('/login', function () { return view('login'); })->name('login');
@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    // Dashboard routes
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Users routes
@@ -90,8 +91,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
 
-    // Reports and logout
-    Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
-
+    // Payments
+    Route::get('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'index'])->name('admin.payments');
+    Route::get('/payments/data', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'getPaymentsData'])->name('admin.payments.data');
+    Route::get('/payments/{id}', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'show'])->name('admin.payments.show');
+    Route::put('/payments/{id}', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'update'])->name('admin.payments.update');
+    Route::post('/payments/{id}/refund', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'markAsRefunded'])->name('admin.payments.refund');
+    Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
 });

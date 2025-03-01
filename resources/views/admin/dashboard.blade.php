@@ -93,7 +93,7 @@
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add Boarding</span>
         </a>
-        <a href="{{ route('admin.reports') }}" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-purple-500/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-chart-line tw-text-purple-500"></i>
             </div>

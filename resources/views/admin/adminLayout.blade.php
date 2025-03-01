@@ -214,15 +214,20 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.reports') }}" onclick="loadContent(event, '{{ route('admin.reports') }}')">
-                            <i class="fas fa-chart-bar nav-i tw-mr-2"></i> <span>Reports</span>
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.payments') }}" onclick="loadContent(event, '{{ route('admin.payments') }}')">
+                            <i class="fas fa-credit-card nav-i tw-mr-2"></i> <span>Payments</span>
                         </a>
                     </li>
-                    <!-- <li>
-                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.settings') }}" onclick="loadContent(event, '{{ route('admin.settings') }}')">
-                            <i class="fas fa-cog nav-i tw-mr-2"></i> <span>Settings</span>
+                    <li>
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="#" onclick="loadContent(event, '#')">
+                            <i class="fas fa-clipboard-list nav-i tw-mr-2"></i> <span>Logs</span>
                         </a>
-                    </li> -->
+                    </li>
+                    <li>
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="#" onclick="loadContent(event, '#')">
+                            <i class="fas fa-user-cog nav-i tw-mr-2"></i> <span>Account</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>

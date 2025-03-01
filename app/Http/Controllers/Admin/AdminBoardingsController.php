@@ -11,7 +11,7 @@ class AdminBoardingsController extends Controller {
     {
         // Calculate all the stats needed for cards
         $totalBoardings = Boarding::count();
-        z
+        
         $activeBoardings = Boarding::where('start_date', '<=', now()->format('Y-m-d'))
             ->where('end_date', '>=', now()->format('Y-m-d'))
             ->where('status', 'Active')

@@ -299,7 +299,7 @@ class DatabaseSeeder extends Seeder
                 'reference_number' => 'BT-BRD1-001',
                 'status' => 'Completed',
                 'payable_id' => 1,
-                'payable_type' => 'App\Models\BoardingReservation', // Fixed the model name
+                'payable_type' => 'App\Models\Boarding', // Fixed the model name
                 'userID' => 1,
                 'created_at' => now()->subDays(7),
                 'updated_at' => now()->subDays(7),
@@ -310,7 +310,7 @@ class DatabaseSeeder extends Seeder
                 'reference_number' => null, // No reference yet since it's pending
                 'status' => 'Pending',
                 'payable_id' => 1,
-                'payable_type' => 'App\Models\BoardingReservation', // Fixed the model name
+                'payable_type' => 'App\Models\Boarding', // Fixed the model name
                 'userID' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
