@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Appointment;
-use App\Models\BoardingReservation;
+use App\Models\Boarding;
 
 class AdminController extends Controller
 {
@@ -53,7 +53,7 @@ class AdminController extends Controller
 
     public function getOngoingBoardingsData()
     {
-        $activeBoardings = BoardingReservation::with(['pet', 'pet.user'])
+        $activeBoardings = Boarding::with(['pet', 'pet.user'])
             ->where('start_date', '<=', now()->format('Y-m-d'))
             ->where('end_date', '>=', now()->format('Y-m-d'))
             ->where('status', 'Active')

@@ -41,7 +41,7 @@
     }
     
     #sidebar .nav-link.active {
-        background-color: #24CFF4;
+        background-color: #27b5d4;
         color: #ffffff;
     }
     
@@ -179,7 +179,7 @@
     <!-- Sidebar -->
     <div id="sidebar" class="tw-w-64 tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-screen tw-transition-all tw-duration-300 tw-ease-in-out">
         <div>
-            <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b" id="logo">
+            <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b tw-border-gray-500" id="logo">
                 <img src="{{ asset('images/business-logo/logo-square.png') }}" alt="Admin Logo" class="tw-w-12 tw-h-12">
                 <div class="tw-flex tw-flex-col tw-items-start tw-ml-1">
                     <h1 class="tw-text-[1.25rem] tw-leading-[1.25rem] tw-font-bold tw-m-0 tw-text-white">Admin Panel</h1>
@@ -238,7 +238,7 @@
 
     <!-- Main Content -->
     <div id="main-content" class="admin-section tw-flex-1 tw-h-screen tw-ml-[16rem] tw-overflow-y-auto font-poppins tw-relative">
-        @include('components.loading')
+        @include('components.loading-admin')
         <div id="header" class="tw-flex tw-justify-between tw-items-center tw-p-4 tw-bg-gray-800 tw-shadow-md d-md-none">
             <button class="tw-text-white tw-text-2xl" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>

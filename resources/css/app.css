@@ -22,14 +22,13 @@
     color: white;
 }
 
-
 /* Nav Styles */
 .nav-link {
     transition: all 0.3s ease;
 }
 .nav-link:hover {
     background-color: #a3f1fe;
-    color: #065881 !important;
+    color: #689cb6 !important;
 }
 .nav-link.active {
     background-color: #24CFF4;

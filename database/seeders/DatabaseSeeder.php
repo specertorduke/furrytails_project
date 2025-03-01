@@ -10,69 +10,73 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // SERVICES
+       // SERVICES
         DB::table('services')->insert([
-            // Appointment Services
+            // Grooming Services
             [
                 'name' => 'Basic Grooming',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Grooming',
                 'price' => 500.00,
                 'description' => 'Includes bath and brush, nail trimming, and ear cleaning.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Full Grooming',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Grooming',
                 'price' => 1500.00,
                 'description' => 'Complete package including haircut and styling, de-shedding treatment, and teeth brushing.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Spa Package',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Grooming',
                 'price' => 2000.00,
                 'description' => 'Luxury treatment including aromatherapy bath, paw massage, and blueberry facial.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Specialty Grooming',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Grooming',
                 'price' => 2500.00,
                 'description' => 'Specialized service including breed-specific cuts, flea and tick treatment, and medicated baths.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            
+            // Training Services
             [
-                'name' => 'Pet Training',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'name' => 'Basic Obedience Training',
+                'category' => 'Training',
                 'price' => 1500.00,
-                'description' => 'Training services including basic obedience, behavioral correction, and socialization.',
+                'description' => 'Training services including basic obedience commands, sit, stay, come, and leash training.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            
+            // Veterinary Services
             [
                 'name' => 'Health Checkup',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Veterinary',
                 'price' => 250.00,
                 'description' => 'Basic wellness examination for your pet.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Nutritional Counseling',
-                'serviceImage' => null,
-                'serviceType' => 'Appointment',
+                'category' => 'Veterinary',
                 'price' => 350.00,
                 'description' => 'Professional consultation for creating custom diet plans for your pet.',
+                'isActive' => false,  // Example of an inactive service
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -80,28 +84,28 @@ class DatabaseSeeder extends Seeder
             // Boarding Services
             [
                 'name' => 'Overnight Boarding',
-                'serviceImage' => null,
-                'serviceType' => 'Boarding',
+                'category' => 'Boarding',
                 'price' => 500.00,
                 'description' => 'Overnight stay including cozy sleeping areas, regular feeding and walks, and playtime.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Daycare',
-                'serviceImage' => null,
-                'serviceType' => 'Boarding',
+                'category' => 'Boarding',
                 'price' => 250.00,
                 'description' => 'Day stay including supervised playgroups and nap times. Half-day or full-day options.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Extended Boarding',
-                'serviceImage' => null,
-                'serviceType' => 'Boarding',
-                'price' => 500.00,
+                'category' => 'Boarding',
+                'price' => 3000.00,
                 'description' => 'Long-term boarding with overnight amenities plus additional activities. Special care for extended stays.',
+                'isActive' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -253,66 +257,61 @@ class DatabaseSeeder extends Seeder
         DB::table('payments')->insert([
             // Appointment 1 payments (downpayment + balance)
             [
-                'paymentID' => 1,
                 'amount' => 250.00, // 50% downpayment
-                'timestamp' => now()->subDays(5),
-                'method' => 'Cash',
+                'payment_method' => 'Cash',
+                'reference_number' => 'DP-APT1-001',
                 'status' => 'Completed',
-                'type' => 'downpayment',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Appointment',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'userID' => 1,
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(5),
             ],
             [
-                'paymentID' => 2,
                 'amount' => 250.00, // remaining balance
-                'timestamp' => now()->subDays(1),
-                'method' => 'GCash',
+                'payment_method' => 'GCash',
+                'reference_number' => 'GC-APT1-002',
                 'status' => 'Completed',
-                'type' => 'balance',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Appointment',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'userID' => 1,
+                'created_at' => now()->subDays(1),
+                'updated_at' => now()->subDays(1),
             ],
 
             // Appointment 2 payment (full payment)
             [
-                'paymentID' => 3,
                 'amount' => 1500.00,
-                'timestamp' => now()->subDays(2),
-                'method' => 'Credit Card',
+                'payment_method' => 'Credit Card',
+                'reference_number' => 'CC-APT2-001',
                 'status' => 'Completed',
-                'type' => 'full',
                 'payable_id' => 2,
                 'payable_type' => 'App\Models\Appointment',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'userID' => 1,
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
             ],
 
             // Boarding 1 payments (downpayment only, balance pending)
             [
-                'paymentID' => 4,
                 'amount' => 1000.00, // 50% downpayment
-                'timestamp' => now()->subDays(7),
-                'method' => 'Bank Transfer',
+                'payment_method' => 'Bank Transfer',
+                'reference_number' => 'BT-BRD1-001',
                 'status' => 'Completed',
-                'type' => 'downpayment',
                 'payable_id' => 1,
-                'payable_type' => 'App\Models\BoardingReservation',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'payable_type' => 'App\Models\BoardingReservation', // Fixed the model name
+                'userID' => 1,
+                'created_at' => now()->subDays(7),
+                'updated_at' => now()->subDays(7),
             ],
             [
-                'paymentID' => 5,
                 'amount' => 1000.00, // remaining balance
-                'timestamp' => now(),
-                'method' => 'Cash',
+                'payment_method' => 'Cash',
+                'reference_number' => null, // No reference yet since it's pending
                 'status' => 'Pending',
-                'type' => 'balance',
                 'payable_id' => 1,
-                'payable_type' => 'App\Models\BoardingReservation',
+                'payable_type' => 'App\Models\BoardingReservation', // Fixed the model name
+                'userID' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

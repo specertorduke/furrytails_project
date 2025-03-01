@@ -70,17 +70,22 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Appointments routes
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
+    Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])->name('admin.upcoming-appointments.data');
+    Route::get('/appointments/data', [AdminAppointmentsController::class, 'getAppointmentsData'])->name('admin.appointments.data');
+    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment']);
     
     // Boardings routes
     Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
+    Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('admin.ongoing-boardings.data');
+    Route::get('boardings/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('boardings.ongoing-boardings.data');
+    Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
+    Route::post('/boardings/{id}/cancel', [AdminBoardingsController::class, 'cancelBoarding']);
 
-    Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])
-        ->name('admin.upcoming-appointments.data');
-    Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])
-        ->name('admin.ongoing-boardings.data');
-        
     // Services routes
     Route::get('/services', [AdminServicesController::class, 'index'])->name('admin.services');
+    Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
+    Route::post('/services/{id}/toggle-status', [AdminServicesController::class, 'toggleStatus'])->name('admin.services.toggle-status');
+    Route::delete('/services/{id}', [AdminServicesController::class, 'destroy'])->name('admin.services.destroy');
     
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');

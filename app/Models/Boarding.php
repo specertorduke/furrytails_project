@@ -1,14 +1,18 @@
 <?php
 
-// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Models/BoardingReservation.php
+// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Models/Boarding.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
+use Illuminate\Notifications\Notifiable;
 
-class BoardingReservation extends Model
+class Boarding extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable, LogsActivity;
+
+    protected $table = 'boarding_reservations';
 
     protected $primaryKey = 'boardingID';
 

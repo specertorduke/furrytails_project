@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Traits\LogsActivity;
+use Illuminate\Notifications\Notifiable;
 
 class Pet extends Model
 {
+    use HasFactory, Notifiable, LogsActivity;
+
     protected $primaryKey = 'petID';
     
     protected $fillable = [

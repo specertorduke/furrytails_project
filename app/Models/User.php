@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
 
     protected $primaryKey = 'userID';
 
@@ -51,7 +52,7 @@ class User extends Authenticatable
     public function boardingReservations()
     {
         return $this->hasManyThrough(
-            BoardingReservation::class,
+            Boarding::class,
             Pet::class,
             'userID', // Foreign key on pets table
             'petID',  // Foreign key on boarding_reservations table

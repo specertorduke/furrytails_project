@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Appointment;
-use App\Models\BoardingReservation;
+use App\Models\Boarding;
 use App\Models\Payment;
 use Carbon\Carbon;
 
@@ -32,7 +32,7 @@ class HistoryController extends Controller
                     'payments' => $appointment->payments->map(function($payment) {
                         return [
                             'amount' => $payment->amount,
-                            'method' => $payment->method,
+                            'payment_method' => $payment->payment_method,
                             'status' => $payment->status,
                             'timestamp' => $payment->timestamp,
                             'type' => $payment->type // e.g., 'downpayment', 'full', 'balance'
@@ -57,7 +57,7 @@ class HistoryController extends Controller
                     'payments' => $boarding->payments->map(function($payment) {
                         return [
                             'amount' => $payment->amount,
-                            'method' => $payment->method,
+                            'payment_method' => $payment->payment_method,
                             'status' => $payment->status,
                             'timestamp' => $payment->timestamp,
                             'type' => $payment->type // e.g., 'downpayment', 'full', 'balance'

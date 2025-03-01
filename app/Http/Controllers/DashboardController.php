@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Pet;
 use App\Models\Appointment;
-use App\Models\BoardingReservation;
+use App\Models\Boarding;
 
 class DashboardController extends Controller
 {
@@ -22,7 +22,7 @@ class DashboardController extends Controller
           ->get();
 
         // Fetch upcoming boarding reservations that belong to the authenticated user's pets
-        $boardingReservations = BoardingReservation::whereHas('pet', function ($query) {
+        $boardingReservations = Boarding::whereHas('pet', function ($query) {
             $query->where('userID', Auth::id());
         })->where('start_date', '>=', now())
           ->orderBy('start_date', 'asc')

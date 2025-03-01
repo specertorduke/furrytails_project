@@ -68,10 +68,11 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id('serviceID');
             $table->string('name', 100);
-            $table->binary('serviceImage')->nullable();
-            $table->string('serviceType', 50);
+            $table->string('serviceImage')->nullable()->default('serviceImages/default.png');  // Changed from binary to string
+            $table->string('category', 50);  // Changed from serviceType to category
             $table->decimal('price', 10, 2);
-            $table->text('description');
+            $table->text('description')->nullable();  // Made nullable
+            $table->boolean('isActive')->default(true);  // Added isActive field
             $table->timestamps();
         });
 
@@ -98,16 +99,55 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Schema::create('payments', function (Blueprint $table) {
+        //     $table->id('paymentID');
+        //     $table->decimal('amount', 10, 2);
+        //     $table->timestamp('timestamp');
+        //     $table->string('method')->nullable();
+        //     $table->string('status', 50)->default('Pending');
+        //     $table->string('type'); 
+        //     $table->morphs('payable'); // Adds payable_id and payable_type columns
+        //     $table->timestamps();
+        // });
+
         Schema::create('payments', function (Blueprint $table) {
             $table->id('paymentID');
             $table->decimal('amount', 10, 2);
-            $table->timestamp('timestamp');
-            $table->string('method')->nullable();
-            $table->string('status', 50)->default('Pending');
-            $table->string('type'); 
-            $table->morphs('payable'); // Adds payable_id and payable_type columns
-            $table->timestamps();
+            $table->enum('payment_method', ['Cash', 'Credit Card', 'Debit Card', 'PayPal', 'GCash', 'Bank Transfer', 'Other'])
+                  ->default('Cash');
+            $table->string('reference_number')->nullable(); // Transaction ID, receipt number, etc.
+            $table->enum('status', ['Pending', 'Completed', 'Failed', 'Refunded'])
+                  ->default('Pending');
+            
+            // Polymorphic relationship - to connect with appointments or boardings
+            $table->morphs('payable');
+            
+            // Track who made the payment
+            $table->unsignedBigInteger('userID');
+            $table->foreign('userID')->references('userID')->on('users')->onDelete('cascade');
+            
+            $table->timestamps(); // Already gives you created_at which works as the payment timestamp
         });
+
+        Schema::create('activity_logs', function (Blueprint $table) {
+            $table->id('logID');
+            $table->string('table_name');      // The table being modified
+            $table->unsignedBigInteger('record_id'); // ID of the record being changed
+            $table->string('action');          // 'create', 'update', 'delete'
+            $table->text('old_values')->nullable(); // JSON of old values (for updates/deletes)
+            $table->text('new_values')->nullable(); // JSON of new values (for creates/updates)
+            $table->unsignedBigInteger('userID')->nullable(); // User who made the change
+            $table->string('ip_address')->nullable(); // IP address of user
+            $table->string('user_agent')->nullable(); // Browser/app info
+            $table->timestamps();
+            
+            // Indexes for faster searching
+            $table->index(['table_name', 'record_id']);
+            $table->index('created_at');
+            
+            // Foreign key for user
+            $table->foreign('userID')->references('userID')->on('users')->onDelete('set null');
+        });        
     }
 
     /**
@@ -122,5 +162,6 @@ return new class extends Migration
         Schema::dropIfExists('pets');
         Schema::dropIfExists('users');
         Schema::dropIfExists('employees');
+        Schema::dropIfExists('activity_logs');
     }
 };

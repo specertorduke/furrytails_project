@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Appointment;
-use App\Models\BoardingReservation;
+use App\Models\Boarding;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -39,7 +39,7 @@ class ManageController extends Controller
     public function fetchBoardings()
     {
         try {
-            $boardings = BoardingReservation::with('pet')
+            $boardings = Boarding::with('pet')
                 ->whereHas('pet', function($query) {
                     $query->where('userID', Auth::id());
                 })
@@ -85,20 +85,20 @@ class ManageController extends Controller
 
     public function showBoarding($id)
     {
-        $boarding = BoardingReservation::with(['pet', 'service'])->findOrFail($id);
+        $boarding = Boarding::with(['pet', 'service'])->findOrFail($id);
         return response()->json($boarding);
     }
 
     public function updateBoarding(Request $request, $id)
     {
-        $boarding = BoardingReservation::findOrFail($id);
+        $boarding = Boarding::findOrFail($id);
         $boarding->update($request->all());
         return response()->json(['success' => true]);
     }
 
     public function deleteBoarding($id)
     {
-        $boarding = BoardingReservation::findOrFail($id);
+        $boarding = Boarding::findOrFail($id);
         $boarding->delete();
         return response()->json(['success' => true]);
     }

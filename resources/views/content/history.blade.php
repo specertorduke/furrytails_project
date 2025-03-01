@@ -120,7 +120,7 @@
                                 <i class="fas fa-money-bill-wave tw-mr-2"></i>
                                 {{ ucfirst($payment['type']) }}: ₱{{ number_format($payment['amount'], 2) }}
                                 <span class="tw-text-xs tw-text-gray-500">
-                                    ({{ $payment['method'] }} - {{ \Carbon\Carbon::parse($payment['timestamp'])->format('M d, Y h:i A') }})
+                                    ({{ $payment['payment_method'] }} - {{ \Carbon\Carbon::parse($payment['timestamp'])->format('M d, Y h:i A') }})
                                 </span>
                             </p>
                         @endforeach

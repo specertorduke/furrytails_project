@@ -575,7 +575,7 @@ window.DashboardPage = window.DashboardPage || {
                 </div>
             `);
         });
-}
+    }
 };
 
 // Initialize when page loads

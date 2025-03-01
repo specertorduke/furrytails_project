@@ -9,7 +9,7 @@ class AdminDashboardController extends AdminController
         $stats = [
             'users_count' => \App\Models\User::count(),
             'appointments_count' => \App\Models\Appointment::count(),
-            'boardings_count' => \App\Models\BoardingReservation::count(),
+            'boardings_count' => \App\Models\Boarding::count(),
             'services_count' => \App\Models\Service::count(),
         ];
 

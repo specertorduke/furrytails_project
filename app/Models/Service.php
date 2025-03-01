@@ -4,17 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use App\Traits\LogsActivity;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable, LogsActivity;
 
     protected $primaryKey = 'serviceID';
 
-    protected $fillable = ['name', 'serviceImage', 'serviceType', 'price', 'description'];
+    protected $fillable = [
+        'name',
+        'description',
+        'category',
+        'price',
+        'serviceImage',
+        'isActive',
+    ];
 
-    public function appointments()
-    {
-        return $this->hasMany(Appointment::class, 'serviceID');
-    }
+    protected $casts = [
+        'price' => 'float',
+        'isActive' => 'boolean',
+    ];
 }
