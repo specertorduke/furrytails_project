@@ -146,35 +146,36 @@
             this.destroyTables();
             
             // Restore table headers
-    $('#appointmentsTable').html(`
-        <thead>
-            <tr class="tw-border-b">
-                <th class="tw-p-2 tw-text-left">ID</th>
-                <th class="tw-p-2 tw-text-left">Pet Name</th>
-                <th class="tw-p-2 tw-text-left">Date</th>
-                <th class="tw-p-2 tw-text-left">Time</th>
-                <th class="tw-p-2 tw-text-left">Service</th>
-                <th class="tw-p-2 tw-text-left">Status</th>
-                <th class="tw-p-2 tw-text-left">Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `);
+            $('#appointmentsTable').html(`
+                <thead>
+                    <tr class="tw-border-b">
+                        <th class="tw-p-2 tw-text-left">ID</th>
+                        <th class="tw-p-2 tw-text-left">Pet Name</th>
+                        <th class="tw-p-2 tw-text-left">Date</th>
+                        <th class="tw-p-2 tw-text-left">Time</th>
+                        <th class="tw-p-2 tw-text-left">Service</th>
+                        <th class="tw-p-2 tw-text-left">Status</th>
+                        <th class="tw-p-2 tw-text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `);
 
-    $('#boardingsTable').html(`
-        <thead>
-            <tr class="tw-border-b">
-                <th class="tw-p-2 tw-text-left">ID</th>
-                <th class="tw-p-2 tw-text-left">Boarding Tier</th>
-                <th class="tw-p-2 tw-text-left">Pet Name</th>
-                <th class="tw-p-2 tw-text-left">Start Date</th>
-                <th class="tw-p-2 tw-text-left">End Date</th>
-                <th class="tw-p-2 tw-text-left">Status</th>
-                <th class="tw-p-2 tw-text-left">Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `);
+            $('#boardingsTable').html(`
+                <thead>
+                    <tr class="tw-border-b">
+                        <th class="tw-p-2 tw-text-left">ID</th>
+                        <th class="tw-p-2 tw-text-left">Boarding Tier</th>
+                        <th class="tw-p-2 tw-text-left">Pet Name</th>
+                        <th class="tw-p-2 tw-text-left">Start Date</th>
+                        <th class="tw-p-2 tw-text-left">End Date</th>
+                        <th class="tw-p-2 tw-text-left">Status</th>
+                        <th class="tw-p-2 tw-text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `);
+            
             const commonConfig = {
                 serverSide: false,
                 autoWidth: false,
@@ -216,8 +217,8 @@
                         width: '15%',
                         render: function(data) {
                             let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
-                                           data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
-                                           'tw-bg-red-100 tw-text-red-800';
+                                        data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
+                                        'tw-bg-red-100 tw-text-red-800';
                             return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                         }
                     },
@@ -264,11 +265,11 @@
                     }
                 },
                 columns: [
-                    { data: 'reservationID', width: '5%' },
+                    { data: 'boardingID', width: '5%' },
                     { data: 'boardingType', width: '15%' },
                     { data: 'pet.name', width: '15%' },
-                    { data: 'startDate', width: '15%' },
-                    { data: 'endDate', width: '15%' },
+                    { data: 'start_date', width: '15%' },
+                    { data: 'end_date', width: '15%' },
                     { 
                         data: 'status',
                         width: '15%',
@@ -284,15 +285,15 @@
                         render: function(data) {
                             return `
                                 <div class="tw-flex tw-gap-2 tw-justify-center">
-                                    <button onclick="ManagePage.viewBoarding(${data.reservationID})" 
+                                    <button onclick="ManagePage.viewBoarding(${data.boardingID})" 
                                             class="tw-text-blue-500 hover:tw-text-blue-700">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button onclick="ManagePage.editBoarding(${data.reservationID})" 
+                                    <button onclick="ManagePage.editBoarding(${data.boardingID})" 
                                             class="tw-text-yellow-500 hover:tw-text-yellow-700">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="ManagePage.deleteBoarding(${data.reservationID})" 
+                                    <button onclick="ManagePage.deleteBoarding(${data.boardingID})" 
                                             class="tw-text-red-500 hover:tw-text-red-700">
                                         <i class="fas fa-trash"></i>
                                     </button>

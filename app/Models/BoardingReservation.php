@@ -10,9 +10,9 @@ class BoardingReservation extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'reservationID';
+    protected $primaryKey = 'boardingID';
 
-    protected $fillable = ['boardingType', 'startDate', 'endDate', 'petID', 'status'];
+    protected $fillable = ['boardingType', 'start_date', 'end_date', 'petID', 'status'];
 
     public function pet()
     {

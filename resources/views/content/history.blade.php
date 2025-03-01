@@ -64,7 +64,7 @@
             @php
                 $itemDate = $item->type === 'appointment' ? 
                     Carbon\Carbon::parse($item->date) : 
-                    Carbon\Carbon::parse($item->startDate);
+                    Carbon\Carbon::parse($item->start_date);
                 $monthYear = $itemDate->format('F Y');
             @endphp
 
@@ -110,8 +110,8 @@
                         @else
                             <p class="tw-text-sm tw-text-gray-600">
                                 <i class="far fa-calendar-alt tw-mr-2"></i>
-                                {{ \Carbon\Carbon::parse($item->startDate)->format('M d, Y') }} - 
-                                {{ \Carbon\Carbon::parse($item->endDate)->format('M d, Y') }}
+                                {{ \Carbon\Carbon::parse($item->start_date)->format('M d, Y') }} - 
+                                {{ \Carbon\Carbon::parse($item->end_date)->format('M d, Y') }}
                             </p>
                         @endif
                         

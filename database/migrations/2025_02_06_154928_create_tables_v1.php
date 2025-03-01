@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('userImage')->nullable()->default('userImages/default.png');
             $table->string('username')->unique();
+            $table->enum('role', ['user', 'admin'])->default('user');
             $table->string('phone');
             $table->string('password');
             $table->rememberToken();
@@ -87,13 +88,13 @@ return new class extends Migration
         });
 
         Schema::create('boarding_reservations', function (Blueprint $table) {
-            $table->id('reservationID');
-            $table->string('boardingType');
-            $table->date('startDate');
-            $table->date('endDate');
+            $table->id('boardingID');
             $table->unsignedBigInteger('petID');
-            $table->string('status', 50)->default('Pending');
+            $table->string('boardingType');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('status', ['Pending','Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
             $table->timestamps();
         });
 

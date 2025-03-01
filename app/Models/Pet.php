@@ -50,4 +50,9 @@ class Pet extends Model
             return $months . ($months == 1 ? ' month' : ' months');
         }
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userID');
+    }
 }

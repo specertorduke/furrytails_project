@@ -63,27 +63,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const boardingModal = document.getElementById('addBoarding-modal');
     const boardingTierSelect = document.getElementById('boarding-tier');
     const dateFields = document.getElementById('date-fields');
-    const startDate = document.getElementById('start-date');
-    const endDate = document.getElementById('end-date');
+    const start_date = document.getElementById('start-date');
+    const end_date = document.getElementById('end-date');
     const form = boardingModal.querySelector('form');
 
     // Reset date fields on page load
     dateFields.classList.add('tw-hidden');
-    startDate.removeAttribute('required');
-    endDate.removeAttribute('required');
+    start_date.removeAttribute('required');
+    end_date.removeAttribute('required');
 
     // Handle boarding tier changes
     boardingTierSelect.addEventListener('change', function() {
         if (this.value === 'long-term') {
             dateFields.classList.remove('tw-hidden');
-            startDate.setAttribute('required', '');
-            endDate.setAttribute('required', '');
+            start_date.setAttribute('required', '');
+            end_date.setAttribute('required', '');
         } else {
             dateFields.classList.add('tw-hidden');
-            startDate.removeAttribute('required');
-            endDate.removeAttribute('required');
-            startDate.value = '';
-            endDate.value = '';
+            start_date.removeAttribute('required');
+            end_date.removeAttribute('required');
+            start_date.value = '';
+            end_date.value = '';
         }
     });
 
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Additional validation for long-term boarding
-        if (tier === 'long-term' && (!startDate.value || !endDate.value)) {
+        if (tier === 'long-term' && (!start_date.value || !end_date.value)) {
             Swal.fire({
                 title: 'Missing Dates',
                 text: 'Please select both start and end dates',
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (boardingDetails) {
                         let details = `Pet: ${petName}\nTier: ${tier}`;
                         if (tier === 'long-term') {
-                            details += `\nStart Date: ${startDate.value}\nEnd Date: ${endDate.value}`;
+                            details += `\nStart Date: ${start_date.value}\nEnd Date: ${end_date.value}`;
                         }
                         boardingDetails.value = details;
                     }

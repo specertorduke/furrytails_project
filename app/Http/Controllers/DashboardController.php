@@ -24,8 +24,8 @@ class DashboardController extends Controller
         // Fetch upcoming boarding reservations that belong to the authenticated user's pets
         $boardingReservations = BoardingReservation::whereHas('pet', function ($query) {
             $query->where('userID', Auth::id());
-        })->where('startDate', '>=', now())
-          ->orderBy('startDate', 'asc')
+        })->where('start_date', '>=', now())
+          ->orderBy('start_date', 'asc')
           ->get();
 
         return view('content.dashboard', compact('appointments', 'boardingReservations', 'pets'));

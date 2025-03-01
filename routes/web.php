@@ -10,7 +10,13 @@ use App\Http\Controllers\ManageController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\HistoryController;
 
-
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUsersController;
+use App\Http\Controllers\Admin\AdminAppointmentsController;
+use App\Http\Controllers\Admin\AdminBoardingsController;
+use App\Http\Controllers\Admin\AdminServicesController;
+use App\Http\Controllers\Admin\AdminReportsController;
+use App\Http\Controllers\Admin\AdminController;
 
 Route::get('/login', function () { return view('login'); })->name('login');
 Route::post('/login', [LoginController::class, 'login' ])->name('login.submit');
@@ -26,7 +32,7 @@ Route::get('/', function () { return view('home'); })->name('home');
 
 //content routes
 Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from here
-    Route::get('/content/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/content', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
     Route::get('/content/pets', [PetController::class, 'index'])->name('content.pets');
@@ -52,4 +58,35 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
     Route::get('/boardings/{id}', [ManageController::class, 'showBoarding']);
     Route::put('/boardings/{id}', [ManageController::class, 'updateBoarding']);
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
+});
+
+// Admin Routes
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Users routes
+    Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
+    Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
+
+    // Appointments routes
+    Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
+    
+    // Boardings routes
+    Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
+
+    Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])
+        ->name('admin.upcoming-appointments.data');
+    Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])
+        ->name('admin.ongoing-boardings.data');
+        
+    // Services routes
+    Route::get('/services', [AdminServicesController::class, 'index'])->name('admin.services');
+    
+    // Settings
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+
+    // Reports and logout
+    Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+
 });

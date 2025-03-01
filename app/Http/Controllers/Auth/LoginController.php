@@ -25,6 +25,12 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, true)) {
             // Authentication passed...
             $request->session()->regenerate();
+            
+            // Check if user is admin and redirect accordingly
+            if (Auth::user()->isAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+            
             return redirect()->intended(route('dashboard'));
         }
 
@@ -41,6 +47,13 @@ class LoginController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->intended(route('login'));
+        // Redirect to login page regardless of user type
+        return redirect()->route('login');
+    }
+
+    // Add method to check if user is admin
+    protected function isAdmin()
+    {
+        return Auth::check() && Auth::user()->role === 'admin';
     }
 }

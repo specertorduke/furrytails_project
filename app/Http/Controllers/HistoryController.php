@@ -52,8 +52,8 @@ class HistoryController extends Controller
                     'serviceName' => $boarding->boardingType . ' Boarding',
                     'petName' => $boarding->pet->name,
                     'status' => $boarding->status,
-                    'startDate' => $boarding->startDate,
-                    'endDate' => $boarding->endDate,
+                    'start_date' => $boarding->start_date,
+                    'end_date' => $boarding->end_date,
                     'payments' => $boarding->payments->map(function($payment) {
                         return [
                             'amount' => $payment->amount,
@@ -70,7 +70,7 @@ class HistoryController extends Controller
         $history = $appointments->concat($boardings)->sortByDesc(function($item) {
                 return $item->type === 'appointment' 
                     ? $item->date 
-                    : $item->startDate;
+                    : $item->start_date;
         });
         
         $appointmentsCount = $user->appointments()->count();

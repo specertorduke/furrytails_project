@@ -136,6 +136,20 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
+        DB::table('users')->insert([
+            [
+                'firstName' => 'Admin',
+                'lastName' => 'User',
+                'email' => 'admin@furrytails.com',
+                'username' => 'admin',
+                'phone' => '09123456789',
+                'password' => bcrypt('admin123'),
+                'role' => 'admin', // Make sure you've added the role column to users table
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
         // PETS
         DB::table('pets')->insert([
             [
@@ -198,7 +212,7 @@ class DatabaseSeeder extends Seeder
                 'time' => '10:00:00',
                 'serviceID' => 1, 
                 'petID' => 1,
-                'status' => 'Pending',
+                'status' => 'Confirmed',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -207,7 +221,7 @@ class DatabaseSeeder extends Seeder
                 'time' => '10:00:00',
                 'serviceID' => 2, 
                 'petID' => 1,
-                'status' => 'Pending',
+                'status' => 'Confirmed',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -217,19 +231,19 @@ class DatabaseSeeder extends Seeder
         DB::table('boarding_reservations')->insert([
             [
                 'boardingType' => 'Overnight',
-                'startDate' => '2025-03-01',
-                'endDate' => '2025-03-05',
+                'start_date' => '2025-03-01',
+                'end_date' => '2025-03-05',
                 'petID' => 1,
-                'status' => 'Pending',
+                'status' => 'Active',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'boardingType' => 'Overnight',
-                'startDate' => '2025-03-06',
-                'endDate' => '2025-03-08',
+                'start_date' => '2025-03-06',
+                'end_date' => '2025-03-08',
                 'petID' => 1,
-                'status' => 'Pending',
+                'status' => 'Active',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

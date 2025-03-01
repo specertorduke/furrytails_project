@@ -182,9 +182,9 @@
                         <tbody id="boardingReservations">
                             @forelse ($boardingReservations as $reservation)
                                 <tr class="tw-border-b hover:tw-bg-gray-100" onmouseover="showDownloadIcon(this)" onmouseout="hideDownloadIcon(this)">
-                                    <td class="tw-p-2">{{ $reservation->reservationID }}</td>
-                                    <td class="tw-p-2">{{ $reservation->startDate }}</td>
-                                    <td class="tw-p-2">{{ $reservation->endDate }}</td>
+                                    <td class="tw-p-2">{{ $reservation->boardingID }}</td>
+                                    <td class="tw-p-2">{{ $reservation->start_date }}</td>
+                                    <td class="tw-p-2">{{ $reservation->end_date }}</td>
                                     <td class="tw-p-2">{{ $reservation->pet->name }}</td>
                                     <td class="tw-p-2">
                                         <span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm 
@@ -262,13 +262,13 @@
                                 ->filter(function($event) use ($nextWeek) {
                                     $eventDate = isset($event->date) 
                                         ? \Carbon\Carbon::parse($event->date)
-                                        : \Carbon\Carbon::parse($event->startDate);
+                                        : \Carbon\Carbon::parse($event->start_date);
                                     return $eventDate->lte($nextWeek);
                                 })
                                 ->sortBy(function($event) {
                                     return isset($event->date) 
                                         ? $event->date 
-                                        : $event->startDate;
+                                        : $event->start_date;
                                 })
                                 ->take(7);
                         @endphp
@@ -277,7 +277,7 @@
                             @php
                                 $eventDate = isset($event->date) 
                                     ? \Carbon\Carbon::parse($event->date)
-                                    : \Carbon\Carbon::parse($event->startDate);
+                                    : \Carbon\Carbon::parse($event->start_date);
                                 $angle = ($eventDate->dayOfWeek * (360 / 7)) - 90;
                                 $radians = $angle * (pi() / 180);
                                 $x = 140 + cos($radians) * 120;

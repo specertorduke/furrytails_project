@@ -59,4 +59,9 @@ class User extends Authenticatable
             'petID'   // Local key on pets table
         );
     }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }
