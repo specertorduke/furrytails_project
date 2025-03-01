@@ -75,25 +75,25 @@
 
     <!-- Quick Actions Row -->
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6 tw-mb-6">
-        <a href="#" class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#24CFF4]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-user-plus tw-text-[#24CFF4]"></i>
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add User</span>
         </a>
-        <a href="#" class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#FF9666]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-calendar-plus tw-text-[#FF9666]"></i>
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add Appointment</span>
         </a>
-        <a href="#" class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#66FF8F]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-home tw-text-[#66FF8F]"></i>
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add Boarding</span>
         </a>
-        <a href="{{ route('admin.reports') }}" class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="{{ route('admin.reports') }}" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-purple-500/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-chart-line tw-text-purple-500"></i>
             </div>
