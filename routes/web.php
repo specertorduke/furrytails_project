@@ -105,4 +105,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/reports/data', [App\Http\Controllers\Admin\AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
     Route::get('/reports/{id}', [App\Http\Controllers\Admin\AdminReportsController::class, 'show'])->name('admin.reports.show');
     Route::post('/reports/restore', [App\Http\Controllers\Admin\AdminReportsController::class, 'restore'])->name('admin.reports.restore');
+
+    // Admin Account Routes
+    Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');
+    Route::put('/account/update', [App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('admin.account.update');
+    Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
 });

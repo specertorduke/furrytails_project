@@ -228,7 +228,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="#" onclick="loadContent(event, '#')">
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.account') }}" onclick="loadContent(event, '{{ route('admin.account') }}')">
                             <i class="fas fa-user-cog nav-i tw-mr-2"></i> <span>Account</span>
                         </a>
                     </li>
