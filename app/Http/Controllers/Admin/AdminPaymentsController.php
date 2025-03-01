@@ -1,5 +1,4 @@
 <?php
-// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Http/Controllers/Admin/PaymentsController.php
 
 namespace App\Http\Controllers\Admin;
 

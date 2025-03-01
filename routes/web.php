@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\AdminAppointmentsController;
 use App\Http\Controllers\Admin\AdminBoardingsController;
 use App\Http\Controllers\Admin\AdminServicesController;
 use App\Http\Controllers\Admin\AdminPaymentsController;
+use App\Http\Controllers\Admin\AdminReportsController;
 use App\Http\Controllers\Admin\AdminController;
 
 Route::get('/login', function () { return view('login'); })->name('login');
@@ -98,4 +99,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/payments/{id}', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'update'])->name('admin.payments.update');
     Route::post('/payments/{id}/refund', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'markAsRefunded'])->name('admin.payments.refund');
     Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
+
+    // Reports
+    Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/data', [App\Http\Controllers\Admin\AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
+    Route::get('/reports/{id}', [App\Http\Controllers\Admin\AdminReportsController::class, 'show'])->name('admin.reports.show');
+    Route::post('/reports/restore', [App\Http\Controllers\Admin\AdminReportsController::class, 'restore'])->name('admin.reports.restore');
 });
