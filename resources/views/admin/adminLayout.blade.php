@@ -181,7 +181,7 @@
 <body class="tw-bg-gray-100 tw-font-poppins tw-h-screen">
 <div class="tw-flex tw-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="tw-w-64 tw-shadow-md tw-p-4 tw-flex tw-flex-col tw-justify-between tw-fixed tw-h-screen tw-transition-all tw-duration-300 tw-ease-in-out">
+    <div id="sidebar" class="tw-w-64 tw-shadow-md tw-p-4 tw-flex tw-overflow-y-auto tw-flex-col tw-justify-between tw-fixed tw-h-screen tw-transition-all tw-duration-300 tw-ease-in-out">
         <div>
             <div class="tw-flex tw-items-center tw-justify-start tw-py-4 tw-ml-[1.4rem] tw-border-b tw-border-gray-500" id="logo">
                 <img src="{{ asset('images/business-logo/logo-square.png') }}" alt="Admin Logo" class="tw-w-12 tw-h-12">
