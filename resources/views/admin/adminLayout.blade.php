@@ -224,7 +224,7 @@
                     </li>
                     <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.reports') }}" onclick="loadContent(event, '{{ route('admin.reports') }}')">
-                            <i class="fas fa-chart-bar nav-i tw-mr-2"></i> <span>Reports</span>
+                            <i class="fas fa-chart-bar nav-i tw-mr-2"></i> <span>Logs</span>
                         </a>
                     </li>
                     <li>
