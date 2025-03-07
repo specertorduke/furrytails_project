@@ -75,7 +75,7 @@
 
     <!-- Quick Actions Row -->
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6 tw-mb-6">
-        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a type="button" data-modal-target="addUser-modal" data-modal-toggle="addUser-modal" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#24CFF4]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-user-plus tw-text-[#24CFF4]"></i>
             </div>
@@ -93,11 +93,11 @@
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add Boarding</span>
         </a>
-        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a href="{{ route('admin.reports') }}" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700" onclick="loadContent(event, '{{ route('admin.reports') }}')">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-purple-500/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
-                <i class="fas fa-chart-line tw-text-purple-500"></i>
+                <i class="fas fa-history tw-text-purple-500"></i>
             </div>
-            <span class="tw-text-sm tw-font-medium tw-text-white">Reports</span>
+            <span class="tw-text-sm tw-font-medium tw-text-white">Logs</span>
         </a>
     </div>
 
@@ -599,5 +599,99 @@ document.addEventListener('contentWillChange', function() {
         DashboardPage.destroyTables();
     }
 });
+</script>
+
+<script>
+    // Make sure this runs after all DOM content is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all modals
+        const modalButtons = document.querySelectorAll('[data-modal-toggle]');
+        
+        modalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-target');
+                const modalElement = document.getElementById(modalId);
+                
+                if (modalElement) {
+                    modalElement.classList.toggle('tw-hidden');
+                } else {
+                    console.error(`Modal with ID ${modalId} not found`);
+                }
+            });
+        });
+
+        // Close modal when clicking on the close button
+        const closeButtons = document.querySelectorAll('[data-modal-toggle]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-toggle');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    if (!this.closest(`#${modalId}`)) return;
+                    modal.classList.add('tw-hidden');
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('[id$="-modal"]');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.add('tw-hidden');
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    // Create a function to initialize all modals
+    function initializeModals() {
+        // Initialize all modals
+        const modalButtons = document.querySelectorAll('[data-modal-toggle]');
+        
+        modalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-target');
+                const modalElement = document.getElementById(modalId);
+                
+                if (modalElement) {
+                    modalElement.classList.toggle('tw-hidden');
+                } else {
+                    console.error(`Modal with ID ${modalId} not found`);
+                }
+            });
+        });
+
+        // Close modal when clicking on the close button
+        const closeButtons = document.querySelectorAll('[data-modal-toggle]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-toggle');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    if (!this.closest(`#${modalId}`)) return;
+                    modal.classList.add('tw-hidden');
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('[id$="-modal"]');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.add('tw-hidden');
+                }
+            });
+        });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initializeModals);
+    
+    // Re-initialize when content changes
+    document.addEventListener('contentChanged', initializeModals);
 </script>
 @endsection

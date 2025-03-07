@@ -489,5 +489,7 @@
         }
 </script>
 @stack('scripts')
+
+@include('modals.add-user')
 </body>
 </html>
