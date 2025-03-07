@@ -32,7 +32,7 @@ Route::get('/main', function () { return view('main'); })->middleware('auth')->n
 Route::get('/', function () { return view('home'); })->name('home');
 
 //content routes
-Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from here
+Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'ajax.headers' from here
     Route::get('/content', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');

@@ -74,8 +74,8 @@
                         class="tw-w-full tw-h-48 tw-object-cover">
                     <div class="tw-absolute tw-top-3 tw-right-3">
                         <span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-bg-white/90 tw-backdrop-blur-sm 
-                            @if($pet->species === 'Dog') tw-text-green-800
-                            @elseif($pet->species === 'Cat') tw-text-yellow-800
+                            @if(trim(strtolower($pet->species)) === 'dog') tw-text-green-800
+                            @elseif(trim(strtolower($pet->species)) === 'cat') tw-text-yellow-800
                             @else tw-text-blue-800 @endif">
                             {{ $pet->species }}
                         </span>
@@ -216,13 +216,28 @@ function initializePetsPage() {
         const activeSpecies = document.querySelector('.species-filter.active').dataset.species;
 
         petCards.forEach(card => {
+            // Get pet name for search filtering
             const petName = card.querySelector('h3').textContent.toLowerCase();
-            const petSpecies = card.querySelector('.tw-rounded-full').textContent.trim();
+            
+            // Get the species text from the species badge
+            // This targets the specific badge in the top-right of the card that contains species
+            const speciesElement = card.querySelector('.tw-absolute.tw-top-3.tw-right-3 span');
+            let petSpecies = '';
+            
+            if (speciesElement) {
+                // Extract just the species text and trim whitespace
+                petSpecies = speciesElement.textContent.replace(/\s+/g, ' ').trim();
+            }
             
             const matchesSearch = petName.includes(searchTerm);
             const matchesSpecies = activeSpecies === 'all' || petSpecies === activeSpecies;
             
-            card.style.display = matchesSearch && matchesSpecies ? 'block' : 'none';
+            // Use the parent of the card for proper grid display handling
+            if (matchesSearch && matchesSpecies) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
         });
     }
 }
