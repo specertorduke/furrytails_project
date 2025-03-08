@@ -110,4 +110,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');
     Route::put('/account/update', [App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('admin.account.update');
     Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
+
+    // Data for admin appointment modal
+    Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
+    Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
+    Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
+    Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
+    Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
 });

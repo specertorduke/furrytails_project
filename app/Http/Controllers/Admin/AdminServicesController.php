@@ -23,7 +23,7 @@ class AdminServicesController extends Controller
     public function getServicesList()
     {
         try {
-            $services = Service::select(['serviceID', 'name'])
+            $services = Service::select(['serviceID', 'name', 'price']) // Added 'price' field
                 ->orderBy('name')
                 ->get();
                 

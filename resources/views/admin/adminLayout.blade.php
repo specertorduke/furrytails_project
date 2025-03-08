@@ -284,6 +284,10 @@
 
         // Add event listener for window resize
         window.addEventListener('resize', handleResize);
+        
+        if (typeof initializeModals === 'function') {
+        initializeModals();
+        }
     });
 
     function toggleDropdown() {
@@ -490,6 +494,8 @@
 </script>
 @stack('scripts')
 
+<!-- modals -->
 @include('modals.add-user')
+@include('modals.admin-add-appointment')
 </body>
 </html>

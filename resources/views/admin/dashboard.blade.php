@@ -81,7 +81,7 @@
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add User</span>
         </a>
-        <a href="#" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+        <a type="button" data-modal-target="adminAddAppointment-modal" data-modal-toggle="adminAddAppointment-modal" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#FF9666]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                 <i class="fas fa-calendar-plus tw-text-[#FF9666]"></i>
             </div>
@@ -398,8 +398,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 <script>
-    // Dashboard functionality namespace
+// Dashboard functionality namespace
 window.DashboardPage = window.DashboardPage || {
     upcomingAppointmentsTable: null,
     

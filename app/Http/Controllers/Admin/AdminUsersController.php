@@ -22,4 +22,36 @@ class AdminUsersController extends Controller
         
         return view('admin.users', compact('totalUsers', 'activeUsers', 'newUsers'));
     }
+
+    /**
+     * Get a list of all users for dropdown selection
+     */
+    public function getUsersList()
+    {
+        try {
+            $users = User::select('userID', 'firstName', 'lastName')
+                ->orderBy('firstName')
+                ->orderBy('lastName')
+                ->get();
+                
+            return response()->json($users);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching users list: ' . $e->getMessage());
+            return response()->json([], 500);
+        }
+    }
+    
+    /**
+     * Get all pets belonging to a specific user
+     */
+    public function getUserPets($userId) 
+    {
+        try {
+            $pets = \App\Models\Pet::where('userID', $userId)->get();
+            return response()->json($pets);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching pets: ' . $e->getMessage());
+            return response()->json([]);
+        }
+    }
 }
