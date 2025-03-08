@@ -188,8 +188,14 @@ class AdminAppointmentsController extends Controller
 
     public function listServices()
     {
-        // Get all services, sorted by name
-        $services = \App\Models\Service::orderBy('name')->get();
+        // Get all services, excluding boarding-related services
+        $services = \App\Models\Service::where(function($query) {
+                // Exclude services that have "Boarding" in their name
+                $query->whereRaw('LOWER(name) NOT LIKE ?', ['%boarding%']);
+            })
+            ->orderBy('name')
+            ->get();
+            
         return response()->json($services);
     }
 

@@ -66,6 +66,8 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Dashboard routes
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/weekly-data', [App\Http\Controllers\Admin\AdminDashboardController::class, 'getWeeklyServiceData'])
+    ->name('admin.dashboard.weekly-data');
 
     // Users routes
     Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');

@@ -23,7 +23,11 @@ class AdminServicesController extends Controller
     public function getServicesList()
     {
         try {
-            $services = Service::select(['serviceID', 'name', 'price']) // Added 'price' field
+            $services = Service::select(['serviceID', 'name', 'price'])
+                ->where(function($query) {
+                    // Exclude services that have "Boarding" in their name
+                    $query->whereRaw('LOWER(name) NOT LIKE ?', ['%boarding%']);
+                })
                 ->orderBy('name')
                 ->get();
                 
