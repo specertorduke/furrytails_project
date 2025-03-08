@@ -217,7 +217,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         //BOARDINGS
-        DB::table('boarding_reservations')->insert([
+        DB::table('boardings')->insert([
             [
                 'boardingType' => 'Overnight',
                 'start_date' => '2025-03-01',

@@ -76,7 +76,7 @@
                     <option value="pets">Pets</option>
                     <option value="appointments">Appointments</option>
                     <option value="services">Services</option>
-                    <option value="boarding_reservations">Boarding</option>
+                    <option value="boardings">Boarding</option>
                     <option value="payments">Payments</option>
                 </select>
             </div>
@@ -304,7 +304,7 @@
                                 if (data === 'pets') iconClass = 'fa-paw';
                                 if (data === 'appointments') iconClass = 'fa-calendar-check';
                                 if (data === 'services') iconClass = 'fa-concierge-bell';
-                                if (data === 'boarding_reservations') iconClass = 'fa-home';
+                                if (data === 'boardings') iconClass = 'fa-home';
                                 if (data === 'payments') iconClass = 'fa-credit-card';
                                 
                                 return `<span><i class="fas ${iconClass} tw-mr-2"></i>${formattedTable}</span>`;

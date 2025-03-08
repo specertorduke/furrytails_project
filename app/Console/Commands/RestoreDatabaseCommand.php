@@ -123,7 +123,7 @@ class RestoreDatabaseCommand extends Command
             'pets' => 'petID',
             'services' => 'serviceID',
             'appointments' => 'appointmentID',
-            'boarding_reservations' => 'boardingID',
+            'boardings' => 'boardingID',
             'payments' => 'paymentID',
             'activity_logs' => 'logID',
             // Add more tables as needed

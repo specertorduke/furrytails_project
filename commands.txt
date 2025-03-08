@@ -24,3 +24,12 @@ php artisan db:seed
 use thissss for re-updating db:
 
 php artisan migrate:fresh --seed
+
+<?php
+// In any blade view:
+<div>Appointment: {{ $appointment->time_period }}</div>
+<div>Starts: {{ $appointment->time_until }}</div>
+
+<?php
+// In any blade view:
+<x-appointment-status-badge :status="$appointment->status" />

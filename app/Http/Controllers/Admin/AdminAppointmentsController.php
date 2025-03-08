@@ -192,4 +192,49 @@ class AdminAppointmentsController extends Controller
         $services = \App\Models\Service::orderBy('name')->get();
         return response()->json($services);
     }
+
+    public function updateStatuses()
+    {
+        // Find appointments that should be active
+        $activated = Appointment::where('status', Appointment::STATUS_CONFIRMED)
+            ->get()
+            ->filter(function ($appointment) {
+                return $appointment->shouldBeActive();
+            });
+            
+        foreach ($activated as $appointment) {
+            $appointment->status = Appointment::STATUS_ACTIVE;
+            $appointment->save();
+        }
+        
+        // Find appointments that should be completed
+        $completed = Appointment::where('status', Appointment::STATUS_ACTIVE)
+            ->get()
+            ->filter(function ($appointment) {
+                return $appointment->shouldBeCompleted();
+            });
+            
+        foreach ($completed as $appointment) {
+            $appointment->status = Appointment::STATUS_COMPLETED;
+            $appointment->save();
+        }
+        
+        // Find missed appointments
+        $missed = Appointment::where('status', Appointment::STATUS_CONFIRMED)
+            ->get()
+            ->filter(function ($appointment) {
+                return $appointment->isMissed();
+            });
+            
+        foreach ($missed as $appointment) {
+            $appointment->status = Appointment::STATUS_MISSED;
+            $appointment->save();
+        }
+        
+        return [
+            'activated' => $activated->count(),
+            'completed' => $completed->count(),
+            'missed' => $missed->count(),
+        ];
+    }
 }

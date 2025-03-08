@@ -55,7 +55,7 @@ class User extends Authenticatable
             Boarding::class,
             Pet::class,
             'userID', // Foreign key on pets table
-            'petID',  // Foreign key on boarding_reservations table
+            'petID',  // Foreign key on boardings table
             'userID', // Local key on users table
             'petID'   // Local key on pets table
         );

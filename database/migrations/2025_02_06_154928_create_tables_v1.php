@@ -70,14 +70,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('boarding_reservations', function (Blueprint $table) {
+        Schema::create('boardings', function (Blueprint $table) {
             $table->id('boardingID');
             $table->unsignedBigInteger('petID');
             $table->string('boardingType');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['Pending','Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
+            $table->enum('status', ['Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
             $table->timestamps();
         });
 
@@ -139,7 +139,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('payments');
         Schema::dropIfExists('appointments');
-        Schema::dropIfExists('boarding_reservations');
+        Schema::dropIfExists('boardings');
         Schema::dropIfExists('services');
         Schema::dropIfExists('pets');
         Schema::dropIfExists('users');

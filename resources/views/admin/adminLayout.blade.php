@@ -500,6 +500,7 @@
 @stack('scripts')
 
 <!-- modals -->
+@include('modals.admin-add-boarding')
 @include('modals.admin-add-user')
 @include('modals.admin-add-appointment')
 @include('modals.admin-add-pet')

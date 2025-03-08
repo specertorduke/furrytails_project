@@ -120,10 +120,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
     Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
 
-    // Data for Pet Routes
+    // Data for Pet Modal
     Route::post('/admin/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
     Route::get('/pets', [AdminPetsController::class, 'index'])->name('admin.pets');
     Route::delete('/pets/{id}', [AdminPetsController::class, 'destroyPet'])->name('pets.destroy');
     Route::get('/pets/{id}', [AdminPetsController::class, 'showPet'])->name('pets.show');
     Route::get('/pets/{id}/edit', [AdminPetsController::class, 'editPet'])->name('pets.edit');
+
+    // Data for Boarding Modal
+    Route::post('/boarding/store', [\App\Http\Controllers\Admin\AdminBoardingsController::class, 'store'])
+    ->name('admin.boarding.store');
 });

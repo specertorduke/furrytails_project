@@ -399,7 +399,7 @@ const AdminAppointmentModal = {
                         modal.classList.add('tw-hidden');
                         
                         // Reload the page to reflect changes
-                        window.location.reload();
+                        window.location.href = "{{ route('admin.appointments') }}";
                     });
                 })
                 .catch(err => {
