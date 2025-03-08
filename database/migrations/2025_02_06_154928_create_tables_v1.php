@@ -25,32 +25,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
-        Schema::create('employees', function (Blueprint $table) {
-            $table->id('employeeID');
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('firstName');
-            $table->string('lastName');
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
-            $table->string('role')->nullable();
-            $table->timestamps();
-        });
-
         // Set the auto-increment starting value
-        DB::statement('ALTER TABLE Employees AUTO_INCREMENT = 1000;');
-
-        // -- Roles:
-        // -- 'Administrator','Manager', 'Receptionist', 'Groomer', 'Boarding Attendant',
-        // -- 'Veterinarian', 'Pet Trainer',
-        // -- 'Cleaning Staff'
+        DB::statement('ALTER TABLE Users AUTO_INCREMENT = 1000;');
 
         Schema::create('pets', function (Blueprint $table) {
             $table->id('petID');
             $table->string('name', 50);
             $table->string('species', 50);
-            $table->string('petType', 50)->nullable();
+            $table->string('breed', 50)->nullable(); 
             $table->string('gender', 10);  // Add gender
             $table->date('birthDate');     // Replace age with birthDate
             $table->decimal('weight', 5, 2)->nullable(); // Add weight in kg
@@ -161,7 +143,6 @@ return new class extends Migration
         Schema::dropIfExists('services');
         Schema::dropIfExists('pets');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('employees');
         Schema::dropIfExists('activity_logs');
     }
 };

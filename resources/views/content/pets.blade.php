@@ -84,7 +84,7 @@
                 <div class="tw-p-4">
                     <div class="tw-flex tw-justify-between tw-items-start tw-mb-3">
                         <h3 class="tw-text-xl tw-font-semibold">{{ $pet->name }}</h3>
-                        <span class="tw-text-sm tw-text-gray-500">{{ $pet->petType }}</span>
+                        <span class="tw-text-sm tw-text-gray-500">{{ $pet->breed }}</span>
                     </div>
                     <div class="tw-space-y-2 tw-mb-4">
                         <!-- Age calculation is now handled by the Pet model's getAgeAttribute -->

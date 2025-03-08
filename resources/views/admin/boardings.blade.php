@@ -383,7 +383,7 @@
 
         applyFilters: function() {
             const statusFilter = $('#status-filter').val();
-            const petTypeFilter = $('#pet-type-filter').val();
+            const breedFilter = $('#pet-type-filter').val();
             const dateFrom = $('#date-from').val();
             const dateTo = $('#date-to').val();
             
@@ -396,7 +396,7 @@
                 }
                 
                 // Pet type filter
-                if (petTypeFilter && rowData.pet?.species?.toLowerCase() !== petTypeFilter.toLowerCase()) {
+                if (breedFilter && rowData.pet?.species?.toLowerCase() !== breedFilter.toLowerCase()) {
                     return false;
                 }
                 

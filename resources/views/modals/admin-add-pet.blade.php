@@ -109,23 +109,36 @@
 
                 <!-- Pet image upload -->
                 <div class="tw-mb-4">
-                    <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white" for="pet-image">
-                        Pet Image (optional)
-                    </label>
-                    <div class="tw-flex tw-items-center tw-justify-center tw-w-full">
-                        <label for="pet-image" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-32 tw-border-2 tw-border-gray-600 tw-border-dashed tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-700">
-                            <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-5 tw-pb-6" id="pet-image-placeholder">
-                                <svg class="tw-w-8 tw-h-8 tw-mb-2 tw-text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white" for="pet-image">Pet Image</label>
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full">
+                        <!-- Upload Area -->
+                        <label for="pet-image" id="pet-upload-area" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-64 tw-border-2 tw-border-gray-600 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600">
+                            <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-5 tw-pb-6">
+                                <svg class="tw-w-8 tw-h-8 tw-mb-4 tw-text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                 </svg>
-                                <p class="tw-mb-1 tw-text-sm tw-text-gray-400"><span class="tw-font-semibold">Click to upload</span> or drag and drop</p>
-                                <p class="tw-text-xs tw-text-gray-400">PNG, JPG or JPEG (MAX. 2MB)</p>
+                                <p class="tw-mb-2 tw-text-sm tw-text-gray-400"><span class="tw-font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="tw-text-xs tw-text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
                             </div>
-                            <div class="tw-hidden tw-flex-col tw-items-center tw-justify-center" id="pet-image-preview-container">
-                                <img id="pet-image-preview" class="tw-object-cover tw-h-28 tw-max-w-full tw-rounded-lg" src="" alt="Pet preview">
-                            </div>
-                            <input id="pet-image" name="pet-image" type="file" class="tw-hidden" accept="image/png, image/jpeg, image/jpg" />
+                            <input id="pet-image" type="file" class="tw-hidden" accept="image/png, image/jpeg, image/jpg" />
                         </label>
+
+                        <!-- Cropper Area (Hidden by default) -->
+                        <div id="pet-cropper-area" class="tw-hidden tw-w-full">
+                            <div class="tw-relative tw-w-full tw-aspect-square tw-max-w-md tw-mx-auto tw-overflow-hidden">
+                                <img id="pet-cropper-image" class="tw-max-w-full">
+                            </div>
+                            <div class="tw-flex tw-justify-end tw-mt-4 tw-space-x-2">
+                                <button type="button" id="pet-cancel-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-gray-300 hover:tw-text-gray-100">Cancel</button>
+                                <button type="button" id="pet-apply-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-black tw-bg-[#66FF8F] tw-rounded hover:tw-bg-[#83ffab]">Apply Crop</button>
+                            </div>
+                        </div>
+
+                        <!-- Preview Area (Hidden by default) -->
+                        <div id="pet-preview-area" class="tw-hidden tw-flex tw-flex-col tw-items-center tw-justify-center tw-mt-4">
+                            <img id="pet-preview-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover tw-border-4 tw-border-[#66FF8F]">
+                            <button type="button" id="pet-change-image" class="tw-text-sm tw-mt-3 tw-text-[#66FF8F] hover:tw-text-[#83ffab]">Change Image</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -140,213 +153,298 @@
 </div>
 
 <script>
-// Create a namespace for our pet modal functionality
-const AdminPetModal = {
-    // Store elements references
-    elements: {
-        ownerSelect: null,
-        petNameInput: null,
-        speciesSelect: null,
-        breedInput: null,
-        genderSelect: null,
-        birthDateInput: null,
-        weightInput: null,
-        vaccinatedCheckbox: null,
-        vaccinationDateInput: null,
-        allergiesInput: null,
-        medicalHistoryInput: null,
-        notesInput: null,
-        form: null,
-        petImageInput: null,
-        petImagePreview: null,
-        petImagePlaceholder: null,
-        petImagePreviewContainer: null,
-    },
-    
-    // Submission state tracking
-    isSubmitting: false,
-    
-    // Initialize the modal functionality
-    init: function() {
-        // Get elements
-        this.elements.ownerSelect = document.getElementById('pet-owner');
-        this.elements.petNameInput = document.getElementById('pet-name');
-        this.elements.speciesSelect = document.getElementById('pet-species');
-        this.elements.breedInput = document.getElementById('pet-breed');
-        this.elements.genderSelect = document.getElementById('pet-gender');
-        this.elements.birthDateInput = document.getElementById('pet-birthdate');
-        this.elements.weightInput = document.getElementById('pet-weight');
-        this.elements.vaccinatedCheckbox = document.getElementById('pet-vaccinated');
-        this.elements.vaccinationDateInput = document.getElementById('pet-vaccination-date');
-        this.elements.allergiesInput = document.getElementById('pet-allergies');
-        this.elements.medicalHistoryInput = document.getElementById('pet-medical-history');
-        this.elements.notesInput = document.getElementById('pet-notes');
-        this.elements.form = document.getElementById('adminPetForm');
-        this.elements.petImageInput = document.getElementById('pet-image');
-        this.elements.petImagePreview = document.getElementById('pet-image-preview');
-        this.elements.petImagePlaceholder = document.getElementById('pet-image-placeholder');
-        this.elements.petImagePreviewContainer = document.getElementById('pet-image-preview-container');
-        // Set up event handlers
-        this.setupEventHandlers();
-    },
-    
-    setupEventHandlers: function() {
-        // Setup form submission
-        if (this.elements.form) {
-            this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
-        }
-        
-        // Setup modal toggle button
-        const modalToggleBtn = document.querySelector('[data-modal-target="admin-addPet-modal"]');
-        if (modalToggleBtn) {
-            modalToggleBtn.addEventListener('click', () => {
-                this.loadUsers();
-            });
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the cropper variables
+    let cropper = null;
+    const uploadArea = document.getElementById('pet-upload-area');
+    const cropperArea = document.getElementById('pet-cropper-area');
+    const previewArea = document.getElementById('pet-preview-area');
+    const fileInput = document.getElementById('pet-image');
+    const cropperImage = document.getElementById('pet-cropper-image');
+    const previewImage = document.getElementById('pet-preview-image');
+    let croppedImageData = null;
 
-        // Setup vaccination checkbox
-        const vaccinatedCheckbox = document.getElementById('pet-vaccinated');
-        if (vaccinatedCheckbox) {
-            vaccinatedCheckbox.addEventListener('change', function() {
-                const vaccinationDateContainer = document.getElementById('vaccination-date-container');
-                const vaccinationDateInput = document.getElementById('pet-vaccination-date');
-                
-                if (this.checked) {
-                    vaccinationDateContainer.classList.remove('tw-hidden');
-                    vaccinationDateInput.required = true;
-                } else {
-                    vaccinationDateContainer.classList.add('tw-hidden');
-                    vaccinationDateInput.required = false;
-                    vaccinationDateInput.value = '';
-                }
-            });
+    // Reset function
+    function resetImageUpload() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
         }
+        if (fileInput) fileInput.value = '';
+        uploadArea.classList.remove('tw-hidden');
+        cropperArea.classList.add('tw-hidden');
+        previewArea.classList.add('tw-hidden');
+        croppedImageData = null;
+    }
 
-        // Setup image preview
-        const petImageInput = document.getElementById('pet-image');
-        if (petImageInput) {
-            petImageInput.addEventListener('change', this.handleImageChange.bind(this));
-        }
-    },
-    
-    loadUsers: function() {
-        // Set loading state
-        this.elements.ownerSelect.innerHTML = '<option value="">Loading users...</option>';
-        
-        // Fetch users from the database
-        fetch(`{{ route('admin.users.list') }}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            this.elements.ownerSelect.innerHTML = '<option value="">Select an owner</option>';
-            data.forEach(user => {
-                this.elements.ownerSelect.innerHTML += `<option value="${user.userID}">${user.firstName} ${user.lastName} (ID: ${user.userID})</option>`;
-            });
-        })
-        .catch(err => {
-            console.error('Error loading users:', err);
-            this.elements.ownerSelect.innerHTML = '<option value="">Error loading users</option>';
+    // Add change image functionality
+    const changeImageBtn = document.getElementById('pet-change-image');
+    if (changeImageBtn) {
+        changeImageBtn.addEventListener('click', function() {
+            resetImageUpload();
+            fileInput.click();
         });
-    },
-    
-    handleFormSubmit: function(e) {
-        e.preventDefault();
-        
-        // Validate form
-        if (this.isSubmitting) {
-            return;
-        }
-        
-        if (!this.elements.ownerSelect.value) {
-            this.showError('Please select a pet owner');
-            return;
-        }
-        
-        if (!this.elements.petNameInput.value.trim()) {
-            this.showError('Please enter a pet name');
-            return;
-        }
-        
-        if (!this.elements.speciesSelect.value) {
-            this.showError('Please select a species');
-            return;
-        }
-        
-        if (!this.elements.breedInput.value.trim()) {
-            this.showError('Please enter a breed');
-            return;
-        }
+    }
 
-        // Show confirmation dialog
-        Swal.fire({
-            title: 'Add Pet',
-            text: 'Are you sure you want to add this pet?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#66FF8F',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, add pet',
-            cancelButtonText: 'Cancel',
-            background: '#374151',
-            color: '#fff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Set submitting flag
-                this.isSubmitting = true;
+    // Handle file input change
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
                 
-                // Disable submit button and show loading state
-                const submitButton = document.querySelector('#adminPetForm button[type="submit"]');
-                const originalButtonText = submitButton.innerHTML;
-                submitButton.disabled = true;
-                submitButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg> Processing...`;
+                reader.onload = function(e) {
+                    uploadArea.classList.add('tw-hidden');
+                    cropperArea.classList.remove('tw-hidden');
+                    cropperImage.src = e.target.result;
+                    
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        guides: false,
+                        center: true,
+                        cropBoxMovable: false,
+                        cropBoxResizable: false,
+                        minContainerWidth: 300,
+                        minContainerHeight: 300
+                    });
+                };
                 
-                // Prepare the data for submission
-                const formData = new FormData();
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
 
-                // Add text fields
-                formData.append('userID', this.elements.ownerSelect.value);
-                formData.append('name', this.elements.petNameInput.value);
-                formData.append('species', this.elements.speciesSelect.value);
-                formData.append('breed', this.elements.breedInput.value);
-                formData.append('gender', document.getElementById('pet-gender').value);
-                formData.append('birthDate', document.getElementById('pet-birthdate').value || '');
-                formData.append('weight', document.getElementById('pet-weight').value || '');
-                formData.append('isVaccinated', document.getElementById('pet-vaccinated').checked ? '1' : '0');
-                formData.append('vaccinationDate', document.getElementById('pet-vaccinated').checked ? 
-                    document.getElementById('pet-vaccination-date').value : '');
-                formData.append('allergies', document.getElementById('pet-allergies').value || '');
-                formData.append('medicalHistory', document.getElementById('pet-medical-history').value || '');
-                formData.append('notes', this.elements.notesInput.value || '');
+    // Cancel crop
+    const cancelCropBtn = document.getElementById('pet-cancel-crop');
+    if (cancelCropBtn) {
+        cancelCropBtn.addEventListener('click', resetImageUpload);
+    }
 
-                // Add file if selected
-                if (this.elements.petImageInput.files[0]) {
-                    formData.append('petImage', this.elements.petImageInput.files[0]);
+    // Apply crop
+    const applyCropBtn = document.getElementById('pet-apply-crop');
+    if (applyCropBtn) {
+        applyCropBtn.addEventListener('click', function() {
+            if (cropper) {
+                croppedImageData = cropper.getCroppedCanvas({
+                    width: 300,
+                    height: 300
+                }).toDataURL('image/jpeg', 0.9);
+                
+                previewImage.src = croppedImageData;
+                cropperArea.classList.add('tw-hidden');
+                previewArea.classList.remove('tw-hidden');
+            }
+        });
+    }
+
+    // Pet Modal specific functionality
+    const AdminPetModal = {
+        // Store elements references
+        elements: {
+            ownerSelect: document.getElementById('pet-owner'),
+            petNameInput: document.getElementById('pet-name'),
+            speciesSelect: document.getElementById('pet-species'),
+            breedInput: document.getElementById('pet-breed'),
+            genderSelect: document.getElementById('pet-gender'),
+            birthDateInput: document.getElementById('pet-birthdate'),
+            weightInput: document.getElementById('pet-weight'),
+            vaccinatedCheckbox: document.getElementById('pet-vaccinated'),
+            vaccinationDateInput: document.getElementById('pet-vaccination-date'),
+            allergiesInput: document.getElementById('pet-allergies'),
+            medicalHistoryInput: document.getElementById('pet-medical-history'),
+            notesInput: document.getElementById('pet-notes'),
+            form: document.getElementById('adminPetForm')
+        },
+        
+        // Submission state tracking
+        isSubmitting: false,
+        
+        // Initialize the modal functionality
+        init: function() {
+            // Setup form submission
+            if (this.elements.form) {
+                this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+            }
+            
+            // Setup modal toggle button
+            const modalToggleBtn = document.querySelector('[data-modal-target="admin-addPet-modal"]');
+            if (modalToggleBtn) {
+                modalToggleBtn.addEventListener('click', () => {
+                    this.loadUsers();
+                });
+            }
+
+            // Setup modal close button
+            const modalCloseBtn = document.querySelector('[data-modal-toggle="admin-addPet-modal"]');
+            if (modalCloseBtn) {
+                modalCloseBtn.addEventListener('click', () => {
+                    document.getElementById('admin-addPet-modal').classList.add('tw-hidden');
+                    resetImageUpload();
+                    this.elements.form.reset();
+                });
+            }
+
+            // Setup vaccination checkbox
+            const vaccinatedCheckbox = document.getElementById('pet-vaccinated');
+            if (vaccinatedCheckbox) {
+                vaccinatedCheckbox.addEventListener('change', function() {
+                    const vaccinationDateContainer = document.getElementById('vaccination-date-container');
+                    const vaccinationDateInput = document.getElementById('pet-vaccination-date');
+                    
+                    if (this.checked) {
+                        vaccinationDateContainer.classList.remove('tw-hidden');
+                        vaccinationDateInput.required = true;
+                    } else {
+                        vaccinationDateContainer.classList.add('tw-hidden');
+                        vaccinationDateInput.required = false;
+                        vaccinationDateInput.value = '';
+                    }
+                });
+            }
+        },
+        
+        loadUsers: function() {
+            // Set loading state
+            this.elements.ownerSelect.innerHTML = '<option value="">Loading users...</option>';
+            
+            // Fetch users from the database
+            fetch(`{{ route('admin.users.list') }}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                
-                // Get the CSRF token from the meta tag
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                
-                // Submit the data to the server
-                fetch('{{ route("admin.pets.store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.elements.ownerSelect.innerHTML = '<option value="">Select an owner</option>';
+                data.forEach(user => {
+                    this.elements.ownerSelect.innerHTML += `<option value="${user.userID}">${user.firstName} ${user.lastName} (ID: ${user.userID})</option>`;
+                });
+            })
+            .catch(err => {
+                console.error('Error loading users:', err);
+                this.elements.ownerSelect.innerHTML = '<option value="">Error loading users</option>';
+            });
+        },
+        
+        handleFormSubmit: function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (this.isSubmitting) {
+                return;
+            }
+            
+            if (!this.elements.ownerSelect.value) {
+                this.showError('Please select a pet owner');
+                return;
+            }
+            
+            if (!this.elements.petNameInput.value.trim()) {
+                this.showError('Please enter a pet name');
+                return;
+            }
+            
+            if (!this.elements.speciesSelect.value) {
+                this.showError('Please select a species');
+                return;
+            }
+            
+            if (!this.elements.breedInput.value.trim()) {
+                this.showError('Please enter a breed');
+                return;
+            }
+
+            if (!this.elements.genderSelect.value) {
+                this.showError('Please select a gender');
+                return;
+            }
+
+            // Image validation
+            if (!croppedImageData) {
+                this.showError('Please upload and crop a pet image');
+                return;
+            }
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Add Pet',
+                text: 'Are you sure you want to add this pet?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#66FF8F',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, add pet',
+                cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submitPetData();
+                }
+            });
+        },
+        
+        submitPetData: function() {
+            // Set submitting flag
+            this.isSubmitting = true;
+            
+            // Disable submit button and show loading state
+            const submitButton = document.querySelector('#adminPetForm button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg> Processing...`;
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('userID', this.elements.ownerSelect.value);
+            formData.append('name', this.elements.petNameInput.value);
+            formData.append('species', this.elements.speciesSelect.value);
+            formData.append('breed', this.elements.breedInput.value);
+            formData.append('gender', this.elements.genderSelect.value);
+            formData.append('birthDate', this.elements.birthDateInput.value || '');
+            formData.append('weight', this.elements.weightInput.value || '');
+            formData.append('isVaccinated', this.elements.vaccinatedCheckbox.checked ? '1' : '0');
+            
+            if (this.elements.vaccinatedCheckbox.checked) {
+                formData.append('vaccinationDate', this.elements.vaccinationDateInput.value);
+            }
+            
+            formData.append('allergies', this.elements.allergiesInput.value || '');
+            formData.append('medicalHistory', this.elements.medicalHistoryInput.value || '');
+            formData.append('notes', this.elements.notesInput.value || '');
+            
+            // Convert cropped image data to blob and add to form data
+            fetch(croppedImageData)
+                .then(res => res.blob())
+                .then(blob => {
+                    formData.append('petImage', blob, 'pet-image.png');
+                    
+                    // Get the CSRF token from the meta tag
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    
+                    // Submit the data to the server
+                    return fetch('{{ route("admin.pets.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -375,11 +473,12 @@ const AdminPetModal = {
                     }).then(() => {
                         // Reset form and close modal
                         this.elements.form.reset();
+                        resetImageUpload();
                         const modal = document.getElementById('admin-addPet-modal');
                         modal.classList.add('tw-hidden');
                         
                         // Reload the page to reflect changes
-                        window.location.reload();
+                        window.location.href = "{{ route('admin.pets') }}";
                     });
                 })
                 .catch(err => {
@@ -394,52 +493,21 @@ const AdminPetModal = {
                     console.error('Error saving pet:', err);
                     this.showError(err.message || 'Failed to create pet. Please try again.');
                 });
-            }
-        });
-    },
-    
-    showError: function(message) {
-        Swal.fire({
-            title: 'Error',
-            text: message,
-            icon: 'error',
-            confirmButtonColor: '#66FF8F',
-            background: '#374151',
-            color: '#fff'
-        });
-    },
-
-    handleImageChange: function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+        },
         
-        // Validate file size (max 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            this.showError('Image size should not exceed 2MB');
-            e.target.value = '';
-            return;
+        showError: function(message) {
+            Swal.fire({
+                title: 'Error',
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#66FF8F',
+                background: '#374151',
+                color: '#fff'
+            });
         }
-        
-        // Validate file type
-        if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-            this.showError('Please select a valid image file (PNG, JPG, or JPEG)');
-            e.target.value = '';
-            return;
-        }
-        
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            this.elements.petImagePreview.src = event.target.result;
-            this.elements.petImagePlaceholder.classList.add('tw-hidden');
-            this.elements.petImagePreviewContainer.classList.remove('tw-hidden');
-        };
-        reader.readAsDataURL(file);
-    }
-};
+    };
 
-// Initialize after DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Pet Modal
     AdminPetModal.init();
 });
 </script>

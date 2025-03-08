@@ -36,7 +36,7 @@ class AdminPetsController extends Controller
             'birthDate' => 'nullable|date',
             'weight' => 'nullable|numeric|min:0',
             'isVaccinated' => 'boolean',
-            'vaccinationDate' => 'nullable|date',
+            'lastVaccinationDate' => 'nullable|date',
             'allergies' => 'nullable|string',
             'medicalHistory' => 'nullable|string',
             'notes' => 'nullable|string'
@@ -50,6 +50,12 @@ class AdminPetsController extends Controller
             ], 422);
         }
 
+        // Store image
+        $imagePath = null;
+        if ($request->hasFile('petImage')) {
+            $imagePath = $request->file('petImage')->store('images/pets', 'public');
+        }
+
         // Create new pet
         $pet = new Pet();
         $pet->userID = $request->userID;
@@ -60,10 +66,11 @@ class AdminPetsController extends Controller
         $pet->birthDate = $request->birthDate;
         $pet->weight = $request->weight;
         $pet->isVaccinated = $request->isVaccinated;
-        $pet->vaccinationDate = $request->vaccinationDate;
+        $pet->lastVaccinationDate = $request->vaccinationDate;
         $pet->allergies = $request->allergies;
         $pet->medicalHistory = $request->medicalHistory;
-        $pet->notes = $request->notes;
+        $pet->petNotes = $request->notes;
+        $pet->petImage = $imagePath;
         $pet->save();
 
         return response()->json([
