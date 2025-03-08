@@ -70,6 +70,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     ->name('admin.dashboard.weekly-data');
 
     // Users routes
+    Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
+    Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
     Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
     Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
     Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
@@ -119,18 +121,17 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
 
     // Data for admin appointment modal
-    Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
-    Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
     Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
     Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
     Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
 
     // Data for Pet Modal
-    Route::post('/admin/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
+    Route::post('/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
     Route::get('/pets', [AdminPetsController::class, 'index'])->name('admin.pets');
-    Route::delete('/pets/{id}', [AdminPetsController::class, 'destroyPet'])->name('pets.destroy');
-    Route::get('/pets/{id}', [AdminPetsController::class, 'showPet'])->name('pets.show');
-    Route::get('/pets/{id}/edit', [AdminPetsController::class, 'editPet'])->name('pets.edit');
+    Route::get('/pets/{id}', [AdminPetsController::class, 'showPet'])->name('admin.pets.show');
+    Route::get('/{id}/edit', [AdminPetsController::class, 'edit'])->name('admin.pets.edit');
+    Route::put('/pets/{id}', [AdminPetsController::class, 'update'])->name('admin.pets.update');
+    Route::delete('/pets/{id}', [AdminPetsController::class, 'destroy'])->name('admin.pets.destroy');
 
     // Data for Boarding Modal
     Route::post('/boarding/store', [\App\Http\Controllers\Admin\AdminBoardingsController::class, 'store'])

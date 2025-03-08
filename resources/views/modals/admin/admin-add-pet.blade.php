@@ -153,7 +153,8 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
+    document.addEventListener(eventName, function() {
     // Initialize the cropper variables
     let cropper = null;
     const uploadArea = document.getElementById('pet-upload-area');
@@ -509,5 +510,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize Pet Modal
     AdminPetModal.init();
+});
 });
 </script>

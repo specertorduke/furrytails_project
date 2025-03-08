@@ -204,53 +204,75 @@
 </div>
 
 <script>
-    // Delete pet function
+    // Global delete pet function that can be called from anywhere
     window.deletePet = function(petId) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'Delete Pet',
+            text: "Are you sure you want to delete this pet? This action cannot be undone!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, delete pet',
             background: '#374151',
             color: '#fff'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send delete request
-                fetch(`/admin/pets/${petId}`, {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                // Send request to delete pet
+                fetch("{{ route('admin.pets.destroy', ['id' => ':petId']) }}".replace(':petId', petId), {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete pet');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
                             title: 'Deleted!',
-                            text: 'Pet has been removed.',
+                            text: 'Pet has been deleted successfully',
                             icon: 'success',
+                            confirmButtonColor: '#24CFF4',
                             background: '#374151',
                             color: '#fff'
                         }).then(() => {
+                            // Close any open modals
+                            const viewPetModal = document.getElementById('viewPet-modal');
+                            if (viewPetModal) {
+                                viewPetModal.classList.add('tw-hidden');
+                            }
+                            
+                            // Reload page to refresh the pet list
                             location.reload();
                         });
                     } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: data.message || 'Something went wrong.',
-                            icon: 'error',
-                            background: '#374151',
-                            color: '#fff'
-                        });
+                        throw new Error(data.message || 'Failed to delete pet');
                     }
+                })
+                .catch(error => {
+                    console.error('Error deleting pet:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to delete pet',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
                 });
             }
         });
-    }
+    };
 
     // Initialize admin pets page
     function initializeAdminPetsPage() {
@@ -336,12 +358,15 @@
 
     // View pet details function
     window.viewPet = function(petId) {
+        // Use the new openPetModal function instead of SweetAlert
+    if (typeof window.openPetModal === 'function') {
+        window.openPetModal(petId);
+    } else {
+        console.error('openPetModal function not found');
         // Fetch pet details and show in a modal
         fetch(`/admin/pets/${petId}`, {
-            headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json'
-            }
         })
         .then(response => response.json())
         .then(data => {
@@ -379,9 +404,20 @@
             }
         });
     }
+        
+    }
 
     // Initialize when document loads
     document.addEventListener('DOMContentLoaded', function() {
+        initializeAdminPetsPage();
+        
+        // Initialize the pet modal functionality
+        if (typeof AdminPetModal !== 'undefined') {
+            AdminPetModal.init();
+        }
+    });
+
+    document.addEventListener('contentChanged', function() {
         initializeAdminPetsPage();
         
         // Initialize the pet modal functionality
