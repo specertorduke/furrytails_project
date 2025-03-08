@@ -96,9 +96,6 @@
                     </button>
                     
                     <div class="tw-flex tw-gap-2">
-                        <button id="disableUserBtn" class="tw-text-white tw-bg-yellow-600 hover:tw-bg-yellow-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
-                            <i class="fas fa-ban tw-mr-2"></i> <span id="disableUserText">Disable Account</span>
-                        </button>
                         <button id="deleteUserBtn" class="tw-text-white tw-bg-red-600 hover:tw-bg-red-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
                             <i class="fas fa-trash-alt tw-mr-2"></i> Delete User
                         </button>
@@ -155,6 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(err.message || 'Failed to load user data');
                 });
             }
+
             return response.json();
             })
         .then(data => {
@@ -164,6 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Store current user data
             currentUserData = data.user;
+            window.currentUserData = data.user;
             
             // Populate user information
             populateUserData(data.user);
@@ -223,20 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('userAppointments').textContent = user.appointmentsCount || 0;
         document.getElementById('userBoardings').textContent = user.boardingsCount || 0;
         document.getElementById('userPetsCount').textContent = user.petsCount || 0;
-        
-        // Update disable button text based on user status
-        const disableBtn = document.getElementById('disableUserBtn');
-        const disableBtnText = document.getElementById('disableUserText');
-        
-        if (user.status === 'inactive') {
-            disableBtnText.textContent = 'Enable Account';
-            disableBtn.classList.remove('tw-bg-yellow-600', 'hover:tw-bg-yellow-700');
-            disableBtn.classList.add('tw-bg-green-600', 'hover:tw-bg-green-700');
-        } else {
-            disableBtnText.textContent = 'Disable Account';
-            disableBtn.classList.remove('tw-bg-green-600', 'hover:tw-bg-green-700');
-            disableBtn.classList.add('tw-bg-yellow-600', 'hover:tw-bg-yellow-700');
-        }
     }
     
     // Function to populate pets in the modal

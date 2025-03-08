@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\Boarding;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Storage;
 
 class AdminUsersController extends Controller
 {
@@ -194,6 +195,141 @@ class AdminUsersController extends Controller
                 'success' => false,
                 'message' => 'Failed to retrieve user data',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update user details
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            
+            // Validate the request
+            $rules = [
+                'firstName' => 'required|string|max:100',
+                'lastName' => 'required|string|max:100',
+                'email' => 'required|email|unique:users,email,' . $id . ',userID',
+                'username' => 'required|string|unique:users,username,' . $id . ',userID',
+                'phone' => 'required|string|max:20',
+                'role' => 'required|in:user,admin',
+                'userImage' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ];
+            
+            // Add password validation only if it's provided
+            if ($request->filled('password')) {
+                $rules['password'] = 'string|min:8';
+            }
+            
+            $validated = $request->validate($rules);
+            
+            // Update user data
+            $user->firstName = $validated['firstName'];
+            $user->lastName = $validated['lastName'];
+            $user->email = $validated['email'];
+            $user->username = $validated['username'];
+            $user->phone = $validated['phone'];
+            $user->role = $validated['role'];
+            
+            // Update password if provided
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+            
+            // Handle image upload if present
+            if ($request->hasFile('userImage')) {
+                // Delete old image if it exists and isn't the default
+                if ($user->userImage && $user->userImage != 'userImages/default.png') {
+                    Storage::disk('public')->delete($user->userImage);
+                }
+                
+                $user->userImage = $request->file('userImage')->store('userImages', 'public');
+            }
+            
+            $user->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully',
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating user: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a user and all related data
+     */
+    public function destroy($id)
+    {
+        try {
+            \DB::beginTransaction();
+            
+            // Find the user
+            $user = User::findOrFail($id);
+            
+            // Safety check - don't allow deleting the last admin
+            if ($user->role === 'admin') {
+                $adminCount = User::where('role', 'admin')->count();
+                if ($adminCount <= 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot delete the last admin user.'
+                    ], 403);
+                }
+            }
+            
+            // Get all pets belonging to this user
+            $pets = Pet::where('userID', $id)->get();
+            
+            // Delete related data for each pet
+            foreach ($pets as $pet) {
+                // Delete appointments for this pet
+                Appointment::where('petID', $pet->petID)->delete();
+                
+                // Delete boardings for this pet
+                Boarding::where('petID', $pet->petID)->delete();
+                
+                // Delete pet's image if exists
+                if ($pet->petImage && $pet->petImage != 'petImages/default.png') {
+                    Storage::disk('public')->delete($pet->petImage);
+                }
+                
+                // Delete the pet
+                $pet->delete();
+            }
+            
+            // Delete payments linked to this user
+            \DB::table('payments')->where('userID', $id)->delete();
+            
+            // Delete user's profile image if exists and not default
+            if ($user->userImage && $user->userImage != 'userImages/default.png') {
+                Storage::disk('public')->delete($user->userImage);
+            }
+            
+            // Finally delete the user
+            $user->delete();
+            
+            \DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error deleting user: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete user: ' . $e->getMessage()
             ], 500);
         }
     }

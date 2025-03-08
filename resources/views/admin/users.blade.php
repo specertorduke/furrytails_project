@@ -84,13 +84,16 @@
         },
 
         editUser: function(id) {
-            console.log('Edit user', id);
+            if (typeof window.openEditUserModal === 'function') {
+                window.openEditUserModal(id);
+            } else {
+                console.error('openEditUserModal function not found');
+            }
         },
-
         deleteUser: function(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                text: "You won't be able to revert this! All user data including pets, appointments and boardings will be deleted.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#24CFF4',
@@ -98,27 +101,44 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'Please wait while we delete the user data.',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
                     // Make AJAX call to delete
-                    fetch(`/admin/users/${id}`, {
-                        method: 'DELETE',
+                    fetch("{{ route('admin.users.destroy', ['id' => ':userId']) }}".replace(':userId', id), {                        method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if(data.success) {
                             this.usersTable.ajax.reload();
-                            Swal.fire('Deleted!', 'User has been deleted.', 'success');
+                            Swal.fire('Deleted!', 'User has been deleted successfully.', 'success');
                         } else {
                             Swal.fire('Error!', data.message || 'Failed to delete user.', 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        Swal.fire('Error!', 'An error occurred while deleting the user.', 'error');
+                        Swal.fire('Error!', error.message || 'An error occurred while deleting the user.', 'error');
                     });
                 }
             });

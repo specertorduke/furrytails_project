@@ -387,31 +387,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const phoneInput = document.getElementById('phone');
-        if (phoneInput) {
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                
-                // Limit to 10 digits
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-                
-                // Format with spaces
-                if (value.length > 3 && value.length <= 6) {
-                    value = value.slice(0, 3) + ' ' + value.slice(3);
-                } else if (value.length > 6) {
-                    value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
-                }
-                
-                e.target.value = value;
-                
-                // Validate format for visual feedback
-                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-                if (value.length > 0 && !phoneRegex.test(value)) {
-                    phoneInput.classList.add('tw-border-yellow-400');
-                } else {
-                    phoneInput.classList.remove('tw-border-yellow-400');
-                }
-            });
-        }
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            
+            // Limit to 10 digits
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            
+            // Format with spaces
+            if (value.length > 3 && value.length <= 6) {
+                value = value.slice(0, 3) + ' ' + value.slice(3);
+            } else if (value.length > 6) {
+                value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+            }
+            
+            e.target.value = value;
+            
+            // Validate format for visual feedback
+            const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+            if (value.length > 0 && !phoneRegex.test(value)) {
+                phoneInput.classList.add('tw-border-yellow-400');
+            } else {
+                phoneInput.classList.remove('tw-border-yellow-400');
+            }
+        });
+    }
 </script>

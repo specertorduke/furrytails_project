@@ -74,8 +74,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
     Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
     Route::get('/users/{id}', [AdminUsersController::class, 'show'])->name('admin.users.show');
-    Route::post('/users/{id}/disable', [AdminUsersController::class, 'disable'])->name('admin.users.disable');
-    Route::post('/users/{id}/enable', [AdminUsersController::class, 'enable'])->name('admin.users.enable');
+    Route::put('/users/{id}', [AdminUsersController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy'])->name('admin.users.destroy');
 
     // Appointments routes
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
