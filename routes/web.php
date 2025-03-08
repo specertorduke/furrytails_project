@@ -12,6 +12,7 @@ use App\Http\Controllers\HistoryController;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUsersController;
+use App\Http\Controllers\Admin\AdminPetsController;
 use App\Http\Controllers\Admin\AdminAppointmentsController;
 use App\Http\Controllers\Admin\AdminBoardingsController;
 use App\Http\Controllers\Admin\AdminServicesController;
@@ -120,4 +121,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Data for Pet Routes
     Route::post('/admin/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
+    Route::get('/pets', [AdminPetsController::class, 'index'])->name('admin.pets');
+    Route::delete('/pets/{id}', [AdminPetsController::class, 'destroyPet'])->name('pets.destroy');
+    Route::get('/pets/{id}', [AdminPetsController::class, 'showPet'])->name('pets.show');
+    Route::get('/pets/{id}/edit', [AdminPetsController::class, 'editPet'])->name('pets.edit');
 });

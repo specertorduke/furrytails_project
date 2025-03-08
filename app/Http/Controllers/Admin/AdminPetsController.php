@@ -5,10 +5,26 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pet;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
 class AdminPetsController extends Controller
-{
+{   
+    public function index()
+    {
+        $pets = Pet::with('user')->paginate(12);
+        $users = User::orderBy('firstName')->get();
+        
+        $stats = [
+            'total_pets' => Pet::count(),
+            'dogs' => Pet::where('species', 'Dog')->count(),
+            'cats' => Pet::where('species', 'Cat')->count(),
+            'others' => Pet::whereNotIn('species', ['Dog', 'Cat'])->count(),
+        ];
+        
+        return view('admin.pets', compact('pets', 'users', 'stats'));
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

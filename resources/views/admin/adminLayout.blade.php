@@ -203,7 +203,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.users') }}" onclick="loadContent(event, '{{ route('admin.users') }}')">
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.pets') }}" onclick="loadContent(event, '{{ route('admin.pets') }}')">
                             <i class="fas fa-paw nav-i tw-mr-2"></i> <span>Pets</span>
                         </a>
                     </li>
