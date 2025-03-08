@@ -32,6 +32,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-[#66FF8F] tw-transition-all tw-duration-300 hover:tw-shadow-md">
+            <div class="tw-flex tw-justify-between tw-items-center">
+                <div>
+                    <p class="tw-text-gray-400 tw-text-sm">Total Pets</p>
+                    <h3 class="tw-text-2xl tw-font-bold tw-text-white">{{ $stats['pets_count'] }}</h3>
+                    <p class="tw-text-xs tw-text-green-400 tw-mt-1"><i class="fas fa-arrow-up"></i> +8% this month</p>
+                </div>
+                <div class="tw-bg-gray-700 tw-p-3 tw-rounded-full">
+                    <i class="fas fa-paw tw-text-[#66FF8F] tw-text-xl"></i>
+                </div>
+            </div>
+        </div>
         
         <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-[#FF9666] tw-transition-all tw-duration-300 hover:tw-shadow-md">
             <div class="tw-flex tw-justify-between tw-items-center">
@@ -58,19 +71,6 @@
                 </div>
             </div>
         </div>
-        
-        <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-purple-500 tw-transition-all tw-duration-300 hover:tw-shadow-md">
-            <div class="tw-flex tw-justify-between tw-items-center">
-                <div>
-                    <p class="tw-text-gray-400 tw-text-sm">Total Revenue</p>
-                    <h3 class="tw-text-2xl tw-font-bold tw-text-white">₱ {{ number_format($stats['total_revenue'] ?? 25000) }}</h3>
-                    <p class="tw-text-xs tw-text-green-400 tw-mt-1"><i class="fas fa-arrow-up"></i> +15% this month</p>
-                </div>
-                <div class="tw-bg-gray-700 tw-p-3 tw-rounded-full">
-                    <i class="fas fa-coins tw-text-purple-500 tw-text-xl"></i>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Quick Actions Row -->
@@ -80,6 +80,12 @@
                 <i class="fas fa-user-plus tw-text-[#24CFF4]"></i>
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add User</span>
+        </a>
+        <a type="button" data-modal-target="admin-addPet-modal" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
+            <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#66FF8F]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
+                <i class="fas fa-paw tw-text-[#66FF8F]"></i>
+            </div>
+            <span class="tw-text-sm tw-font-medium tw-text-white">Add Pet</span>
         </a>
         <a type="button" data-modal-target="adminAddAppointment-modal" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700">
             <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#FF9666]/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
@@ -92,12 +98,6 @@
                 <i class="fas fa-home tw-text-[#66FF8F]"></i>
             </div>
             <span class="tw-text-sm tw-font-medium tw-text-white">Add Boarding</span>
-        </a>
-        <a href="{{ route('admin.reports') }}" class="tw-bg-gray-800 tw-no-underline tw-rounded-xl tw-p-4 tw-flex tw-items-center tw-gap-3 tw-transition-all hover:tw-shadow-md hover:tw-bg-gray-700" onclick="loadContent(event, '{{ route('admin.reports') }}')">
-            <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-purple-500/20 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
-                <i class="fas fa-history tw-text-purple-500"></i>
-            </div>
-            <span class="tw-text-sm tw-font-medium tw-text-white">Logs</span>
         </a>
     </div>
 
@@ -302,6 +302,31 @@
                 </div>
                 
                 <a href="#" class="tw-block tw-text-center tw-text-[#24CFF4] tw-text-sm tw-font-medium tw-mt-4 hover:tw-underline">View All Activity</a>
+            </div>
+            <!-- Total Revenue Card -->
+            <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-mt-6 tw-transition-all tw-duration-300 hover:tw-shadow-md">
+                <h2 class="tw-text-lg tw-font-bold tw-text-white tw-mb-4">Total Revenue</h2>
+                
+                <div class="tw-flex tw-flex-col tw-items-center tw-text-center">
+                    <div class="tw-h-16 tw-w-16 tw-bg-gray-700/50 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mb-3">
+                        <i class="fas fa-coins tw-text-purple-500 tw-text-2xl"></i>
+                    </div>
+                    <h3 class="tw-text-3xl tw-font-bold tw-text-white">₱ {{ number_format($stats['total_revenue'] ?? 25000) }}</h3>
+                    <p class="tw-text-sm tw-text-green-400 tw-mt-1"><i class="fas fa-arrow-up"></i> +15% this month</p>
+                    
+                    <div class="tw-w-full tw-h-px tw-bg-gray-700 tw-my-4"></div>
+                    
+                    <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-w-full">
+                        <div class="tw-bg-gray-700/50 tw-rounded-lg tw-p-3 tw-text-center">
+                            <p class="tw-text-xs tw-text-gray-400">Last Month</p>
+                            <p class="tw-text-sm tw-font-medium tw-text-white">₱ 21,500</p>
+                        </div>
+                        <div class="tw-bg-gray-700/50 tw-rounded-lg tw-p-3 tw-text-center">
+                            <p class="tw-text-xs tw-text-gray-400">Projected</p>
+                            <p class="tw-text-sm tw-font-medium tw-text-white">₱ 28,000</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

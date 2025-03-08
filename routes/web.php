@@ -117,4 +117,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
     Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
     Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
+
+    // Data for Pet Routes
+    Route::post('/admin/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
 });

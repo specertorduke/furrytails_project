@@ -203,6 +203,11 @@
                         </a>
                     </li>
                     <li>
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.users') }}" onclick="loadContent(event, '{{ route('admin.users') }}')">
+                            <i class="fas fa-paw nav-i tw-mr-2"></i> <span>Pets</span>
+                        </a>
+                    </li>
+                    <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.appointments') }}" onclick="loadContent(event, '{{ route('admin.appointments') }}')">
                             <i class="fas fa-calendar-check nav-i tw-mr-2"></i> <span>Appointments</span>
                         </a>
@@ -497,5 +502,6 @@
 <!-- modals -->
 @include('modals.add-user')
 @include('modals.admin-add-appointment')
+@include('modals.admin-add-pet')
 </body>
 </html>
