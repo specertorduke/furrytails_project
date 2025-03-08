@@ -6,7 +6,7 @@
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t dark:tw-border-gray-600 tw-border-gray-200">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900 dark:tw-text-white">Pet Details</h3>
-                <button type="button" class="tw-text-gray-400 hover:tw-text-gray-900 dark:hover:tw-text-white" data-modal-hide="viewPet-modal">
+                <button type="button" class="tw-text-gray-400 hover:tw-text-gray-900 dark:hover:tw-text-white" onclick="closeViewPetModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -15,7 +15,7 @@
                 <div class="tw-flex tw-flex-col tw-items-center tw-mb-4">
                     <img id="petImage" src="" alt="Pet Image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover tw-mb-4">
                     <h4 id="petName" class="tw-text-xl tw-font-semibold tw-text-gray-900 dark:tw-text-white"></h4>
-                    <p id="petType" class="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400"></p>
+                    <h4 id="petType" class="tw-text-sm tw-text-gray-500 dark:tw-text-gray-400"></>
                 </div>
                 <div class="tw-space-y-2">
                     <div class="tw-flex tw-items-center tw-gap-2">
@@ -54,7 +54,7 @@
             </div>
             <!-- Modal footer -->
             <div class="tw-flex tw-items-center tw-justify-end tw-p-4 md:tw-p-5 tw-border-t tw-rounded-b dark:tw-border-gray-600 tw-border-gray-200">
-                <button type="button" class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90" data-modal-hide="viewPet-modal">
+                <button type="button" class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90" onclick="closeViewPetModal()">
                     Close
                 </button>
             </div>
@@ -67,6 +67,7 @@
         fetch(`/pets/${petId}/edit`)
             .then(response => response.json())
             .then(pet => {
+                console.log('Pet data received:', pet); 
                 document.getElementById('petImage').src = `/storage/${pet.petImage}`;
                 document.getElementById('petName').textContent = pet.name;
                 document.getElementById('petType').textContent = pet.petType;
@@ -74,12 +75,23 @@
                 document.getElementById('petGender').textContent = pet.gender;
                 document.getElementById('petBirthDate').textContent = new Date(pet.birthDate).toLocaleDateString();
                 document.getElementById('petWeight').textContent = `${pet.weight} kg`;
-                document.getElementById('petVaccinationStatus').textContent = pet.isVaccinated ? 'Vaccinated' : 'Not Vaccinated';
+                document.getElementById('petVaccinationStatus').textContent = pet.isVaccinated ? 
+                    `Vaccinated (${new Date(pet.lastVaccinationDate).toLocaleDateString()})` : 
+                    'Not Vaccinated';
                 document.getElementById('petMedicalHistory').textContent = pet.medicalHistory || 'No medical history';
                 document.getElementById('petAllergies').textContent = pet.allergies || 'No allergies';
-                document.getElementById('petNotes').textContent = pet.petNotes || 'No notes';
+                document.getElementById('petNotes').textContent = pet.petNotes || 'No notes available';
+
+                // Show the modal
                 document.getElementById('viewPet-modal').classList.remove('tw-hidden');
             })
-            .catch(error => console.error('Error fetching pet data:', error));
+            .catch(error => {
+                console.error('Error fetching pet data:', error);
+                console.log('Failed request details:', error.response);
+            });
+    }
+
+    function closeViewPetModal() {
+        document.getElementById('viewPet-modal').classList.add('tw-hidden');
     }
 </script>

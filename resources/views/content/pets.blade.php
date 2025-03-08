@@ -158,6 +158,8 @@
 <!-- Include the Edit Pet Modal -->
 @include('modals.edit-pet')
 
+@include('modals.view-pet') <!-- Add this line -->
+
 <script>
 function initializePetsPage() {
     // Search and filter functionality
@@ -217,9 +219,11 @@ window.editPet = function(petId) {
         .catch(error => console.error('Error fetching pet data:', error));
 }
 
-window.viewPet = function(petId) {
-    console.log('Viewing pet with ID:', petId);
-    // Add your view pet logic here
+
+
+// Add this function to close the view pet modal
+window.closeViewPetModal = function() {
+    document.getElementById('viewPet-modal').classList.add('tw-hidden');
 }
 
 window.toggleDropdown = function() {

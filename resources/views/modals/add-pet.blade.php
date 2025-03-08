@@ -1,4 +1,6 @@
 <!-- Main modal -->
+
+
 <div id="addPet-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-50 tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/30">
     <div class="tw-relative tw-w-full tw-max-w-md tw-max-h-full tw-animate-modal-entry">
         <!-- Modal content -->
@@ -32,7 +34,7 @@
                         <option value="Rabbit">Rabbit</option>
                         <option value="Hamster">Hamster</option>
                         <option value="Guinea Pig">Guinea Pig</option>
-                    </select>
+                    </select>   
                 </div>
 
                 <div class="tw-col-span-1 tw-mb-4">
@@ -110,12 +112,10 @@
 
                         <!-- Cropper Area (Hidden by default) -->
                         <div id="cropper-area" class="tw-hidden tw-w-full">
-                            <div class="tw-relative tw-w-full tw-aspect-square tw-max-w-md tw-mx-auto tw-overflow-hidden">
-                                <img id="cropper-image" class="tw-max-w-full">
-                            </div>
-                            <div class="tw-flex tw-justify-end tw-mt-4 tw-space-x-2">
-                                <button type="button" id="cancel-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-gray-500 hover:tw-text-gray-700">Cancel</button>
-                                <button type="button" id="apply-crop" class="tw-px-4 tw-py-2 tw-text-sm tw-text-white tw-bg-blue-500 tw-rounded hover:tw-bg-blue-600">Apply Crop</button>
+                            <img id="cropper-image" class="tw-w-full tw-h-64 tw-object-cover">
+                            <div class="tw-flex tw-justify-between tw-mt-2">
+                                <button type="button" id="addcancel-crop" class="tw-bg-red-500 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Cancel</button>
+                                <button type="button" id="addapply-crop" class="tw-bg-green-500 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Apply</button>
                             </div>
                         </div>
 
@@ -142,9 +142,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Get references to elements
     const isVaccinatedCheckbox = document.getElementById('isVaccinated');
     const lastVaccinationDateInput = document.getElementById('lastVaccinationDate');
 
+    // Vaccination checkbox handler
     if (isVaccinatedCheckbox) {
         isVaccinatedCheckbox.addEventListener('change', function() {
             lastVaccinationDateInput.classList.toggle('tw-hidden', !this.checked);
@@ -158,6 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ...rest of your existing code...
+
+    const birthDateInput = document.getElementById('birthDate');
+
     let cropper = null;
     const uploadArea = document.getElementById('upload-area');
     const cropperArea = document.getElementById('cropper-area');
@@ -167,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewImage = document.getElementById('preview-image');
     let croppedImageData = null;
 
-    // Reset function
+    // Reset func
     function resetImageUpload() {
         if (cropper) {
             cropper.destroy();
@@ -180,41 +186,48 @@ document.addEventListener('DOMContentLoaded', function() {
         croppedImageData = null;
     }
 
-    // Add change image functionality
+    // button link para sa change image
     const changeImageBtn = document.getElementById('change-image');
     if (changeImageBtn) {
-        changeImageBtn.addEventListener('click', function() {
+        changeImageBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             resetImageUpload();
-            fileInput.click();
+            fileInput.click(); // Add this line to trigger file input
         });
     }
 
-    // Handle file input change
+    // cropper logic function
     if (fileInput) {
         fileInput.addEventListener('change', function(e) {
+            console.log('File input changed'); // Debug log
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
+                    console.log('File loaded'); // Debug log
                     uploadArea.classList.add('tw-hidden');
                     cropperArea.classList.remove('tw-hidden');
                     cropperImage.src = e.target.result;
                     
                     if (cropper) {
+                        console.log('Destroying existing cropper'); // Debug log
                         cropper.destroy();
                     }
 
-                    cropper = new Cropper(cropperImage, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        dragMode: 'move',
-                        guides: false,
-                        center: true,
-                        cropBoxMovable: false,
-                        cropBoxResizable: false,
-                        minContainerWidth: 300,
-                        minContainerHeight: 300
-                    });
+                    setTimeout(() => { // Add slight delay to ensure image is loaded
+                        console.log('Initializing cropper'); // Debug log
+                        cropper = new Cropper(cropperImage, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            guides: false,
+                            center: true,
+                            cropBoxMovable: false,
+                            cropBoxResizable: false,
+                            minContainerWidth: 300,
+                            minContainerHeight: 300
+                        });
+                    }, 100);
                 };
                 
                 reader.readAsDataURL(this.files[0]);
@@ -222,40 +235,64 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Cancel crop
-    const cancelCropBtn = document.getElementById('cancel-crop');
+    // Cancel crop - Fix the ID and variable names
+    const cancelCropBtn = document.getElementById('addcancel-crop'); // Changed ID to match HTML
     if (cancelCropBtn) {
-        cancelCropBtn.addEventListener('click', resetImageUpload);
+        cancelCropBtn.addEventListener('click', function(e) { // Changed to full function
+            console.log('Cancel crop clicked');
+            e.preventDefault();
+            resetImageUpload();
+        });
+    } else {
+        console.log('Cancel crop button not found');
     }
 
-    // Apply crop
-    const applyCropBtn = document.getElementById('apply-crop');
+    // Apply crop - Fix the ID
+    const applyCropBtn = document.getElementById('addapply-crop'); // Changed ID to match HTML
     if (applyCropBtn) {
-        applyCropBtn.addEventListener('click', function() {
+        applyCropBtn.addEventListener('click', function(e) {
+            console.log('Apply crop button clicked');
+            e.preventDefault();
+            
             if (cropper) {
-                croppedImageData = cropper.getCroppedCanvas({
-                    width: 300,
-                    height: 300
-                }).toDataURL();
-                
-                previewImage.src = croppedImageData;
-                cropperArea.classList.add('tw-hidden');
-                previewArea.classList.remove('tw-hidden');
-                
-                let hiddenInput = document.getElementById('cropped-image-data');
-                if (!hiddenInput) {
-                    hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.id = 'cropped-image-data';
-                    hiddenInput.name = 'cropped_image';
-                    document.querySelector('#addPet-modal form').appendChild(hiddenInput);
+                console.log('Cropper instance exists');
+                try {
+                    const croppedCanvas = cropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300
+                    });
+                    
+                    if (croppedCanvas) {
+                        croppedImageData = croppedCanvas.toDataURL();
+                        previewImage.src = croppedImageData;
+                        cropperArea.classList.add('tw-hidden');
+                        previewArea.classList.remove('tw-hidden');
+                        
+                        let hiddenInput = document.getElementById('cropped-image-data');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.id = 'cropped-image-data';
+                            hiddenInput.name = 'cropped_image';
+                            document.querySelector('#addPet-modal form').appendChild(hiddenInput);
+                        }
+                        hiddenInput.value = croppedImageData;
+                        console.log('Crop applied successfully');
+                    } else {
+                        console.error('Failed to create cropped canvas');
+                    }
+                } catch (error) {
+                    console.error('Error during crop:', error);
                 }
-                hiddenInput.value = croppedImageData;
+            } else {
+                console.log('No cropper instance found');
             }
         });
+    } else {
+        console.log('Apply crop button not found');
     }
 
-    // Form submission
+    // Form submissions
     const form = document.querySelector('#addPet-modal form');
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -272,6 +309,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            // Ensure isVaccinated is set to true or false
+            const isVaccinatedInput = document.createElement('input');
+            isVaccinatedInput.type = 'hidden';
+            isVaccinatedInput.name = 'isVaccinated';
+            isVaccinatedInput.value = isVaccinatedCheckbox.checked ? '1' : '0';
+            form.appendChild(isVaccinatedInput);
+
             // Show confirmation dialog
             Swal.fire({
                 title: 'Add Pet',
@@ -284,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log('Form is being submitted'); // Add this line
                     // Reset form and close modal
                     form.submit();
                     resetImageUpload();

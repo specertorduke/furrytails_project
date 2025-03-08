@@ -21,10 +21,10 @@ class PetController extends Controller
         if ($pet->userID !== Auth::id()) {
             abort(403);
         }
+        
+        // Make sure all fields are being returned
         return response()->json($pet);
     }
-
-   
 
     public function addPet(Request $request)
     {
@@ -61,7 +61,6 @@ class PetController extends Controller
             \Log::info('Pet created successfully', ['pet_id' => $pet->id]);
             
             return redirect()->back()->with('success', 'Pet added successfully!');
-            
         } catch (\Exception $e) {
             \Log::error('Pet creation failed', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to add pet. Please try again.');
@@ -86,10 +85,7 @@ class PetController extends Controller
             \Log::error('Pet deletion failed', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to delete pet. Please try again.');
         }
-
-
     }
-
 
     public function updatePet(Request $request, $id)
     {

@@ -12,9 +12,16 @@
                     <label for="name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Name</label>
                     <input type="text" id="name" name="name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
                 </div>
-                <div class="tw-col-span-2 tw-mb-4">
+                <div class="tw-col-span-1 tw-mb-4">
                     <label for="species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Species</label>
-                    <input type="text" id="species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                    <select id="species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-500 tw-focus:tw-border-primary-500 tw-block tw-w-full tw-p-2.5" required>
+                        <option value="" selected>Select Species</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                        <option value="Rabbit">Rabbit</option>
+                        <option value="Hamster">Hamster</option>
+                        <option value="Guinea Pig">Guinea Pig</option>
+                    </select>
                 </div>
                 <div class="tw-col-span-2 tw-mb-4">
                     <label for="petType" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Type</label>
@@ -53,14 +60,14 @@
                 <div class="tw-col-span-2 tw-mb-4">
                     <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Pet Image</label>
                     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full">
-                        <label for="pet-image" id="upload-area" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-64 tw-border-2 tw-border-gray-300 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100">
+                        <label for="edit-pet-image" id="edit-upload-area" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-64 tw-border-2 tw-border-gray-300 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100">
                             <span class="tw-text-gray-500">Click to upload or drag and drop</span>
-                            <input type="file" id="pet-image" name="petImage" class="tw-hidden">
+                            <input id="edit-pet-image" type="file" class="tw-hidden" accept="image/png, image/jpeg, image/jpg" />
                         </label>
 
                         <!-- Cropper Area (Hidden by default) -->
-                        <div id="cropper-area" class="tw-hidden tw-w-full">
-                            <img id="cropper-image" class="tw-w-full tw-h-64 tw-object-cover">
+                        <div id="edit-cropper-area" class="tw-hidden tw-w-full">
+                            <img id="edit-cropper-image" class="tw-w-full tw-h-64 tw-object-cover">
                             <div class="tw-flex tw-justify-between tw-mt-2">
                                 <button type="button" id="cancel-crop" class="tw-bg-red-500 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Cancel</button>
                                 <button type="button" id="apply-crop" class="tw-bg-green-500 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Apply</button>
@@ -68,9 +75,9 @@
                         </div>
 
                         <!-- Preview Area (Hidden by default) -->
-                        <div id="preview-area" class="tw-hidden tw-flex tw-flex-col tw-justify-center tw-mt-4">
-                            <img id="preview-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover">
-                            <button type="button" id="change-image" class="tw-text-sm tw-mt-3 tw-text-blue-500 hover:tw-text-blue-700">Change Image</button>
+                        <div id="edit-preview-area" class="tw-hidden tw-flex tw-flex-col tw-justify-center tw-mt-4">
+                            <img id="edit-preview-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-object-cover">
+                            <button type="button" id="edit-change-image" class="tw-text-sm tw-mt-3 tw-text-blue-500 hover:tw-text-blue-700">Change Image</button>
                         </div>
                     </div>
                 </div>
@@ -108,12 +115,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     let cropper = null;
-    const uploadArea = document.getElementById('upload-area');
-    const cropperArea = document.getElementById('cropper-area');
-    const previewArea = document.getElementById('preview-area');
-    const fileInput = document.getElementById('pet-image');
-    const cropperImage = document.getElementById('cropper-image');
-    const previewImage = document.getElementById('preview-image');
+    const uploadArea = document.getElementById('edit-upload-area');
+    const cropperArea = document.getElementById('edit-cropper-area');
+    const previewArea = document.getElementById('edit-preview-area');
+    const fileInput = document.getElementById('edit-pet-image');
+    const cropperImage = document.getElementById('edit-cropper-image');
+    const previewImage = document.getElementById('edit-preview-image');
     let croppedImageData = null;
 
     // Reset func
@@ -130,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // button link para sa change image
-    const changeImageBtn = document.getElementById('change-image');
+    const changeImageBtn = document.getElementById('edit-change-image');
     if (changeImageBtn) {
         changeImageBtn.addEventListener('click', function() {
             resetImageUpload();
