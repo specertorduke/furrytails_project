@@ -15,7 +15,7 @@
             </div>
             
             <!-- Modal body -->
-            <form class="tw-p-4 md:tw-p-5" enctype="multipart/form-data">
+            <form id="addUserForm" class="tw-p-4 md:tw-p-5" enctype="multipart/form-data">
                 <!-- First Name and Last Name fields in same row -->
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <!-- First Name field -->
@@ -45,8 +45,15 @@
 
                 <!-- Phone field - Single row -->
                 <div class="tw-mb-4">
-                    <label for="phone" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Phone</label>
-                    <input type="tel" name="phone" id="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <label for="phone" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Phone (Philippine Format)</label>
+                    <div class="tw-relative">
+                        <span class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400">+63</span>
+                        <input type="tel" name="phone" id="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-12 tw-p-2.5" placeholder="9XX XXX XXXX" required>
+                    </div>
+                    <div class="tw-flex tw-justify-between tw-items-center tw-mt-1">
+                        <span class="tw-text-xs tw-text-gray-400">Format: 9XX XXX XXXX</span>
+                        <p id="phone-error" class="tw-hidden tw-text-red-500 tw-text-xs">Invalid phone number format</p>
+                    </div>
                 </div>
 
                 <!-- Password field - Single row -->
@@ -225,48 +232,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submission with validation
     const form = document.querySelector('#addUser-modal form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate password match
-            const password = document.getElementById('password').value;
-            const passwordConfirm = document.getElementById('password-confirm').value;
-            
-            if (password !== passwordConfirm) {
-                Swal.fire({
-                    title: 'Password Error',
-                    text: 'Passwords do not match',
-                    icon: 'error',
-                    confirmButtonColor: '#24CFF4',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate password match
+                const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('password-confirm').value;
+                
+                if (password !== passwordConfirm) {
+                    Swal.fire({
+                        title: 'Password Error',
+                        text: 'Passwords do not match',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        confirmButtonText: 'OK',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                    return;
+                }
 
-            // Show confirmation dialog
-            Swal.fire({
-                title: 'Add User',
-                text: 'Are you sure you want to add this user?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, add user',
-                cancelButtonText: 'Cancel',
-                background: '#374151', // Dark background
-                color: '#fff' // White text
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Here you would typically make an AJAX call to add the user
+                // Validate Philippine phone number format
+                const phoneInput = document.getElementById('phone');
+                const phoneNumber = phoneInput.value.trim();
+                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/; // Format: 9XX XXX XXXX
+                
+                if (!phoneRegex.test(phoneNumber)) {
+                    document.getElementById('phone-error').classList.remove('tw-hidden');
+                    phoneInput.classList.add('tw-border-red-500');
+                    phoneInput.focus();
+                    return;
+                } else {
+                    document.getElementById('phone-error').classList.add('tw-hidden');
+                    phoneInput.classList.remove('tw-border-red-500');
+                }
+
+                // Show confirmation dialog
+                Swal.fire({
+                    title: 'Add User',
+                    text: 'Are you sure you want to add this user?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#24CFF4',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, add user',
+                    cancelButtonText: 'Cancel',
+                    background: '#374151',
+                    color: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create FormData object
+                        const formData = new FormData();
+                        formData.append('firstName', document.getElementById('first-name').value);
+                        formData.append('lastName', document.getElementById('last-name').value);
+                        formData.append('email', document.getElementById('email').value);
+                        formData.append('username', document.getElementById('username').value);
+                        formData.append('phone', '+63' + phoneNumber.replace(/\s/g, ''));
+                        formData.append('password', password);
+                        formData.append('role', document.getElementById('role').value);
+                        
+                        // Add cropped image if available
+                        if (croppedImageData) {
+                            // Convert base64 to blob
+                            fetch(croppedImageData)
+                                .then(res => res.blob())
+                                .then(blob => {
+                                    formData.append('userImage', blob, 'profile-image.png');
+                                    submitForm(formData);
+                                });
+                        } else {
+                            submitForm(formData);
+                        }
+                    }
+                });
+            });
+            
+            // Function to submit form data to server
+            function submitForm(formData) {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg> Processing...
+                `;
+                
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                // Send data to server
+                fetch('{{ route("admin.users.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Something went wrong');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
                     
+                    // Show success message
                     Swal.fire({
                         title: 'Success!',
                         text: 'User has been added successfully',
                         icon: 'success',
                         confirmButtonColor: '#24CFF4',
-                        background: '#374151', // Dark background
-                        color: '#fff' // White text
+                        background: '#374151',
+                        color: '#fff'
                     }).then(() => {
                         // Reset form and close modal
                         form.reset();
@@ -275,10 +362,56 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Close the modal
                         const modal = document.getElementById('addUser-modal');
                         modal.classList.add('tw-hidden');
+                        
+                        // Reload page to show the new user
+                        window.location.href = "{{ route('admin.users') }}";
                     });
+                })
+                .catch(error => {
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    
+                    // Show error message
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to add user',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                });
+            }
+        }
+    });
+
+    const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                
+                // Limit to 10 digits
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                
+                // Format with spaces
+                if (value.length > 3 && value.length <= 6) {
+                    value = value.slice(0, 3) + ' ' + value.slice(3);
+                } else if (value.length > 6) {
+                    value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+                }
+                
+                e.target.value = value;
+                
+                // Validate format for visual feedback
+                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+                if (value.length > 0 && !phoneRegex.test(value)) {
+                    phoneInput.classList.add('tw-border-yellow-400');
+                } else {
+                    phoneInput.classList.remove('tw-border-yellow-400');
                 }
             });
-        });
-    }
-});
+        }
 </script>

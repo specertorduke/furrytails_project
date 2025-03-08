@@ -70,6 +70,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Users routes
     Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
     Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
+    Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
 
     // Appointments routes
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');

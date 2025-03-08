@@ -68,9 +68,17 @@
                         </div>
 
                         <div>
-                            <label for="phone" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" required 
-                                class="tw-mt-1 tw-w-full tw-px-3 tw-py-2 tw-border tw-rounded-md tw-shadow-sm focus:tw-ring-indigo-500 focus:tw-border-indigo-500">
+                            <label for="phone" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Phone Number (Philippine Format)</label>
+                            <div class="tw-relative">
+                                <span class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400">+63</span>
+                                <input type="tel" id="phone" name="phone" value="{{ old('phone') ? substr(old('phone'), 3) : '' }}" required 
+                                    placeholder="9XX XXX XXXX" 
+                                    class="tw-mt-1 tw-w-full tw-px-3 tw-py-2 tw-pl-12 tw-border tw-rounded-md tw-shadow-sm focus:tw-ring-indigo-500 focus:tw-border-indigo-500">
+                            </div>
+                            <div class="tw-flex tw-justify-between tw-items-center tw-mt-1">
+                                <span class="tw-text-xs tw-text-gray-500">Format: 9XX XXX XXXX</span>
+                                <p id="phone-error" class="tw-hidden tw-text-red-500 tw-text-xs">Invalid phone number format</p>
+                            </div>
                         </div>
 
                         <div>
@@ -125,6 +133,67 @@
                 toggleIcon.classList.add('fa-eye');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                
+                // Limit to 10 digits (excluding +63 prefix)
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                
+                // Format with spaces
+                if (value.length > 3 && value.length <= 6) {
+                    value = value.slice(0, 3) + ' ' + value.slice(3);
+                } else if (value.length > 6) {
+                    value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+                }
+                
+                e.target.value = value;
+                
+                // Validate format for visual feedback
+                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+                if (value.length > 0 && !phoneRegex.test(value)) {
+                    phoneInput.classList.add('tw-border-yellow-400');
+                    document.getElementById('phone-error').classList.add('tw-hidden');
+                } else if (value.length > 0) {
+                    phoneInput.classList.remove('tw-border-yellow-400');
+                    phoneInput.classList.add('tw-border-green-500');
+                    document.getElementById('phone-error').classList.add('tw-hidden');
+                } else {
+                    phoneInput.classList.remove('tw-border-yellow-400', 'tw-border-green-500');
+                }
+            });
+        }
+        
+        // Validate form submission
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const phoneInput = document.getElementById('phone');
+                const phoneValue = phoneInput.value.trim();
+                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+                
+                if (!phoneRegex.test(phoneValue)) {
+                    e.preventDefault();
+                    phoneInput.classList.add('tw-border-red-500');
+                    document.getElementById('phone-error').classList.remove('tw-hidden');
+                    phoneInput.focus();
+                } else {
+                    // Before submitting, add the +63 prefix to the value
+                    // This can be done by creating a hidden input
+                    const hiddenPhoneInput = document.createElement('input');
+                    hiddenPhoneInput.type = 'hidden';
+                    hiddenPhoneInput.name = 'full_phone';
+                    hiddenPhoneInput.value = '+63' + phoneValue.replace(/\s/g, '');
+                    form.appendChild(hiddenPhoneInput);
+                }
+            });
+        }
+    });
     </script>
 </body>
 </html>
