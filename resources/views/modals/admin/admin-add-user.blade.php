@@ -45,7 +45,7 @@
 
                 <!-- Phone field - Single row -->
                 <div class="tw-mb-4">
-                    <label for="phone" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Phone (Philippine Format)</label>
+                    <label for="phone" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Phone</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400">+63</span>
                         <input type="tel" name="phone" id="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-12 tw-p-2.5" placeholder="9XX XXX XXXX" required>
