@@ -14,11 +14,12 @@
                 </button>
             </div>
             <!-- Modal body -->
-            <form class="tw-p-4 md:tw-p-5" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('pets.add') }}" enctype="multipart/form-data" class="tw-p-4 md:tw-p-5">
+                @csrf
                 <!-- Name field -->
                 <div class="tw-col-span-2 tw-mb-4">
-                    <label for="pet-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Pet Name</label>
-                    <input type="text" name="pet-name" id="pet-name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                    <label for="name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Pet Name</label>
+                    <input type="text" name="name" id="pet-name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
                 </div>
 
                 <!-- Species and Type fields -->
@@ -36,7 +37,7 @@
 
                 <div class="tw-col-span-1 tw-mb-4">
                     <label for="breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed/Type</label>
-                    <input type="text" name="breed" id="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                    <input type="text" name="petType" id="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
                 </div>
 
                 <!-- Gender and Birth Date fields -->
@@ -89,8 +90,8 @@
 
                 <!-- Notes field -->
                 <div class="tw-col-span-2 tw-mb-4">
-                    <label for="notes" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Additional Notes</label>
-                    <textarea id="notes" name="notes" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="Any special notes about your pet..."></textarea>
+                    <label for="petNotes" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Additional Notes</label>
+                    <textarea id="petNotes" name="petNotes" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" placeholder="Any special notes about your pet..."></textarea>
                 </div>
                 <div class="tw-col-span-2 tw-mb-4">
                     <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">Pet Image</label>
@@ -135,6 +136,9 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet"/>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -183,32 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
             resetImageUpload();
             fileInput.click();
         });
-    }
-
-    // Update cropper initialization with better options
-    cropper = new Cropper(cropperImage, {
-        aspectRatio: 1,
-        viewMode: 1,
-        dragMode: 'move',
-        guides: false,
-        center: true,
-        cropBoxMovable: false,
-        cropBoxResizable: false,
-        minContainerWidth: 300,
-        minContainerHeight: 300,
-        autoCropArea: 1,
-        responsive: true,
-        background: false,
-        modal: true,
-        initialAspectRatio: 1,
-        zoomOnWheel: true,
-        cropBoxShape: 'circle'
-    });
-
-    // Handle modal close
-    const modalToggle = document.querySelector('[data-modal-toggle="addPet-modal"]');
-    if (modalToggle) {
-        modalToggle.addEventListener('click', resetImageUpload);
     }
 
     // Handle file input change
@@ -306,20 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show success message
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Pet has been added successfully',
-                        icon: 'success',
-                        confirmButtonColor: '#24CFF4'
-                    }).then(() => {
-                        // Reset form and close modal
-                        form.reset();
-                        resetImageUpload();
-                        // Close the modal - adjust based on your modal library
-                        const modal = document.getElementById('addPet-modal');
-                        modal.classList.add('tw-hidden');
-                    });
+                    // Reset form and close modal
+                    form.submit();
+                    resetImageUpload();
+                    const modal = document.getElementById('addPet-modal');
+                    modal.classList.add('tw-hidden');
                 }
             });
         });
