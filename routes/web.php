@@ -83,8 +83,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
     Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])->name('admin.upcoming-appointments.data');
     Route::get('/appointments/data', [AdminAppointmentsController::class, 'getAppointmentsData'])->name('admin.appointments.data');
-    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment']);
-    
+    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment'])->name('admin.appointments.cancel');
+    Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
+    Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
+    Route::get('/appointments/{id}', [AdminAppointmentsController::class, 'show'])->name('admin.appointments.show');
+    Route::get('/appointments/{id}/edit', [AdminAppointmentsController::class, 'edit'])->name('admin.appointments.edit');
+    Route::put('/appointments/{id}', [AdminAppointmentsController::class, 'update'])->name('admin.appointments.update');
+    Route::patch('/appointments/{id}/status', [AdminAppointmentsController::class, 'updateStatus'])->name('admin.appointments.update-status');
+
     // Boardings routes
     Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
     Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('admin.ongoing-boardings.data');
@@ -110,20 +116,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
 
     // Reports
-    Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])->name('admin.reports');
-    Route::get('/reports/data', [App\Http\Controllers\Admin\AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
-    Route::get('/reports/{id}', [App\Http\Controllers\Admin\AdminReportsController::class, 'show'])->name('admin.reports.show');
-    Route::post('/reports/restore', [App\Http\Controllers\Admin\AdminReportsController::class, 'restore'])->name('admin.reports.restore');
+    Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/data', [AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
+    Route::get('/reports/{id}', [AdminReportsController::class, 'show'])->name('admin.reports.show');
+    Route::post('/reports/restore', [AdminReportsController::class, 'restore'])->name('admin.reports.restore');
 
     // Admin Account Routes
     Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');
     Route::put('/account/update', [App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('admin.account.update');
     Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
-
-    // Data for admin appointment modal
-    Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
-    Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
-    Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
 
     // Data for Pet Modal
     Route::post('/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');

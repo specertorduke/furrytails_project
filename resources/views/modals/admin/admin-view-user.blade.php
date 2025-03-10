@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Store current user data
             currentUserData = data.user;
             window.currentUserData = data.user;
-            
+
             // Populate user information
             populateUserData(data.user);
             
@@ -307,11 +307,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add click event to view pet details
             petCard.style.cursor = 'pointer';
             petCard.addEventListener('click', function() {
-                // Implement view pet details functionality
-                if (typeof openPetModal === 'function') {
-                    openPetModal(petId);
+                // Close the user modal first
+                document.getElementById('viewUser-modal').classList.add('tw-hidden');
+                
+                // Then open pet modal with the pet ID
+                if (typeof window.openPetModal === 'function') {
+                    window.openPetModal(petId);
                 } else {
                     console.log('View details for pet:', petId);
+                    Swal.fire({
+                        title: 'Function Not Available',
+                        text: 'Pet view functionality is not available.',
+                        icon: 'info',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
                 }
             });
             

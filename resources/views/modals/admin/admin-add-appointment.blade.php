@@ -433,4 +433,8 @@ const AdminAppointmentModal = {
 document.addEventListener('DOMContentLoaded', function() {
     AdminAppointmentModal.init();
 });
+
+document.addEventListener('contentChanged', function() {
+    AdminAppointmentModal.init();
+});
 </script>

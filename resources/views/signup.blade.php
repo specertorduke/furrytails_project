@@ -68,7 +68,7 @@
                         </div>
 
                         <div>
-                            <label for="phone" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Phone Number (Philippine Format)</label>
+                            <label for="phone" class="tw-block tw-text-sm tw-font-normal tw-text-gray-700">Phone Number</label>
                             <div class="tw-relative">
                                 <span class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400">+63</span>
                                 <input type="tel" id="phone" name="phone" value="{{ old('phone') ? substr(old('phone'), 3) : '' }}" required 
@@ -133,7 +133,7 @@
                 toggleIcon.classList.add('fa-eye');
             }
         }
-        
+
     document.addEventListener('DOMContentLoaded', function() {
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {

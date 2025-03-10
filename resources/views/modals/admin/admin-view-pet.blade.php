@@ -20,7 +20,7 @@
                 <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6">
                     <!-- Pet Image Column -->
                     <div class="tw-flex tw-flex-col tw-items-center">
-                        <div id="petImage" class="tw-h-40 tw-w-40 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                        <div id="admin.petImage" class="tw-h-40 tw-w-40 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
                             <!-- Image will be set via JavaScript -->
                             <i class="fas fa-paw tw-text-4xl tw-text-gray-500"></i>
                         </div>
@@ -91,7 +91,7 @@
                                     <p id="ownerName" class="tw-text-sm tw-text-white tw-font-medium"></p>
                                     <p id="ownerEmail" class="tw-text-xs tw-text-gray-400"></p>
                                 </div>
-                                <button id="viewOwnerBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
+                                <button id="admin.viewOwnerBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
                                     <i class="fas fa-external-link-alt tw-mr-1"></i> View
                                 </button>
                             </div>
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Set pet image
-        const petImage = document.getElementById('petImage');
+        const petImage = document.getElementById('admin.petImage');
         if (pet.petImage) {
            // Use Laravel's asset helper
             let imageUrl = "{{ asset('') }}" + (pet.petImage.startsWith('storage/') 
@@ -269,10 +269,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
                         
             // Set up view owner button
-            const viewOwnerBtn = document.getElementById('viewOwnerBtn');
+            const viewOwnerBtn = document.getElementById('admin.viewOwnerBtn');
             viewOwnerBtn.addEventListener('click', function() {
                 // Close pet modal first
-                viewPetModal.classList.add('tw-hidden');
+                document.getElementById('viewPet-modal').classList.add('tw-hidden');
+
                 // Open user modal with owner ID
                 if (typeof window.openUserModal === 'function') {
                     window.openUserModal(pet.user.userID || pet.userID);

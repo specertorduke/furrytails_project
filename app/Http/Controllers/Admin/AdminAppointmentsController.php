@@ -120,8 +120,8 @@ class AdminAppointmentsController extends Controller
     }
 
     /**
- * Get available time slots for a specific date
- */
+     * Get available time slots for a specific date
+     */
     public function getAvailableTimes(Request $request)
     {
         $date = $request->input('date');
@@ -242,5 +242,180 @@ class AdminAppointmentsController extends Controller
             'completed' => $completed->count(),
             'missed' => $missed->count(),
         ];
+    }
+
+    /**
+     * Show appointment details
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        try {
+            $appointment = Appointment::with(['pet.user', 'service'])
+                ->findOrFail($id);
+            
+            // Format date and time for display
+            $appointment->formattedDate = \Carbon\Carbon::parse($appointment->date)->format('F j, Y');
+            $appointment->formattedTime = \Carbon\Carbon::parse($appointment->time)->format('g:i A');
+            
+            return response()->json([
+                'success' => true,
+                'appointment' => $appointment
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching appointment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve appointment details',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    /**
+     * Update appointment status
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|string|in:Pending,Confirmed,Completed,Cancelled'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid status value',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $appointment = Appointment::findOrFail($id);
+            $oldStatus = $appointment->status;
+            $appointment->status = $request->status;
+            $appointment->save();
+            
+            // Log the status change
+            \App\Models\ActivityLog::create([
+                'table_name' => 'appointments',
+                'record_id' => $appointment->appointmentID,
+                'action' => 'update_status',
+                'old_values' => json_encode(['status' => $oldStatus]),
+                'new_values' => json_encode(['status' => $request->status]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment status updated successfully',
+                'appointment' => $appointment
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating appointment status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update appointment status',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update appointment details
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'petID' => 'required|exists:pets,petID',
+                'date' => 'required|date',
+                'time' => 'required',
+                'serviceID' => 'required|exists:services,serviceID',
+                'status' => 'required|in:Pending,Confirmed,Completed,Cancelled'
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            
+            // Find appointment
+            $appointment = Appointment::findOrFail($id);
+            
+            // Check for duplicate appointments (excluding this one)
+            $existingAppointment = Appointment::where('date', $request->date)
+                ->where('time', $request->time)
+                ->whereIn('status', ['Pending', 'Confirmed'])
+                ->where('appointmentID', '!=', $id)
+                ->exists();
+                
+            if ($existingAppointment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This time slot is already booked'
+                ], 422);
+            }
+        
+            // Update appointment
+            $appointment->petID = $request->petID;
+            $appointment->date = $request->date;
+            $appointment->time = $request->time;
+            $appointment->serviceID = $request->serviceID;
+            $appointment->status = $request->status;
+            $appointment->save();
+        
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment updated successfully',
+                'appointment' => $appointment
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating appointment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to update appointment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get appointment data for editing
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function edit($id)
+    {
+        try {
+            $appointment = \App\Models\Appointment::with(['pet.user', 'service'])
+                ->findOrFail($id);
+                
+            return response()->json([
+                'success' => true,
+                'appointment' => $appointment
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching appointment for edit: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve appointment details',
+                'error' => $e->getMessage()
+            ], 404);
+        }
     }
 }
