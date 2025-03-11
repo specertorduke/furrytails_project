@@ -83,9 +83,7 @@
  
              <!-- Modal footer -->
              <div class="tw-flex tw-justify-end tw-gap-3 tw-p-4 md:tw-p-5 tw-border-t tw-border-gray-700">
-                 <button type="button" class="tw-text-white tw-bg-blue-600 hover:tw-bg-blue-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5" onclick="editPet(currentPetData.petID)">
-                     <i class="fas fa-edit tw-mr-2"></i>Edit
-                 </button>
+                 
                  <button type="button" class="tw-text-gray-300 tw-bg-gray-700 hover:tw-bg-gray-600 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5" data-modal-toggle="viewPet-modal">
                      Close
                  </button>
