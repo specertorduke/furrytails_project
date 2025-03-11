@@ -12,6 +12,7 @@ use App\Http\Controllers\HistoryController;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUsersController;
+use App\Http\Controllers\Admin\AdminPetsController;
 use App\Http\Controllers\Admin\AdminAppointmentsController;
 use App\Http\Controllers\Admin\AdminBoardingsController;
 use App\Http\Controllers\Admin\AdminServicesController;
@@ -33,7 +34,7 @@ Route::get('/main', function () { return view('main'); })->middleware('auth')->n
 Route::get('/', function () { return view('home'); })->name('home');
 
 //content routes
-Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from here
+Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'ajax.headers' from here
     Route::get('/content', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
@@ -71,17 +72,31 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Dashboard routes
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/weekly-data', [App\Http\Controllers\Admin\AdminDashboardController::class, 'getWeeklyServiceData'])
+    ->name('admin.dashboard.weekly-data');
 
     // Users routes
+    Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
+    Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
     Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
     Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
+    Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
+    Route::get('/users/{id}', [AdminUsersController::class, 'show'])->name('admin.users.show');
+    Route::put('/users/{id}', [AdminUsersController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy'])->name('admin.users.destroy');
 
     // Appointments routes
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
     Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])->name('admin.upcoming-appointments.data');
     Route::get('/appointments/data', [AdminAppointmentsController::class, 'getAppointmentsData'])->name('admin.appointments.data');
-    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment']);
-    
+    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment'])->name('admin.appointments.cancel');
+    Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
+    Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
+    Route::get('/appointments/{id}', [AdminAppointmentsController::class, 'show'])->name('admin.appointments.show');
+    Route::get('/appointments/{id}/edit', [AdminAppointmentsController::class, 'edit'])->name('admin.appointments.edit');
+    Route::put('/appointments/{id}', [AdminAppointmentsController::class, 'update'])->name('admin.appointments.update');
+    Route::patch('/appointments/{id}/status', [AdminAppointmentsController::class, 'updateStatus'])->name('admin.appointments.update-status');
+
     // Boardings routes
     Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
     Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('admin.ongoing-boardings.data');
@@ -107,13 +122,25 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
 
     // Reports
-    Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])->name('admin.reports');
-    Route::get('/reports/data', [App\Http\Controllers\Admin\AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
-    Route::get('/reports/{id}', [App\Http\Controllers\Admin\AdminReportsController::class, 'show'])->name('admin.reports.show');
-    Route::post('/reports/restore', [App\Http\Controllers\Admin\AdminReportsController::class, 'restore'])->name('admin.reports.restore');
+    Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/data', [AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
+    Route::get('/reports/{id}', [AdminReportsController::class, 'show'])->name('admin.reports.show');
+    Route::post('/reports/restore', [AdminReportsController::class, 'restore'])->name('admin.reports.restore');
 
     // Admin Account Routes
     Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');
     Route::put('/account/update', [App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('admin.account.update');
     Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
+
+    // Data for Pet Modal
+    Route::post('/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');
+    Route::get('/pets', [AdminPetsController::class, 'index'])->name('admin.pets');
+    Route::get('/pets/{id}', [AdminPetsController::class, 'showPet'])->name('admin.pets.show');
+    Route::get('/{id}/edit', [AdminPetsController::class, 'edit'])->name('admin.pets.edit');
+    Route::put('/pets/{id}', [AdminPetsController::class, 'update'])->name('admin.pets.update');
+    Route::delete('/pets/{id}', [AdminPetsController::class, 'destroy'])->name('admin.pets.destroy');
+
+    // Data for Boarding Modal
+    Route::post('/boarding/store', [\App\Http\Controllers\Admin\AdminBoardingsController::class, 'store'])
+    ->name('admin.boarding.store');
 });
