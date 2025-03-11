@@ -11,7 +11,7 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Appointments Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
-            <button type="button" id="addAppointmentBtn" class="tw-bg-[#FF9666] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-orange-400">
+            <button data-modal-target="adminAddAppointment-modal" data-modal-toggle="adminAddAppointment-modal" id="addAppointmentBtn" class="tw-bg-[#FF9666] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-orange-400">
                 <i class="fas fa-calendar-plus tw-mr-2"></i> Add Appointment
             </button>
         </div>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Filter Controls -->
-    <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-4 tw-mb-6">
+    <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-4 tw-mb-6 tw-overflow-x-auto">
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
             <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Status</label>
@@ -113,12 +113,28 @@
         // CRUD Functions
         viewAppointment: function(id) {
             console.log('View appointment', id);
-            // Implement view functionality
+            if (typeof window.openAppointmentModal === 'function') {
+                window.openAppointmentModal(id);
+            } else {
+                console.error('openAppointmentModal function not found');
+            }
         },
 
         editAppointment: function(id) {
             console.log('Edit appointment', id);
-            // Implement edit functionality
+            if (typeof window.openEditAppointmentModal === 'function') {
+                window.openEditAppointmentModal(id);
+            } else {
+                console.error('openEditAppointmentModal function not found');
+                Swal.fire({
+                    title: 'Feature Not Available',
+                    text: 'The edit appointment feature is not available at the moment.',
+                    icon: 'warning',
+                    confirmButtonColor: '#FF9666',
+                    background: '#374151',
+                    color: '#fff'
+                });
+            }
         },
 
         cancelAppointment: function(id) {
@@ -133,7 +149,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to cancel
-                    fetch(`/admin/appointments/${id}/cancel`, {
+                    console.log("cancelling: " + id);
+                    fetch("{{ route('admin.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -452,6 +469,65 @@
             AppointmentsPage.destroyTables();
         }
     });
+</script>
+
+<script>
+    function initializeModals() {
+        // First, remove any existing event listeners to prevent duplicates
+        document.querySelectorAll('[data-modal-target]').forEach(button => {
+            button.removeEventListener('click', handleModalOpen);
+            button.addEventListener('click', handleModalOpen);
+        });
+        
+        document.querySelectorAll('[data-modal-toggle]').forEach(button => {
+            button.removeEventListener('click', handleModalToggle);
+            button.addEventListener('click', handleModalToggle);
+        });
+        
+        // Handle clicks outside modals
+        document.removeEventListener('click', handleOutsideClick);
+        document.addEventListener('click', handleOutsideClick);
+    }
+
+    // Separate functions for event handlers
+    function handleModalOpen(e) {
+        const modalId = this.getAttribute('data-modal-target');
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            modalElement.classList.remove('tw-hidden');
+            console.log(`Opening modal: ${modalId}`);
+        } else {
+            console.error(`Modal with ID ${modalId} not found`);
+        }
+    }
+
+    function handleModalToggle(e) {
+        const modalId = this.getAttribute('data-modal-toggle');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Only close the modal if the button is inside the modal
+            // This prevents the toggle button from both opening AND closing the modal
+            if (this.closest(`#${modalId}`)) {
+                modal.classList.add('tw-hidden');
+                console.log(`Closing modal: ${modalId}`);
+            }
+        }
+    }
+
+    function handleOutsideClick(e) {
+        document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+            if (e.target === modal) {
+                modal.classList.add('tw-hidden');
+                console.log('Closing modal by outside click');
+            }
+        });
+    }
+
+    // Initialize modals on page load
+    document.addEventListener('DOMContentLoaded', initializeModals);
+
+    // Re-initialize when content changes
+    document.addEventListener('contentChanged', initializeModals);
 </script>
 @endpush
 @endsection

@@ -25,32 +25,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
-        Schema::create('employees', function (Blueprint $table) {
-            $table->id('employeeID');
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('firstName');
-            $table->string('lastName');
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
-            $table->string('role')->nullable();
-            $table->timestamps();
-        });
-
         // Set the auto-increment starting value
-        DB::statement('ALTER TABLE Employees AUTO_INCREMENT = 1000;');
-
-        // -- Roles:
-        // -- 'Administrator','Manager', 'Receptionist', 'Groomer', 'Boarding Attendant',
-        // -- 'Veterinarian', 'Pet Trainer',
-        // -- 'Cleaning Staff'
+        DB::statement('ALTER TABLE Users AUTO_INCREMENT = 1000;');
 
         Schema::create('pets', function (Blueprint $table) {
             $table->id('petID');
             $table->string('name', 50);
             $table->string('species', 50);
-            $table->string('petType', 50)->nullable();
+            $table->string('breed', 50)->nullable(); 
             $table->string('gender', 10);  // Add gender
             $table->date('birthDate');     // Replace age with birthDate
             $table->decimal('weight', 5, 2)->nullable(); // Add weight in kg
@@ -88,14 +70,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('boarding_reservations', function (Blueprint $table) {
+        Schema::create('boardings', function (Blueprint $table) {
             $table->id('boardingID');
             $table->unsignedBigInteger('petID');
             $table->string('boardingType');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['Pending','Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
+            $table->enum('status', ['Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
             $table->timestamps();
         });
 
@@ -157,11 +139,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('payments');
         Schema::dropIfExists('appointments');
-        Schema::dropIfExists('boarding_reservations');
+        Schema::dropIfExists('boardings');
         Schema::dropIfExists('services');
         Schema::dropIfExists('pets');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('employees');
         Schema::dropIfExists('activity_logs');
     }
 };

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Boarding;
+use Validator;
 
 class AdminBoardingsController extends Controller {
     public function index()
@@ -66,6 +67,46 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to cancel boarding'
+            ], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'petID' => 'required|exists:pets,petID',
+            'boardingType' => 'required|in:daycare,overnight,long-term',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'status' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $boarding = new Boarding();
+            $boarding->petID = $request->petID;
+            $boarding->boardingType = $request->boardingType;
+            $boarding->start_date = $request->start_date;
+            $boarding->end_date = $request->end_date;
+            $boarding->status = $request->status;
+            $boarding->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Boarding reservation created successfully',
+                'boarding' => $boarding
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating boarding reservation',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

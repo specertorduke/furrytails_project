@@ -111,21 +111,6 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        // EMPLOYEES
-        DB::table('employees')->insert([
-            [
-                'username' => 'employee001',
-                'password' => bcrypt('password123'),
-                'firstName' => 'John',
-                'lastName' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'phone' => '09123456789',
-                'role' => 'Manager',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-
         // USERS
         DB::table('users')->insert([
             [
@@ -159,7 +144,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Buddy',
                 'species' => 'Dog',
-                'petType' => 'Golden Retriever',
+                'breed' => 'Golden Retriever',
                 'gender' => 'Male',
                 'birthDate' => '2020-03-15',
                 'weight' => 32.5,
@@ -169,14 +154,14 @@ class DatabaseSeeder extends Seeder
                 'medicalHistory' => 'Regular checkups, no major health issues',
                 'petNotes' => 'Very friendly, loves to play fetch',
                 'petImage' => 'seed/buddy.png',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Luna',
                 'species' => 'Cat',
-                'petType' => 'Persian',
+                'breed' => 'Persian',
                 'gender' => 'Female',
                 'birthDate' => '2021-06-20',
                 'weight' => 4.2,
@@ -186,14 +171,14 @@ class DatabaseSeeder extends Seeder
                 'medicalHistory' => 'Annual vaccinations up to date',
                 'petNotes' => 'Quiet and gentle, prefers indoor activities',
                 'petImage' => 'seed/luna.png',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Max',
                 'species' => 'Dog',
-                'petType' => 'Beagle',
+                'breed' => 'Beagle',
                 'gender' => 'Male',
                 'birthDate' => '2022-01-10',
                 'weight' => 12.8,
@@ -203,7 +188,7 @@ class DatabaseSeeder extends Seeder
                 'medicalHistory' => 'Minor skin allergy treatment in 2023',
                 'petNotes' => 'Energetic and loves to explore',
                 'petImage' => 'seed/max.jpg',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -232,7 +217,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         //BOARDINGS
-        DB::table('boarding_reservations')->insert([
+        DB::table('boardings')->insert([
             [
                 'boardingType' => 'Overnight',
                 'start_date' => '2025-03-01',
@@ -263,7 +248,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 'Completed',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Appointment',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now()->subDays(5),
                 'updated_at' => now()->subDays(5),
             ],
@@ -274,7 +259,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 'Completed',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Appointment',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now()->subDays(1),
                 'updated_at' => now()->subDays(1),
             ],
@@ -287,7 +272,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 'Completed',
                 'payable_id' => 2,
                 'payable_type' => 'App\Models\Appointment',
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now()->subDays(2),
                 'updated_at' => now()->subDays(2),
             ],
@@ -300,7 +285,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 'Completed',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Boarding', // Fixed the model name
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now()->subDays(7),
                 'updated_at' => now()->subDays(7),
             ],
@@ -311,7 +296,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 'Pending',
                 'payable_id' => 1,
                 'payable_type' => 'App\Models\Boarding', // Fixed the model name
-                'userID' => 1,
+                'userID' => 1000,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

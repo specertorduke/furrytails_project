@@ -140,3 +140,36 @@ function submitFormData() {
     // Add your form submission logic here
     // This could be an AJAX call to your backend
 }
+
+// chart manager
+// Add this as a new global chart management utility
+
+window.ChartsManager = {
+    activeCharts: {},
+    
+    register: function(id, chartInstance) {
+        this.activeCharts[id] = chartInstance;
+    },
+    
+    get: function(id) {
+        return this.activeCharts[id];
+    },
+    
+    destroy: function(id) {
+        if (this.activeCharts[id]) {
+            this.activeCharts[id].destroy();
+            delete this.activeCharts[id];
+        }
+    },
+    
+    destroyAll: function() {
+        Object.keys(this.activeCharts).forEach(id => {
+            this.destroy(id);
+        });
+    }
+};
+
+// Auto cleanup on page navigation
+window.addEventListener('beforeunload', function() {
+    window.ChartsManager.destroyAll();
+});

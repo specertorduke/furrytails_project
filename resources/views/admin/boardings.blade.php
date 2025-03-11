@@ -66,7 +66,7 @@
     </div>
 
     <!-- Filter Controls -->
-    <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-4 tw-mb-6">
+    <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-4 tw-mb-6 tw-overflow-x-auto">
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
             <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Status</label>
@@ -383,7 +383,7 @@
 
         applyFilters: function() {
             const statusFilter = $('#status-filter').val();
-            const petTypeFilter = $('#pet-type-filter').val();
+            const breedFilter = $('#pet-type-filter').val();
             const dateFrom = $('#date-from').val();
             const dateTo = $('#date-to').val();
             
@@ -396,7 +396,7 @@
                 }
                 
                 // Pet type filter
-                if (petTypeFilter && rowData.pet?.species?.toLowerCase() !== petTypeFilter.toLowerCase()) {
+                if (breedFilter && rowData.pet?.species?.toLowerCase() !== breedFilter.toLowerCase()) {
                     return false;
                 }
                 

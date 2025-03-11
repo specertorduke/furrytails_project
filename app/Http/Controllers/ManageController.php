@@ -43,7 +43,7 @@ class ManageController extends Controller
                 ->whereHas('pet', function($query) {
                     $query->where('userID', Auth::id());
                 })
-                ->select('boarding_reservations.*')
+                ->select('boardings.*')
                 ->get();
 
             return response()->json([
