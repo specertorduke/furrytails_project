@@ -152,42 +152,62 @@
 </div>
 
 <script>
+    
     window.deletePet = function(petId) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'Delete Pet',
+            text: "Are you sure you want to delete this pet? This action cannot be undone!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, delete pet',
+            background: '#fff'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send delete request
-                fetch(`/pets/${petId}`, {
-                    method: 'DELETE',
+                fetch(`/pets/${petId}/delete`, {
+                    method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        Swal.fire(
-                            'Deleted!',
-                            'Your pet has been removed.',
-                            'success'
-                        ).then(() => {
-                            location.reload();
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Pet has been deleted successfully',
+                            icon: 'success',
+                            confirmButtonColor: '#24CFF4'
+                        }).then(() => {
+                            // Close any open modals
+                            const viewPetModal = document.getElementById('viewPet-modal');
+                            const editPetModal = document.getElementById('editPet-modal');
+                            if (viewPetModal) viewPetModal.classList.add('tw-hidden');
+                            if (editPetModal) editPetModal.classList.add('tw-hidden');
+                            
+                            // Reload page to refresh the pet list
+                            window.location.reload();
                         });
                     } else {
-                        Swal.fire(
-                            'Error!',
-                            'Something went wrong.',
-                            'error'
-                        );
+                        throw new Error(data.message || 'Failed to delete pet');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to delete pet',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4'
+                    });
                 });
             }
         });
@@ -244,13 +264,54 @@ function initializePetsPage() {
 
 // Global functions for pet actions
 window.editPet = function(petId) {
-    console.log('Editing pet with ID:', petId);
-    // Add your edit pet logic here
-}
+    // Fetch pet details first
+    fetch(`/pets/${petId}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show and populate the edit modal
+            const modal = document.getElementById('editPet-modal');
+            modal.classList.remove('tw-hidden');
+            
+            // Use the populate function defined in edit-pet.blade.php
+            window.populateEditPetForm(data.pet);
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: data.message || 'Could not load pet details',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Failed to load pet details',
+            icon: 'error',
+            confirmButtonColor: '#24CFF4'
+        });
+    });
+};
 
 window.viewPet = function(petId) {
-    console.log('Viewing pet with ID:', petId);
-    // Add your view pet logic here
+    if (typeof window.openPetModal === 'function') {
+        window.openPetModal(petId);
+    } else {
+        console.error('openPetModal function not found');
+        Swal.fire({
+            title: 'Error',
+            text: 'Could not load pet details',
+            icon: 'error',
+            confirmButtonColor: '#24CFF4'
+        });
+    }
 }
 
 window.toggleDropdown = function() {
@@ -273,4 +334,6 @@ document.addEventListener('click', function(event) {
     }
 });
 </script>
+@include('modals.view-pet')
+@include('modals.edit-pet')
 @endsection

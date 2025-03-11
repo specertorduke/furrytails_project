@@ -35,7 +35,7 @@
                             <p class="tw-text-gray-500">{{ Auth::user()->email }}</p>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('account.update') }}" enctype="multipart/form-data">
+                    <form method="POST" id="accountupdate" action="{{ route('account.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -137,7 +137,7 @@
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.querySelector('form').submit();
+                document.getElementById("accountupdate").submit();
             }
         });
     }
@@ -174,8 +174,19 @@
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Add your account deletion logic here
-                window.location.href = "#";
+                fetch('{{ route('account.delete') }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        Swal.fire('Error!', 'Failed to delete your account.', 'error');
+                        
+                    } else {
+                        window.location.href = '{{ route('login') }}';
+                    }
+                });
             }
         });
     }
