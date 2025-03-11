@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {  // Remove 'ajax.headers' from 
     Route::get('/pets/{id}/edit', [PetController::class, 'edit'])->name('pets.edit');
     Route::post('/pets/add', [PetController::class, 'addPet'])->name('pets.add');
     Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.delete');
+    Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete');
     Route::get('/pets/{id}', [PetController::class, 'show'])->name('pets.show');
     Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('pets.update');
 

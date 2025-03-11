@@ -70,19 +70,34 @@ class PetController extends Controller
     {
         try {
             $pet = Pet::findOrFail($id);
-
-            if ($pet->userID !== auth()->id()) {
-                return redirect()->back()->with('error', 'Unauthorized action.');
+            
+            // Check if user owns this pet
+            if ($pet->userID !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized action'
+                ], 403);
             }
 
+            // Delete pet image if it exists and isn't the default
+            if ($pet->petImage && $pet->petImage !== 'petImages/default.png') {
+                \Storage::disk('public')->delete($pet->petImage);
+            }
+
+            // Delete the pet
             $pet->delete();
 
-            \Log::info('Pet deleted successfully', ['pet_id' => $id]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet deleted successfully'
+            ]);
 
-            return redirect()->back()->with('success', 'Pet deleted successfully!');
         } catch (\Exception $e) {
             \Log::error('Pet deletion failed', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to delete pet. Please try again.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete pet: ' . $e->getMessage()
+            ], 500);
         }
     }
 
