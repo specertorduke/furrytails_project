@@ -51,4 +51,18 @@ class AccountController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
+
+    public function deleteAccount()
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            Auth::logout();
+            $user->delete();
+            
+            return redirect()->route('login')->with('success', 'Your account has been deleted successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Failed to delete your account.');
+    }
 }

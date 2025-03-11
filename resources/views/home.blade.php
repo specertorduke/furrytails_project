@@ -167,7 +167,7 @@
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6">
                     <h2 class="tw-text-3xl tw-font-bold text-center mb-5">Contact Us</h2>
-                    <form>
+                    <form action = "https://submit-form.com/vpxJvmHCD">
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-md-6">
                                 <label class="tw-block tw-text-sm tw-font-normal tw-text-gray-700 mb-2">Name</label>

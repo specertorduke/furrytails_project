@@ -11,7 +11,7 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Boardings Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
-            <button type="button" id="addBoardingBtn" class="tw-bg-[#4dc76d] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-green-400">
+            <button type="button" data-modal-target="adminAddBoarding-modal" id="addBoardingBtn" class="tw-bg-[#4dc76d] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-green-400">
                 <i class="fas fa-home tw-mr-2"></i> Add Boarding
             </button>
         </div>

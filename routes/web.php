@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AdminServicesController;
 use App\Http\Controllers\Admin\AdminPaymentsController;
 use App\Http\Controllers\Admin\AdminReportsController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 
 Route::get('/login', function () { return view('login'); })->name('login');
 Route::post('/login', [LoginController::class, 'login' ])->name('login.submit');
@@ -42,6 +43,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
     Route::get('/content/account', [AccountController::class, 'index'])->name('content.account');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+    Route::delete('/account/delete', [AccountController::class, 'deleteAccount'])->name('account.delete');
 
     // Manage Page routes
     Route::get('/manage/fetch-appointments', [ManageController::class, 'fetchAppointments'])->name('manage.appointments');
@@ -49,7 +51,11 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
 
     // Pet Page routes
     Route::get('/pets/{id}/edit', [PetController::class, 'edit'])->name('pets.edit');
-    Route::put('/pets/{id}', [PetController::class, 'update'])->name('pets.update');
+    Route::post('/pets/add', [PetController::class, 'addPet'])->name('pets.add');
+    Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.delete');
+    Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete');
+    Route::get('/pets/{id}', [PetController::class, 'show'])->name('pets.show');
+    Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('pets.update');
 
     // CRUD routes for appointments
     Route::get('/appointments/{id}', [ManageController::class, 'showAppointment']);
