@@ -64,13 +64,10 @@
         @forelse($pets as $pet)
         <div class="col-12 col-md-6 col-lg-4 col-xl-3">
             <div class="tw-bg-white tw-rounded-2xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:-tw-translate-y-1 tw-relative tw-group">
-                <form method="POST" action="{{ route('pets.delete', $pet->petID) }}" class="tw-absolute tw-top-3 tw-left-3 tw-z-20 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-all tw-duration-200">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="tw-bg-red-500 tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-red-600 tw-shadow-md" onclick="return confirm('Are you sure you want to delete this pet?')">
-                        <i class="fas fa-trash-alt tw-text-sm"></i>
-                    </button>
-                </form>
+                <button onclick="deletePet({{ $pet->petID }})" 
+                    class="tw-absolute tw-top-3 tw-left-3 tw-z-20 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-all tw-duration-200 tw-bg-red-500 tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-red-600 tw-shadow-md">
+                    <i class="fas fa-trash-alt tw-text-sm"></i>
+                </button>
                 <div class="tw-relative">
                     <img src="{{ asset('storage/' . $pet->petImage) }}" 
                         alt="{{ $pet->name }}" 
@@ -131,9 +128,8 @@
                                 class="tw-text-[#24CFF4] tw-text-sm hover:tw-underline">
                             View Details
                         </button>
-                        <button type="button" onclick="editPet({{ $pet->petID }})" 
-                                class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90" 
-                                data-modal-target="editPet-modal" data-modal-toggle="editPet-modal">
+                        <button onclick="editPet({{ $pet->petID }})" 
+                                class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90">
                             <i class="fas fa-edit tw-mr-2"></i>Edit
                         </button>
                     </div>
@@ -155,12 +151,49 @@
     </div>
 </div>
 
-<!-- Include the Edit Pet Modal -->
-@include('modals.edit-pet')
-
-@include('modals.view-pet') <!-- Add this line -->
-
 <script>
+    
+    window.deletePet = function(petId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send delete request
+                fetch(`/pets/${petId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your pet has been removed.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
+
 function initializePetsPage() {
     // Search and filter functionality
     const searchPet = document.getElementById('searchPet');
@@ -212,33 +245,54 @@ function initializePetsPage() {
 
 // Global functions for pet actions
 window.editPet = function(petId) {
-    fetch(`/pets/${petId}/edit`)
-        .then(response => response.json())
-        .then(pet => {
-            document.getElementById('editPet-modal').querySelector('form').action = `/pets/${petId}`;
-            document.getElementById('name').value = pet.name;
-            document.getElementById('species').value = pet.species;
-            document.getElementById('petType').value = pet.petType;
-            document.getElementById('gender').value = pet.gender;
-            document.getElementById('birthDate').value = pet.birthDate;
-            document.getElementById('weight').value = pet.weight;
-            document.getElementById('medicalHistory').value = pet.medicalHistory;
-            document.getElementById('petNotes').value = pet.petNotes;
-            document.getElementById('isVaccinated').checked = pet.isVaccinated;
-            document.getElementById('lastVaccinationDate').value = pet.lastVaccinationDate;
-            document.getElementById('preview-image').src = `/storage/${pet.petImage}`;
-            document.getElementById('preview-area').classList.remove('tw-hidden');
-            document.getElementById('upload-area').classList.add('tw-hidden');
-            document.getElementById('editPet-modal').classList.remove('tw-hidden');
-        })
-        .catch(error => console.error('Error fetching pet data:', error));
-}
+    // Fetch pet details first
+    fetch(`/pets/${petId}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show and populate the edit modal
+            const modal = document.getElementById('editPet-modal');
+            modal.classList.remove('tw-hidden');
+            
+            // Use the populate function defined in edit-pet.blade.php
+            window.populateEditPetForm(data.pet);
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: data.message || 'Could not load pet details',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Failed to load pet details',
+            icon: 'error',
+            confirmButtonColor: '#24CFF4'
+        });
+    });
+};
 
-
-
-// Add this function to close the view pet modal
-window.closeViewPetModal = function() {
-    document.getElementById('viewPet-modal').classList.add('tw-hidden');
+window.viewPet = function(petId) {
+    if (typeof window.openPetModal === 'function') {
+        window.openPetModal(petId);
+    } else {
+        console.error('openPetModal function not found');
+        Swal.fire({
+            title: 'Error',
+            text: 'Could not load pet details',
+            icon: 'error',
+            confirmButtonColor: '#24CFF4'
+        });
+    }
 }
 
 window.toggleDropdown = function() {
@@ -261,4 +315,6 @@ document.addEventListener('click', function(event) {
     }
 });
 </script>
+@include('modals.view-pet')
+@include('modals.edit-pet')
 @endsection

@@ -17,12 +17,11 @@ class PetController extends Controller
     public function edit($id)
     {
         $pet = Pet::findOrFail($id);
-       
+        
         if ($pet->userID !== Auth::id()) {
             abort(403);
         }
         
-        // Make sure all fields are being returned
         return response()->json($pet);
     }
 
@@ -87,39 +86,98 @@ class PetController extends Controller
         }
     }
 
+    
+    public function show($id)
+    {
+        try {
+            $pet = Pet::findOrFail($id);
+            
+            if ($pet->userID !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
+            return response()->json([
+                'success' => true,
+                'pet' => $pet
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pet not found'
+            ], 404);
+        }
+    }
+
     public function updatePet(Request $request, $id)
     {
-        $pet = Pet::findOrFail($id);
-        
-        if ($pet->userID !== Auth::id()) {
-            abort(403);
+        try {
+            $pet = Pet::findOrFail($id);
+            
+            if ($pet->userID !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized action'
+                ], 403);
+            }
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'species' => 'required|string',
+                'breed' => 'required|string',
+                'gender' => 'required|string',
+                'birthDate' => 'required|date',
+                'weight' => 'nullable|numeric|min:0',
+                'cropped_image' => 'nullable|string',
+                'petNotes' => 'nullable|string',
+                'medicalHistory' => 'nullable|string',
+                'allergies' => 'nullable|string',
+                'isVaccinated' => 'required|boolean',
+                'lastVaccinationDate' => 'required_if:isVaccinated,1|nullable|date'
+            ]);
+
+            // Handle image update if provided
+            if ($request->has('cropped_image') && $request->cropped_image !== null) {
+                if ($pet->petImage && $pet->petImage !== 'petImages/default.png') {
+                    \Storage::disk('public')->delete($pet->petImage);
+                }
+                $imageData = $request->input('cropped_image');
+                $imageName = 'petImages/pet_' . time() . '.png';
+                \Storage::disk('public')->put($imageName, base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData)));
+                $validated['petImage'] = $imageName;
+            }
+
+            // Convert isVaccinated to boolean
+            $validated['isVaccinated'] = filter_var($validated['isVaccinated'], FILTER_VALIDATE_BOOLEAN);
+
+            // Only include lastVaccinationDate if pet is vaccinated
+            if (!$validated['isVaccinated']) {
+                $validated['lastVaccinationDate'] = null;
+            }
+
+            $pet->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet updated successfully',
+                'pet' => $pet->fresh()
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Pet update validation failed', ['errors' => $e->errors()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Pet update failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update pet: ' . $e->getMessage()
+            ], 500);
         }
-    
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'species' => 'required|string',
-            'petType' => 'required|string',
-            'gender' => 'required|string',
-            'birthDate' => 'required|date',
-            'weight' => 'nullable|numeric',
-            'cropped_image' => 'nullable|string',  // For base64 image data
-            'petNotes' => 'nullable|string',
-            'medicalHistory' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'isVaccinated' => 'nullable|boolean',
-            'lastVaccinationDate' => 'nullable|date'
-        ]);
-    
-        // Handle the base64 image data
-        if ($request->has('cropped_image')) {
-            $imageData = $request->input('cropped_image');
-            $imageName = 'pet_' . time() . '.png';
-            \Storage::disk('public')->put($imageName, base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData)));
-            $validated['petImage'] = $imageName;
-        }
-    
-        $pet->update($validated);
-    
-        return redirect()->back()->with('success', 'Pet updated successfully!');
     }
 }
