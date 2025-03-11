@@ -171,16 +171,16 @@
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-md-6">
                                 <label class="tw-block tw-text-sm tw-font-normal tw-text-gray-700 mb-2">Name</label>
-                                <input type="text" class="form-control tw-rounded-md tw-shadow-sm">
+                                <input type="text" id="name" name="name" placeholder="Name" required="" class="form-control tw-rounded-md tw-shadow-sm">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="tw-block tw-text-sm tw-font-normal tw-text-gray-700 mb-2">Email</label>
-                                <input type="email" class="form-control tw-rounded-md tw-shadow-sm">
+                                <input type="email" id="email" name="email" placeholder="Email" required="" class="form-control tw-rounded-md tw-shadow-sm">
                             </div>
                         </div>
                         <div class="mb-4">
                             <label class="tw-block tw-text-sm tw-font-normal tw-text-gray-700 mb-2">Message</label>
-                            <textarea rows="4" class="form-control tw-rounded-md tw-shadow-sm"></textarea>
+                            <textarea rows="4" id="message" name="message" placeholder="Message" required="" class="form-control tw-rounded-md tw-shadow-sm"></textarea>
                         </div>
                         <button type="submit" class="tw-bg-[#24CFF4] tw-text-white tw-font-bold tw-py-3 tw-px-8 tw-rounded-full tw-transition-colors hover:tw-bg-[#63e4fd] d-block mx-auto">
                             Send Message
