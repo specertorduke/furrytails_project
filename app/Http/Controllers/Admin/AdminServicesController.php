@@ -83,4 +83,114 @@ class AdminServicesController extends Controller
             ], 500);
         }
     }    
+
+    /**
+     * Get service details for view modal
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        try {
+            // Get service data
+            $service = Service::findOrFail($id);
+                
+            // Get stats for this service (if needed)
+            $stats = [
+                'appointmentCount' => 0,
+                'revenue' => 0
+            ];
+            
+            // Only attempt to get appointment stats if Appointment model exists
+            if (class_exists('\App\Models\Appointment')) {
+                try {
+                    $stats['appointmentCount'] = \App\Models\Appointment::where('serviceID', $id)->count();
+                    
+                    // Instead of using 'price' column directly, calculate based on service price
+                    // This avoids the "Unknown column 'price'" error
+                    $appointmentCount = \App\Models\Appointment::where('serviceID', $id)
+                        ->where('status', 'Completed')
+                        ->count();
+                        
+                    $stats['revenue'] = $appointmentCount * $service->price;
+                    
+                    // Log successful stats retrieval
+                    \Log::info("Successfully calculated stats for service ID {$id}: " . json_encode($stats));
+                } catch (\Exception $statsError) {
+                    \Log::warning('Error fetching appointment stats: ' . $statsError->getMessage());
+                    // Don't fail the entire request if just stats have an issue
+                }
+            }
+                
+            return response()->json([
+                'success' => true,
+                'service' => $service,
+                'stats' => $stats
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching service details: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve service details',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    /**
+     * Store a new service
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'category' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'isActive' => 'boolean',
+            'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $service = new Service();
+            $service->name = $request->name;
+            $service->category = $request->category;
+            $service->price = $request->price;
+            $service->description = $request->description;
+            $service->isActive = $request->has('isActive') ? $request->isActive : true;
+
+            // Handle image upload
+            if ($request->hasFile('serviceImage')) {
+                $image = $request->file('serviceImage');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('serviceImages', $imageName, 'public');
+                $service->serviceImage = $path;
+            }
+
+            $service->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Service added successfully',
+                'service' => $service
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error adding service: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add service: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

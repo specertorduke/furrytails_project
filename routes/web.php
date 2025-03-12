@@ -115,6 +115,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/services/list', [AdminServicesController::class, 'getServicesList'])->name('admin.services.list');
     Route::post('/services/{id}/toggle-status', [AdminServicesController::class, 'toggleStatus'])->name('admin.services.toggle-status');
     Route::delete('/services/{id}', [AdminServicesController::class, 'destroy'])->name('admin.services.destroy');
+    Route::get('/services/{id}', [AdminServicesController::class,'show'])->name('admin.services.show');
+    Route::post('/services/{id}/toggle-status', [AdminServicesController::class,'toggleStatus'])->name('admin.services.toggle-status');
+    Route::post('/services', [AdminServicesController::class, 'store'])->name('admin.services.store');
     
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');

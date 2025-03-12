@@ -225,6 +225,34 @@
     window.viewService = function(serviceId) {
         console.log('Viewing service with ID:', serviceId);
         // Add your view service logic here
+        
+        // Directly call the modal open function
+        if (typeof window.openServiceModal === 'function') {
+            window.openServiceModal(serviceId);
+        } else {
+            console.error('openServiceModal function is not defined');
+            // Fallback direct fetch if needed
+            fetch(`/admin/services/${serviceId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show some kind of alert at least
+                    Swal.fire({
+                        title: data.service.name,
+                        text: data.service.description || 'No description available',
+                        icon: 'info',
+                        confirmButtonColor: '#24CFF4'
+                    });
+                }
+            });
+        }
     };
 
     window.toggleServiceStatus = function(serviceId, newStatus) {
@@ -243,8 +271,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send status update request
-                fetch(`/admin/services/${serviceId}/toggle-status`, {
-                    method: 'POST',
+                fetch("{{ route('admin.services.toggle-status', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json'
@@ -287,7 +314,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send delete request
-                fetch(`/admin/services/${serviceId}`, {
+                fetch("{{ route('admin.services.destroy', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {                    
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -329,4 +356,8 @@
     });
 </script>
 @endpush
+
+<!-- modals -->
+@include('modals.admin.admin-view-service')
+@include('modals.admin.admin-add-service')
 @endsection
