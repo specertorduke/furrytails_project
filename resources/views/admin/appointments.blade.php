@@ -530,4 +530,12 @@
     document.addEventListener('contentChanged', initializeModals);
 </script>
 @endpush
+
+<!-- modals -->
+@include('modals.admin.admin-view-appointment')
+@include('modals.admin.admin-add-appointment')
+@include('modals.admin.admin-edit-appointment')
+@include('modals.admin.admin-view-user')
+@include('modals.admin.admin-view-pet')
+
 @endsection

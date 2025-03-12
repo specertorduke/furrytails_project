@@ -381,4 +381,9 @@
     document.addEventListener('contentChanged', initializeModals);
 </script>
 @endpush
+
+<!-- modals -->
+@include('modals.admin.admin-edit-user')
+@include('modals.admin.admin-view-user')
+@include('modals.admin.admin-add-user')
 @endsection

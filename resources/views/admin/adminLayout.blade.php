@@ -498,17 +498,5 @@
         }
 </script>
 @stack('scripts')
-
-<!-- modals -->
-@include('modals.admin.admin-edit-appointment')
-@include('modals.admin.admin-view-appointment')
-@include('modals.admin.admin-edit-pet')
-@include('modals.admin.admin-view-pet')
-@include('modals.admin.admin-edit-user')
-@include('modals.admin.admin-view-user')
-@include('modals.admin.admin-add-boarding')
-@include('modals.admin.admin-add-user')
-@include('modals.admin.admin-add-appointment')
-@include('modals.admin.admin-add-pet')
-</body>
+</body> 
 </html>

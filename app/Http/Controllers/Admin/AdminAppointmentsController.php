@@ -253,7 +253,7 @@ class AdminAppointmentsController extends Controller
     public function show($id)
     {
         try {
-            $appointment = Appointment::with(['pet.user', 'service'])
+            $appointment = Appointment::with(['service', 'pet.user', 'payments'])
                 ->findOrFail($id);
             
             // Format date and time for display

@@ -24,6 +24,13 @@
                     </div>
                 </div>
 
+                <!-- Payment Status Section -->
+                <div class="tw-flex tw-justify-center tw-mb-5" id="paymentStatusContainer">
+                    <div id="paymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
+                        <span id="paymentStatusText">No payment info</span>
+                    </div>
+                </div>
+
                 <!-- Appointment Info Section -->
                 <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6">
                     <!-- Service Info Column -->
@@ -35,7 +42,7 @@
                         <p id="serviceName" class="tw-mt-3 tw-text-lg tw-font-semibold tw-text-white">Loading...</p>
                         <p id="servicePrice" class="tw-text-sm tw-text-gray-400"></p>
                     </div>
-                    
+
                     <!-- Appointment Details Column -->
                     <div class="tw-flex-1">
                         <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Appointment Details</h4>
@@ -113,6 +120,26 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Payment Details Section-->
+                        <div class="tw-bg-gray-700/30 tw-p-4 tw-rounded-lg tw-mt-4 tw-hidden" id="paymentDetailsContainer">
+                            <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                                <h4 class="tw-text-sm tw-font-medium tw-text-gray-400">Payment History</h4>
+                                <span class="tw-text-xs tw-text-gray-400" id="paymentCount">0 payments</span>
+                            </div>
+                            
+                            <!-- List of payments -->
+                            <div class="tw-space-y-3 tw-max-h-60 tw-overflow-y-auto" id="paymentsListContainer">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                            
+                            <!-- Add Payment Button -->
+                            <div class="tw-mt-4 tw-flex tw-justify-end">
+                                <button id="recordPaymentBtn" class="tw-text-white tw-bg-[#FF9666] hover:tw-bg-[#FF8B52] tw-font-medium tw-rounded-lg tw-text-xs tw-px-3 tw-py-2 tw-text-center tw-flex tw-items-center">
+                                    <i class="fas fa-plus-circle tw-mr-2"></i> Add Payment
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -145,7 +172,8 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
+    document.addEventListener(eventName, function() {    
     // Global variable to store current appointment data
     window.currentAppointmentData = null;
     
@@ -274,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
             viewPetBtn.addEventListener('click', function() {
                 // Close appointment modal first
                 const viewAppointmentModal = document.getElementById('viewAppointment-modal');
+
                 viewAppointmentModal.classList.add('tw-hidden');
                 // Open pet modal with pet ID
                 if (typeof window.openPetModal === 'function') {
@@ -328,6 +357,209 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('appointmentUpdatedBlock').classList.remove('tw-hidden');
         } else {
             document.getElementById('appointmentUpdatedBlock').classList.add('tw-hidden');
+        }
+
+        // Handle payment information if available
+        if (appointment.payments && appointment.payments.length > 0) {
+            try {
+                // Sort payments by date (newest first)
+                const sortedPayments = [...appointment.payments].sort((a, b) => 
+                    new Date(b.created_at) - new Date(a.created_at)
+                );
+                
+                // Calculate total amount paid from completed payments
+                const totalPaid = appointment.payments
+                    .filter(payment => payment.status === 'Completed')
+                    .reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+                
+                // Get service price for comparison
+                const servicePrice = appointment.service ? (parseFloat(appointment.service.price) || 0) : 0;
+                
+                console.log('Payment totals:', { totalPaid, servicePrice });
+                
+                // Show payment status badge based on payment total vs service price
+                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+                const paymentStatusText = document.getElementById('paymentStatusText');
+                
+                // Clear existing content to prevent duplication
+                while (paymentStatusBadge.firstChild) {
+                    paymentStatusBadge.removeChild(paymentStatusBadge.firstChild);
+                }
+                
+                paymentStatusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium';
+                paymentStatusBadge.appendChild(paymentStatusText);
+                paymentStatusText.innerHTML = '';
+                
+                paymentStatusBadge.classList.remove('tw-hidden');
+                
+                // Get the most recent payment for additional context
+                const latestPayment = sortedPayments[0];
+                
+                // Determine payment status
+                if (totalPaid >= servicePrice && servicePrice > 0) {
+                    // Fully paid
+                    paymentStatusBadge.classList.add('tw-bg-green-900', 'tw-text-green-300');
+                    paymentStatusText.innerHTML = '<i class="fas fa-check-circle tw-mr-2"></i> Paid';
+                } else if (totalPaid > 0) {
+                    // Partially paid
+                    paymentStatusBadge.classList.add('tw-bg-blue-900', 'tw-text-blue-300');
+                    paymentStatusText.innerHTML = '<i class="fas fa-credit-card tw-mr-2"></i> Partially Paid';
+                } else if (latestPayment.status === 'Pending') {
+                    // Pending payment
+                    paymentStatusBadge.classList.add('tw-bg-yellow-900', 'tw-text-yellow-300');
+                    paymentStatusText.innerHTML = '<i class="fas fa-clock tw-mr-2"></i> Payment Pending';
+                } else if (latestPayment.status === 'Failed') {
+                    // Failed payment
+                    paymentStatusBadge.classList.add('tw-bg-red-900', 'tw-text-red-300');
+                    paymentStatusText.innerHTML = '<i class="fas fa-times-circle tw-mr-2"></i> Payment Failed';
+                } else if (latestPayment.status === 'Refunded') {
+                    // Refunded payment
+                    paymentStatusBadge.classList.add('tw-bg-purple-900', 'tw-text-purple-300');
+                    paymentStatusText.innerHTML = '<i class="fas fa-undo tw-mr-2"></i> Refunded';
+                } else {
+                    // Other status
+                    paymentStatusBadge.classList.add('tw-bg-gray-700', 'tw-text-gray-300');
+                    paymentStatusText.innerHTML = latestPayment.status || 'Unknown';
+                }
+                
+                // Add payment amount information to the status when partially paid
+                if (totalPaid > 0 && totalPaid < servicePrice) {
+                    // Show paid amount vs total
+                    const remainingAmount = servicePrice - totalPaid;
+                    const percentPaid = Math.round((totalPaid / servicePrice) * 100);
+                    
+                    // Add payment info tooltip
+                    const paymentInfo = document.createElement('div');
+                    paymentInfo.className = 'tw-mt-1 tw-text-xs tw-text-center';
+                    paymentInfo.innerHTML = `${formatPrice(totalPaid)} of ${formatPrice(servicePrice)} (${percentPaid}%)`;
+                    paymentStatusBadge.appendChild(paymentInfo);
+                }
+                
+                // Display payment details container
+                const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+                paymentDetailsContainer.classList.remove('tw-hidden');
+                
+                // Update payment count
+                document.getElementById('paymentCount').textContent = `${appointment.payments.length} payment${appointment.payments.length !== 1 ? 's' : ''}`;
+                
+                // Generate payment list HTML
+                const paymentsListContainer = document.getElementById('paymentsListContainer');
+                paymentsListContainer.innerHTML = '';
+                
+                sortedPayments.forEach((payment, index) => {
+                    // Create payment card
+                    const paymentCard = document.createElement('div');
+                    paymentCard.className = 'tw-bg-gray-800 tw-rounded-md tw-p-3 tw-border-l-4';
+                    
+                    // Set border color based on status
+                    switch(payment.status) {
+                        case 'Completed':
+                            paymentCard.classList.add('tw-border-green-500');
+                            break;
+                        case 'Pending':
+                            paymentCard.classList.add('tw-border-yellow-500');
+                            break;
+                        case 'Failed':
+                            paymentCard.classList.add('tw-border-red-500');
+                            break;
+                        case 'Refunded':
+                            paymentCard.classList.add('tw-border-purple-500');
+                            break;
+                        default:
+                            paymentCard.classList.add('tw-border-gray-600');
+                    }
+                    
+                    // Payment header with amount and status
+                    const paymentHeader = `
+                        <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                            <div class="tw-font-medium tw-text-white">${formatPrice(payment.amount)}</div>
+                            <div class="tw-text-xs tw-px-2 tw-py-1 tw-rounded-full ${getStatusClass(payment.status)}">
+                                ${payment.status}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Payment details
+                    const paymentDetails = `
+                        <div class="tw-grid tw-grid-cols-2 tw-gap-2 tw-text-xs">
+                            <div>
+                                <span class="tw-text-gray-400">Method:</span>
+                                <span class="tw-text-gray-200">${payment.payment_method || 'Not specified'}</span>
+                            </div>
+                            <div>
+                                <span class="tw-text-gray-400">Date:</span>
+                                <span class="tw-text-gray-200">${formatDateTime(payment.created_at)}</span>
+                            </div>
+                            ${payment.reference_number ? `
+                            <div class="tw-col-span-2">
+                                <span class="tw-text-gray-400">Reference:</span>
+                                <span class="tw-text-gray-200">${payment.reference_number}</span>
+                            </div>` : ''}
+                        </div>
+                    `;
+                    
+                    paymentCard.innerHTML = paymentHeader + paymentDetails;
+                    paymentsListContainer.appendChild(paymentCard);
+                });
+                
+                // Hide record payment button - feature not implemented
+                const recordPaymentBtn = document.getElementById('recordPaymentBtn');
+                recordPaymentBtn.classList.add('tw-hidden');
+                
+            } catch (error) {
+                console.error('Error processing payment data:', error);
+                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+                paymentStatusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-gray-700 tw-text-gray-300';
+                const paymentStatusText = document.getElementById('paymentStatusText');
+                paymentStatusText.innerHTML = '<i class="fas fa-exclamation-triangle tw-mr-2"></i> Error loading payments';
+            }
+        } else {
+            // No payment information available
+            const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+            const paymentStatusText = document.getElementById('paymentStatusText');
+            
+            // Clear existing content to prevent duplication
+            while (paymentStatusBadge.firstChild) {
+                paymentStatusBadge.removeChild(paymentStatusBadge.firstChild);
+            }
+            
+            paymentStatusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-gray-700 tw-text-gray-300';
+            paymentStatusBadge.appendChild(paymentStatusText);
+            paymentStatusText.innerHTML = '<i class="fas fa-dollar-sign tw-mr-2"></i> Not Paid';
+            
+            paymentStatusBadge.classList.remove('tw-hidden');
+            
+            // Show payment details container with empty state
+            const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+            paymentDetailsContainer.classList.remove('tw-hidden');
+            
+            document.getElementById('paymentCount').textContent = '0 payments';
+            document.getElementById('paymentsListContainer').innerHTML = `
+                <div class="tw-text-center tw-py-4 tw-text-gray-400">
+                    <i class="fas fa-receipt tw-text-2xl tw-mb-2"></i>
+                    <p>No payments recorded</p>
+                </div>
+            `;
+            
+            // Hide record payment button - feature not implemented 
+            const recordPaymentBtn = document.getElementById('recordPaymentBtn');
+            recordPaymentBtn.classList.add('tw-hidden');
+        }
+        
+        // Add this helper function for payment status styling
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Completed':
+                    return 'tw-bg-green-900 tw-text-green-300';
+                case 'Pending':
+                    return 'tw-bg-yellow-900 tw-text-yellow-300';
+                case 'Failed':
+                    return 'tw-bg-red-900 tw-text-red-300';
+                case 'Refunded':
+                    return 'tw-bg-purple-900 tw-text-purple-300';
+                default:
+                    return 'tw-bg-gray-700 tw-text-gray-300';
+            }
         }
     }
     
@@ -536,17 +768,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'PHP',
             minimumFractionDigits: 2
         }).format(price);
-    }
-    
-    // Initialize event listeners for both DOMContentLoaded and contentChanged
-    ['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
-        document.addEventListener(eventName, function() {
-            // Any initialization code needed for the appointment view modal
-            console.log('Appointment view modal initialized');
-        });
+    }      
     });
 });
 </script>

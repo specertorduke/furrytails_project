@@ -485,4 +485,9 @@
     // Re-initialize when content changes
     document.addEventListener('contentChanged', initializeModals);
 </script>
+
+<!-- modals -->
+@include('modals.admin.admin-edit-pet')
+@include('modals.admin.admin-view-pet')
+@include('modals.admin.admin-add-pet')
 @endsection

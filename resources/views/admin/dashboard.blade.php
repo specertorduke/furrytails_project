@@ -524,7 +524,7 @@
                 window.loadChartJsIfNeeded(() => this.fetchWeeklyData());
                 return;
             }
-            
+
             const chartCanvas = document.getElementById('servicesChart');
             if (!chartCanvas) {
                 console.error('Services chart canvas not found!');
@@ -933,4 +933,10 @@ document.addEventListener('contentWillChange', function() {
     // Re-initialize when content changes
     document.addEventListener('contentChanged', initializeModals);
 </script>
+
+<!-- modals -->
+@include('modals.admin.admin-add-boarding')
+@include('modals.admin.admin-add-user')
+@include('modals.admin.admin-add-appointment')
+@include('modals.admin.admin-add-pet')
 @endsection

@@ -456,4 +456,8 @@ const AdminBoardingModal = {
 document.addEventListener('DOMContentLoaded', function() {
     AdminBoardingModal.init();
 });
+
+document.addEventListener('contentChanged', function() {
+    AdminBoardingModal.init();
+});
 </script>

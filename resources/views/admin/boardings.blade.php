@@ -67,7 +67,7 @@
 
     <!-- Filter Controls -->
     <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-4 tw-mb-6 tw-overflow-x-auto">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-4">
             <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Status</label>
                 <select id="status-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
@@ -84,6 +84,15 @@
                     <option value="">All Types</option>
                     <option value="Dog">Dogs</option>
                     <option value="Cat">Cats</option>
+                </select>
+            </div>
+            <div>
+                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Boarding Type</label>
+                <select id="boarding-type-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
+                    <option value="">All Boarding Types</option>
+                    <option value="daycare">Daycare</option>
+                    <option value="overnight">Overnight</option>
+                    <option value="long-term">Long-term</option>
                 </select>
             </div>
             <div>
@@ -146,12 +155,36 @@
         // CRUD Functions
         viewBoarding: function(id) {
             console.log('View boarding', id);
-            // Implement view functionality
+            if (typeof window.openBoardingModal === 'function') {
+                window.openBoardingModal(id);
+            } else {
+                console.error('openBoardingModal function not found');
+                Swal.fire({
+                    title: 'Feature Not Available',
+                    text: 'The view boarding feature is not available at the moment.',
+                    icon: 'warning',
+                    confirmButtonColor: '#66FF8F',
+                    background: '#374151',
+                    color: '#fff'
+                });
+            }
         },
-
+        
         editBoarding: function(id) {
             console.log('Edit boarding', id);
-            // Implement edit functionality
+            if (typeof window.openEditBoardingModal === 'function') {
+                window.openEditBoardingModal(id);
+            } else {
+                console.error('openEditBoardingModal function not found');
+                Swal.fire({
+                    title: 'Feature Not Available',
+                    text: 'The edit boarding feature is not available at the moment.',
+                    icon: 'warning',
+                    confirmButtonColor: '#66FF8F',
+                    background: '#374151',
+                    color: '#fff'
+                });
+            }
         },
 
         cancelBoarding: function(id) {
@@ -166,13 +199,14 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to cancel
-                    fetch(`/admin/boardings/${id}/cancel`, {
+                    fetch("{{ route('admin.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
-                        }
+                        },
+                        credentials: 'same-origin'
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -205,6 +239,7 @@
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">ID</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Client</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Pet</th>
+                        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Type</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Start Date</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">End Date</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Duration</th>
@@ -263,6 +298,29 @@
                                 '<i class="fas fa-dog tw-text-[#24CFF4] tw-mr-2"></i>';
                                 
                             return `<div class="tw-flex tw-items-center">${petIcon} ${data || 'Unknown'}</div>`;
+                        }
+                    },
+                    { 
+                        data: 'boardingType',
+                        width: '10%',
+                        render: function(data) {
+                            let badgeClass = 'tw-bg-purple-900 tw-text-purple-300';
+                            let icon = 'fa-home';
+                            
+                            if (data === 'daycare') {
+                                badgeClass = 'tw-bg-blue-900 tw-text-blue-300';
+                                icon = 'fa-sun';
+                            } else if (data === 'overnight') {
+                                badgeClass = 'tw-bg-indigo-900 tw-text-indigo-300';
+                                icon = 'fa-moon';
+                            } else if (data === 'long-term') {
+                                badgeClass = 'tw-bg-purple-900 tw-text-purple-300';
+                                icon = 'fa-calendar-week';
+                            }
+                            
+                            return `<span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs ${badgeClass}">
+                                <i class="fas ${icon} tw-mr-1"></i> ${data.charAt(0).toUpperCase() + data.slice(1)}
+                            </span>`;
                         }
                     },
                     { 
@@ -376,7 +434,7 @@
 
         initializeFilters: function() {
             // Apply filters on change
-            $('#status-filter, #pet-type-filter, #date-from, #date-to').on('change', () => {
+            $('#status-filter, #pet-type-filter, #boarding-type-filter, #date-from, #date-to').on('change', () => {
                 this.applyFilters();
             });
         },
@@ -384,6 +442,7 @@
         applyFilters: function() {
             const statusFilter = $('#status-filter').val();
             const breedFilter = $('#pet-type-filter').val();
+            const boardingTypeFilter = $('#boarding-type-filter').val();
             const dateFrom = $('#date-from').val();
             const dateTo = $('#date-to').val();
             
@@ -400,6 +459,11 @@
                     return false;
                 }
                 
+                // Boarding type filter (new)
+                if (boardingTypeFilter && rowData.boardingType?.toLowerCase() !== boardingTypeFilter.toLowerCase()) {
+                    return false;
+                }
+
                 // Date range filter (check if boarding period overlaps with selected date range)
                 if (dateFrom || dateTo) {
                     const startDate = moment(rowData.start_date);
@@ -540,5 +604,71 @@
         }
     });
 </script>
+
+<script>
+    function initializeModals() {
+        // First, remove any existing event listeners to prevent duplicates
+        document.querySelectorAll('[data-modal-target]').forEach(button => {
+            button.removeEventListener('click', handleModalOpen);
+            button.addEventListener('click', handleModalOpen);
+        });
+        
+        document.querySelectorAll('[data-modal-toggle]').forEach(button => {
+            button.removeEventListener('click', handleModalToggle);
+            button.addEventListener('click', handleModalToggle);
+        });
+        
+        // Handle clicks outside modals
+        document.removeEventListener('click', handleOutsideClick);
+        document.addEventListener('click', handleOutsideClick);
+    }
+
+    // Separate functions for event handlers
+    function handleModalOpen(e) {
+        const modalId = this.getAttribute('data-modal-target');
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            modalElement.classList.remove('tw-hidden');
+            console.log(`Opening modal: ${modalId}`);
+        } else {
+            console.error(`Modal with ID ${modalId} not found`);
+        }
+    }
+
+    function handleModalToggle(e) {
+        const modalId = this.getAttribute('data-modal-toggle');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Only close the modal if the button is inside the modal
+            // This prevents the toggle button from both opening AND closing the modal
+            if (this.closest(`#${modalId}`)) {
+                modal.classList.add('tw-hidden');
+                console.log(`Closing modal: ${modalId}`);
+            }
+        }
+    }
+
+    function handleOutsideClick(e) {
+        document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+            if (e.target === modal) {
+                modal.classList.add('tw-hidden');
+                console.log('Closing modal by outside click');
+            }
+        });
+    }
+
+    // Initialize modals on page load
+    document.addEventListener('DOMContentLoaded', initializeModals);
+
+    // Re-initialize when content changes
+    document.addEventListener('contentChanged', initializeModals);
+</script>
 @endpush
+
+<!-- modals -->
+@include('modals.admin.admin-view-boarding')
+@include('modals.admin.admin-edit-boarding')
+@include('modals.admin.admin-add-boarding')
+@include('modals.admin.admin-view-user')
+@include('modals.admin.admin-view-pet')
 @endsection
