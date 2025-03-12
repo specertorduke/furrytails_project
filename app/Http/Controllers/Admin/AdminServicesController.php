@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator; 
 
 class AdminServicesController extends Controller
 {
@@ -139,20 +140,21 @@ class AdminServicesController extends Controller
     }
 
     /**
-     * Store a new service
+     * Store a newly created service in storage.
      *
-     * @param Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        // Validate request
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
-            'category' => 'required|string|max:50',
+            'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
-            'isActive' => 'boolean',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'isActive' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -163,33 +165,112 @@ class AdminServicesController extends Controller
         }
 
         try {
+            // Create service without image first
             $service = new Service();
             $service->name = $request->name;
             $service->category = $request->category;
             $service->price = $request->price;
             $service->description = $request->description;
-            $service->isActive = $request->has('isActive') ? $request->isActive : true;
+            $service->isActive = $request->isActive;
+            $service->save();
 
-            // Handle image upload
+            // Now handle the image with the service ID
             if ($request->hasFile('serviceImage')) {
                 $image = $request->file('serviceImage');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $path = $image->storeAs('serviceImages', $imageName, 'public');
+                
+                // Generate unique file name with service ID
+                $extension = $image->getClientOriginalExtension();
+                $fileName = 'service_' . $service->serviceID . '_' . time() . '.' . $extension;
+                
+                // Store in public disk under services folder
+                $path = $image->storeAs('images/services', $fileName, 'public');
+                
+                // Update the service with the image path
                 $service->serviceImage = $path;
+                $service->save();
             }
-
-            $service->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Service added successfully',
-                'service' => $service
+                'message' => 'Service created successfully',
+                'data' => $service
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error adding service: ' . $e->getMessage());
+            \Log::error('Error creating service: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add service: ' . $e->getMessage()
+                'message' => 'Failed to create service: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update an existing service.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        // Validate request
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'isActive' => 'required|boolean',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        try {
+            $service = Service::findOrFail($id);
+            
+            // Update service fields
+            $service->name = $request->name;
+            $service->category = $request->category;
+            $service->price = $request->price;
+            $service->description = $request->description;
+            $service->isActive = $request->isActive;
+    
+            // Handle image update
+            if ($request->hasFile('serviceImage')) {
+                // Delete old image if exists and not default
+                if ($service->serviceImage && !str_contains($service->serviceImage, 'default')) {
+                    Storage::disk('public')->delete($service->serviceImage);
+                }
+                
+                // Process new image
+                $image = $request->file('serviceImage');
+                $extension = $image->getClientOriginalExtension();
+                $fileName = 'service_' . $service->serviceID . '_' . time() . '.' . $extension;
+                
+                // Store in public disk under services folder
+                $path = $image->storeAs('images/services', $fileName, 'public');
+                
+                // Update the image path
+                $service->serviceImage = $path;
+            }
+            
+            $service->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Service updated successfully',
+                'data' => $service
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating service: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update service: ' . $e->getMessage()
             ], 500);
         }
     }

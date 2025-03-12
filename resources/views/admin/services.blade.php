@@ -360,4 +360,6 @@
 <!-- modals -->
 @include('modals.admin.admin-view-service')
 @include('modals.admin.admin-add-service')
+@include('modals.admin.admin-edit-service')
+
 @endsection
