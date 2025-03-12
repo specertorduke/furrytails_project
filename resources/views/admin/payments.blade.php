@@ -125,13 +125,19 @@
 
         // CRUD Functions
         viewPayment: function(id) {
-            console.log('View payment', id);
-            // Implement view functionality
+            if (typeof window.openPaymentModal === 'function') {
+                window.openPaymentModal(id);
+            } else {
+                console.error('openPaymentModal function not found');
+            }
         },
 
         editPayment: function(id) {
-            console.log('Edit payment', id);
-            // Implement edit functionality
+            if (typeof window.openEditPaymentModal === 'function') {
+                window.openEditPaymentModal(id);
+            } else {
+                console.error('openEditPaymentModal function not found');
+            }
         },
 
         markAsRefunded: function(id) {
@@ -146,8 +152,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to update status
-                    fetch(`/admin/payments/${id}/refund`, {
-                        method: 'POST',
+                    fetch(`{{ route('admin.payments.refund', ':id') }}`.replace(':id', id), {
+                        method: 'POST',  // CORRECT - method is a top-level option
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
@@ -482,7 +488,14 @@
         
         $('#addPaymentBtn').click(function() {
             console.log('Add payment button clicked');
-            // Implement add payment functionality
+            const modal = document.getElementById('addPayment-modal');
+            if (modal) {
+                modal.classList.remove('tw-hidden');
+                // Initialize modal if needed
+                if (typeof AdminPaymentModal !== 'undefined') {
+                    AdminPaymentModal.loadUsers();
+                }
+            }
         });
     });
 
@@ -506,4 +519,11 @@
     });
 </script>
 @endpush
+
+<!-- Include modals -->
+@include('modals.admin.admin-add-payment')
+@include('modals.admin.admin-edit-payment')
+@include('modals.admin.admin-view-payment')
+@include('modals.admin.admin-view-user')
+
 @endsection

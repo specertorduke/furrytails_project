@@ -129,6 +129,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/payments/{id}', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'update'])->name('admin.payments.update');
     Route::post('/payments/{id}/refund', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'markAsRefunded'])->name('admin.payments.refund');
     Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
+    Route::get('/payments/bookings/unpaid', [AdminPaymentsController::class, 'getUnpaidBookings'])->name('admin.bookings.unpaid');
 
     // Reports
     Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');

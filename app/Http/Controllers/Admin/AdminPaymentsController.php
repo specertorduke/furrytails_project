@@ -193,4 +193,86 @@ class AdminPaymentsController extends Controller
             'data' => $payment
         ]);
     }
+
+    /**
+     * Get all unpaid or partially paid bookings for a specific user
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUnpaidBookings(Request $request)
+    {
+        $userId = $request->query('userID');
+        
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User ID is required'
+            ], 400);
+        }
+        
+        try {
+            // Get appointments for user through the pets relationship
+            $appointments = Appointment::with(['service', 'pet', 'payments' => function($query) {
+                    $query->where('status', 'Completed');
+                }])
+                ->whereHas('pet', function($query) use ($userId) {
+                    $query->where('userID', $userId);
+                })
+                ->where('status', '!=', 'Cancelled')
+                ->get();
+            
+            // Filter to only unpaid or partially paid appointments
+            $unpaidAppointments = $appointments->filter(function($appointment) {
+                $totalPrice = $appointment->price ?? ($appointment->service->price ?? 0);
+                $totalPaid = $appointment->payments->sum('amount');
+                return $totalPaid < $totalPrice;
+            })->values();
+            
+            // Get boardings for user
+            $boardings = Boarding::with(['pet', 'payments' => function($query) {
+                    $query->where('status', 'Completed');
+                }])
+                ->whereHas('pet', function($query) use ($userId) {
+                    $query->where('userID', $userId);
+                })
+                ->where('status', '!=', 'Cancelled')
+                ->get();
+            
+            // Filter to only unpaid or partially paid boardings
+            $unpaidBoardings = $boardings->filter(function($boarding) {
+                $totalPrice = $boarding->price ?? 0;
+                $totalPaid = $boarding->payments->sum('amount');
+                return $totalPaid < $totalPrice;
+            })->values();
+            
+            // Add remaining balance to each item
+            foreach ($unpaidAppointments as $appointment) {
+                $totalPrice = $appointment->price ?? ($appointment->service->price ?? 0);
+                $totalPaid = $appointment->payments->sum('amount');
+                $appointment->remaining_balance = max(0, $totalPrice - $totalPaid);
+                $appointment->is_partially_paid = $totalPaid > 0;
+            }
+            
+            foreach ($unpaidBoardings as $boarding) {
+                $totalPrice = $boarding->price ?? 0;
+                $totalPaid = $boarding->payments->sum('amount');
+                $boarding->remaining_balance = max(0, $totalPrice - $totalPaid);
+                $boarding->is_partially_paid = $totalPaid > 0;
+            }
+                
+            // Return combined data
+            return response()->json([
+                'success' => true,
+                'appointments' => $unpaidAppointments,
+                'boardings' => $unpaidBoardings
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching unpaid bookings: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch unpaid bookings: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
