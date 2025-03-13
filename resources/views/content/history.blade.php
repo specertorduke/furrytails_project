@@ -222,4 +222,8 @@ window.addEventListener('popstate', function() {
 // If you're using any click handlers for navigation, add this after loading new content
 // document.dispatchEvent(new Event('contentChanged'));
 </script>
+
+
+@include('modals.payment-modal')
+
 @endsection

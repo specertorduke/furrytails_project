@@ -45,6 +45,10 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
     Route::delete('/account/delete', [AccountController::class, 'deleteAccount'])->name('account.delete');
 
+    Route::get('/content/api/appointments', [DashboardController::class, 'getUpcomingAppointments'])->name('dashboard.upcoming-appointments');
+    Route::get('/content/api/boardings', [DashboardController::class, 'getCurrentBoardings'])->name('dashboard.current-boardings');
+    Route::get('/content/api/pets', [DashboardController::class, 'getPets'])->name('dashboard.pets');
+
     // Manage Page routes
     Route::get('/manage/fetch-appointments', [ManageController::class, 'fetchAppointments'])->name('manage.appointments');
     Route::get('/manage/fetch-boardings', [ManageController::class, 'fetchBoardings'])->name('manage.boardings');

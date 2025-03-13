@@ -334,5 +334,9 @@
         ManagePage.destroyTables();
     });
 </script>
+
+@include('modals.add-appointment')
+@include('modals.add-boarding')
+
 @endpush
 @endsection

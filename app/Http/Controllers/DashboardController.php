@@ -9,25 +9,66 @@ use App\Models\Boarding;
 
 class DashboardController extends Controller
 {
+    // Your existing index method stays the same
     public function index(Request $request)
     {
-        // Fetch pets that belong to the authenticated user
         $pets = Pet::where('userID', Auth::id())->get();
-
-        // Fetch upcoming appointments that belong to the authenticated user's pets
+        
         $appointments = Appointment::whereHas('pet', function ($query) {
             $query->where('userID', Auth::id());
         })->where('date', '>=', now())
           ->orderBy('date', 'asc')
           ->get();
-
-        // Fetch upcoming boarding reservations that belong to the authenticated user's pets
-        $boardingReservations = Boarding::whereHas('pet', function ($query) {
+          
+        $boardings = Boarding::whereHas('pet', function ($query) {
             $query->where('userID', Auth::id());
-        })->where('start_date', '>=', now())
+        })->where('end_date', '>=', now())
           ->orderBy('start_date', 'asc')
           ->get();
+          
+        return view('content.dashboard', compact('appointments', 'boardings', 'pets'));
+    }
 
-        return view('content.dashboard', compact('appointments', 'boardingReservations', 'pets'));
+    public function getUpcomingAppointments()
+    {
+        $appointments = Appointment::with(['pet', 'service'])
+            ->whereHas('pet', function ($query) {
+                $query->where('userID', Auth::id());
+            })
+            ->where('date', '>=', now())
+            ->orderBy('date', 'asc')
+            ->get();
+    
+        // Return in the format DataTables expects
+        return response()->json([
+            'data' => $appointments
+        ]);
+    }
+    
+    public function getCurrentBoardings()
+    {
+        $boardings = Boarding::with('pet')
+            ->whereHas('pet', function ($query) {
+                $query->where('userID', Auth::id());
+            })
+            ->where('end_date', '>=', now())
+            ->orderBy('start_date', 'asc')
+            ->get();
+    
+        // Return in the format DataTables expects
+        return response()->json([
+            'data' => $boardings
+        ]);
+    }
+    
+    public function getPets()
+    {
+        $pets = Pet::where('userID', Auth::id())
+            ->get();
+    
+        // Return in the format DataTables expects
+        return response()->json([
+            'data' => $pets
+        ]);
     }
 }
