@@ -65,6 +65,8 @@ return new class extends Migration
             $table->unsignedBigInteger('serviceID');
             $table->unsignedBigInteger('petID');
             $table->string('status', 50)->default('Pending');
+            $table->string('before_image')->nullable(); // Before grooming image
+            $table->string('after_image')->nullable();  // After grooming image
             $table->foreign('serviceID')->references('serviceID')->on('services')->onDelete('cascade');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
             $table->timestamps();

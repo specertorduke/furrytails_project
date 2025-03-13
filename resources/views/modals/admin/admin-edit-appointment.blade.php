@@ -16,7 +16,7 @@
             
             <!-- Modal body -->
             <div class="tw-p-4 md:tw-p-5">
-                <form id="editAppointmentForm">
+            <form id="editAppointmentForm" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="_method" value="PUT">
                     <input type="hidden" id="editAppointmentID" name="appointmentID">
@@ -108,6 +108,44 @@
                                 </select>
                             </div>
                         </div>
+
+                        <!-- Grooming Section - Only visible for grooming services -->
+                        <div id="grooming-section" class="tw-mb-6 tw-hidden">
+                            <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Grooming Information</h4>
+                            
+                            <div class="tw-grid tw-grid-cols-1 tw-gap-4">
+                                <!-- Before and After Images -->
+                                <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
+                                    <!-- Before Image -->
+                                    <div>
+                                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Before Grooming</label>
+                                        <div class="tw-flex tw-flex-col tw-items-center">
+                                            <div id="before-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
+                                                <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
+                                            </div>
+                                            <label for="before_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
+                                                <i class="fas fa-camera tw-mr-2"></i> Upload Before Image
+                                            </label>
+                                            <input type="file" name="before_image" id="before_image" class="tw-hidden" accept="image/*">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- After Image -->
+                                    <div>
+                                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">After Grooming</label>
+                                        <div class="tw-flex tw-flex-col tw-items-center">
+                                            <div id="after-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
+                                                <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
+                                            </div>
+                                            <label for="after_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
+                                                <i class="fas fa-camera tw-mr-2"></i> Upload After Image
+                                            </label>
+                                            <input type="file" name="after_image" id="after_image" class="tw-hidden" accept="image/*">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Time slot availability warning -->
                         <div id="time-warning" class="tw-mt-2 tw-hidden">
@@ -145,6 +183,10 @@
     window.openEditAppointmentModal = function(appointmentId) {
         // Store the appointment ID we're editing
         editingAppointmentID = appointmentId;
+        
+        // Reset the grooming section
+        document.getElementById('before-image-preview').innerHTML = '<span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>';
+        document.getElementById('after-image-preview').innerHTML = '<span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>';
         
         // Show loading state
         const editAppointmentModal = document.getElementById('editAppointment-modal');
@@ -190,6 +232,22 @@
             document.getElementById('editAppointmentID').value = data.appointment.appointmentID;
             document.getElementById('edit-date').value = data.appointment.date;
             updateStatusButtons(data.appointment.status);
+            
+            // Show before image if available
+            if (data.appointment.before_image) {
+                const beforePreview = document.getElementById('before-image-preview');
+                beforePreview.innerHTML = `
+                    <img src="{{ asset('storage') }}/${data.appointment.before_image}" alt="Before Grooming" class="tw-h-full tw-w-full tw-object-cover tw-rounded-lg">
+                `;
+            }
+            
+            // Show after image if available
+            if (data.appointment.after_image) {
+                const afterPreview = document.getElementById('after-image-preview');
+                afterPreview.innerHTML = `
+                    <img src="{{ asset('storage') }}/${data.appointment.after_image}" alt="After Grooming" class="tw-h-full tw-w-full tw-object-cover tw-rounded-lg">
+                `;
+            }
                         
             // Fetch users, pet's user will be selected
             fetchUsers(data.appointment.pet.userID);
@@ -204,6 +262,11 @@
             setTimeout(() => {
                 fetchPets(data.appointment.pet.userID, data.appointment.petID);
             }, 500);
+            
+            // Check if this is a grooming appointment and show section if needed
+            setTimeout(() => {
+                toggleGroomingSection();
+            }, 800);
         })
         .catch(error => {
             console.error('Error fetching appointment data:', error);
@@ -281,6 +344,9 @@
                 option.value = service.serviceID;
                 option.textContent = `${service.name} (₱${service.price})`;
                 
+                // Add data attribute for category to help determine if grooming
+                option.dataset.category = service.category || '';
+                
                 // Set as selected if this is the correct service
                 if (service.serviceID == selectedServiceID) {
                     option.selected = true;
@@ -288,6 +354,9 @@
                 
                 serviceSelect.appendChild(option);
             });
+            
+            // After loading services, check if we need to show grooming section
+            toggleGroomingSection();
         })
         .catch(error => {
             console.error('Error fetching services:', error);
@@ -689,6 +758,73 @@
             updateStatusButtons(status);
         });
     });
-});
+
+    // Check if a service is a grooming service
+    function isGroomingService(serviceID) {
+        // We need to check if the selected service is a grooming service
+        const serviceSelect = document.getElementById('edit-serviceID');
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        
+        if (selectedOption) {
+            // First check the data-category attribute
+            if (selectedOption.dataset.category && 
+                selectedOption.dataset.category.toLowerCase() === 'grooming') {
+                return true;
+            }
+            
+            // Fallback: Check if the service name contains "grooming" (case insensitive)
+            return selectedOption.textContent.toLowerCase().includes('grooming');
+        }
+        
+        return false;
+    }
+    
+    // Toggle visibility of grooming section based on selected service
+    function toggleGroomingSection() {
+        const groomingSection = document.getElementById('grooming-section');
+        if (!groomingSection) return;
+        
+        // Check if current selected service is grooming
+        if (isGroomingService(document.getElementById('edit-serviceID').value)) {
+            groomingSection.classList.remove('tw-hidden');
+        } else {
+            groomingSection.classList.add('tw-hidden');
+        }
+    }
+    
+    // Set up image preview functionality
+    function setupImagePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        if (!input || !preview) return;
+        
+        input.addEventListener('change', function() {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Image Preview" class="tw-h-full tw-w-full tw-object-cover tw-rounded-lg">
+                    `;
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    }
+    
+    // Setup image previews
+    setupImagePreview('before_image', 'before-image-preview');
+    setupImagePreview('after_image', 'after-image-preview');
+    
+    // Handle service selection change to show/hide grooming fields
+    const serviceSelect = document.getElementById('edit-serviceID');
+    if (serviceSelect) {
+        serviceSelect.addEventListener('change', function() {
+            toggleGroomingSection();
+        });
+    }
+    });
 });
 </script>

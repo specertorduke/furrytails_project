@@ -56,19 +56,19 @@
                             <!-- Email -->
                             <div>
                                 <label for="email" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Email</label>
-                                <input type="email" id="email" name="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="email" id="email-edit" name="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Username -->
                             <div>
                                 <label for="username" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Username</label>
-                                <input type="text" id="username" name="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="text" id="username-edit" name="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Phone -->
                             <div>
                                 <label for="phone" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Phone</label>
-                                <input type="tel" id="phone" name="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="tel" id="phone-edit" name="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Role -->
@@ -173,9 +173,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('editUserID').value = user.userID;
         document.getElementById('firstName').value = user.firstName;
         document.getElementById('lastName').value = user.lastName;
-        document.getElementById('email').value = user.email;
-        document.getElementById('username').value = user.username;
-        document.getElementById('phone').value = user.phone;
+        document.getElementById('email-edit').value = user.email;
+        document.getElementById('username-edit').value = user.username;
+        document.getElementById('phone-edit').value = user.phone;
         document.getElementById('role').value = user.role;
         document.getElementById('password').value = ''; // Clear password field
         

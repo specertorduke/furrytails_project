@@ -96,6 +96,29 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Grooming Information (only shown for grooming services) -->
+                        <div id="groomingSection" class="tw-mt-4 tw-p-3 tw-bg-gray-700/30 tw-rounded-lg tw-hidden">
+                            <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Grooming Images</h4>
+                            
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-2">
+                                <!-- Before Grooming Image -->
+                                <div>
+                                    <p class="tw-text-xs tw-text-gray-400 tw-mb-1">Before</p>
+                                    <div id="beforeImageContainer" class="tw-h-40 tw-bg-gray-800 tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                        <span class="tw-text-gray-500">No before image</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- After Grooming Image -->
+                                <div>
+                                    <p class="tw-text-xs tw-text-gray-400 tw-mb-1">After</p>
+                                    <div id="afterImageContainer" class="tw-h-40 tw-bg-gray-800 tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                        <span class="tw-text-gray-500">No after image</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Appointment History -->
                         <div class="tw-mt-4">
@@ -342,6 +365,46 @@
                     }
                 });
             }
+
+            // Check if this is a grooming service and if there are before/after images
+            if (appointment.service && appointment.service.category && 
+                appointment.service.category.toLowerCase() === 'grooming') {
+                
+                const groomingSection = document.getElementById('groomingSection');
+                if (groomingSection) {
+                    groomingSection.classList.remove('tw-hidden');
+                    
+                    // Display before image if available
+                    const beforeContainer = document.getElementById('beforeImageContainer');
+                    if (appointment.before_image) {
+                        beforeContainer.innerHTML = `
+                            <img src="{{ asset('storage') }}/${appointment.before_image}" 
+                                alt="Before Grooming" 
+                                class="tw-w-full tw-h-full tw-object-cover tw-rounded-lg">
+                        `;
+                    } else {
+                        beforeContainer.innerHTML = '<span class="tw-text-gray-500">No before image</span>';
+                    }
+                    
+                    // Display after image if available
+                    const afterContainer = document.getElementById('afterImageContainer');
+                    if (appointment.after_image) {
+                        afterContainer.innerHTML = `
+                            <img src="{{ asset('storage') }}/${appointment.after_image}" 
+                                alt="After Grooming" 
+                                class="tw-w-full tw-h-full tw-object-cover tw-rounded-lg">
+                        `;
+                    } else {
+                        afterContainer.innerHTML = '<span class="tw-text-gray-500">No after image</span>';
+                    }
+                }
+            } else {
+                // Hide grooming section for non-grooming services
+                const groomingSection = document.getElementById('groomingSection');
+                if (groomingSection) {
+                    groomingSection.classList.add('tw-hidden');
+                }
+            }
         }
         
         // Set status badge and buttons based on current status
@@ -545,7 +608,7 @@
             const recordPaymentBtn = document.getElementById('recordPaymentBtn');
             recordPaymentBtn.classList.add('tw-hidden');
         }
-        
+
         // Add this helper function for payment status styling
         function getStatusClass(status) {
             switch(status) {

@@ -62,41 +62,109 @@ class AdminUsersController extends Controller
 
     public function storeUser(Request $request)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'firstName' => 'required|string|max:100',
-            'lastName' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'username' => 'required|string|unique:users,username|max:50',
-            'phone' => 'required|string|max:20',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:user,admin',
-            'userImage' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'firstName' => 'required|string|max:100',
+                'lastName' => 'required|string|max:100',
+                'email' => 'required|email|unique:users,email',
+                'username' => 'required|string|unique:users,username|max:50',
+                'phone' => 'required|string|max:20',
+                'password' => 'required|string|min:8',
+                'role' => 'required|in:user,admin',
+                'userImage' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            ]);
 
-        // Handle image upload if present
-        $imagePath = null;
-        if ($request->hasFile('userImage')) {
-            $imagePath = $request->file('userImage')->store('images/users', 'public');
+            // Create new user
+            $user = new User();
+            $user->firstName = $validated['firstName'];
+            $user->lastName = $validated['lastName'];
+            $user->email = $validated['email'];
+            $user->username = $validated['username'];
+            $user->phone = $validated['phone'];
+            $user->password = Hash::make($validated['password']);
+            $user->role = $validated['role'];
+            $user->save();
+
+            // Handle image upload if present
+            if ($request->hasFile('userImage')) {
+                // Log for debugging
+                \Log::info('User image upload started', [
+                    'userID' => $user->userID,
+                    'file' => $request->file('userImage')
+                ]);
+                
+                // Get file extension
+                $extension = $request->file('userImage')->getClientOriginalExtension();
+                
+                // Create custom filename with userID
+                $filename = 'user_' . $user->userID . '_' . time() . '.' . $extension;
+                
+                // Store with custom filename
+                $imagePath = $request->file('userImage')->storeAs(
+                    'userImages', 
+                    $filename, 
+                    'public'
+                );
+                
+                // Log success
+                \Log::info('User image saved', [
+                    'path' => $imagePath
+                ]);
+                
+                $user->userImage = $imagePath;
+                $user->save(); // Save again with the image path
+            } else if ($request->has('cropped_image')) {
+                // Handle base64 encoded image from cropper
+                \Log::info('Processing cropped image');
+                
+                try {
+                    $croppedImage = $request->input('cropped_image');
+                    
+                    // Remove header information from base64 string
+                    $image_parts = explode(";base64,", $croppedImage);
+                    $image_base64 = isset($image_parts[1]) ? $image_parts[1] : $croppedImage;
+                    
+                    // Create image from base64 string
+                    $imageData = base64_decode($image_base64);
+                    
+                    // Create custom filename with userID
+                    $filename = 'user_' . $user->userID . '_' . time() . '.jpg';
+                    
+                    // Path to save the image
+                    $imagePath = 'userImages/' . $filename;
+                    $fullPath = storage_path('app/public/' . $imagePath);
+                    
+                    // Ensure the directory exists
+                    if (!file_exists(dirname($fullPath))) {
+                        mkdir(dirname($fullPath), 0755, true);
+                    }
+                    
+                    // Save the image
+                    file_put_contents($fullPath, $imageData);
+                    
+                    // Update user with image path
+                    $user->userImage = $imagePath;
+                    $user->save();
+                    
+                    \Log::info('Cropped image saved', ['path' => $imagePath]);
+                } catch (\Exception $e) {
+                    \Log::error('Error saving cropped image: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully',
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error creating user: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create user: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Create new user
-        $user = new User();
-        $user->firstName = $validated['firstName'];
-        $user->lastName = $validated['lastName'];
-        $user->email = $validated['email'];
-        $user->username = $validated['username'];
-        $user->phone = $validated['phone'];
-        $user->password = Hash::make($validated['password']);
-        $user->role = $validated['role'];
-        $user->userImage = $imagePath;
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User created successfully',
-            'user' => $user
-        ]);
     }
 
     /**
@@ -148,14 +216,22 @@ class AdminUsersController extends Controller
             
                 $petsCount = count($pets);
                 
-                // Try different column names since we don't know which one is correct
-                $appointmentsCount = \DB::table('appointments')
-                    ->orWhere('userID', $id)
-                    ->count();
-                    
-                $boardingsCount = \DB::table('boardings')
-                    ->orWhere('userID', $id)
-                    ->count();
+                // Get all pet IDs belonging to this user first
+                $petIDs = \DB::table('pets')
+                ->where('userID', $id)
+                ->pluck('petID')
+                ->toArray();
+
+                // Count appointments for these pets
+                $appointmentsCount = empty($petIDs) ? 0 : \DB::table('appointments')
+                ->whereIn('petID', $petIDs)
+                ->count();
+
+                // Count boardings for these pets
+                $boardingsCount = empty($petIDs) ? 0 : \DB::table('boardings')
+                ->whereIn('petID', $petIDs)
+                ->count();
+                
             } catch (\Exception $e) {
                 // Just continue with zeros if this fails
                 \Log::warning('Error fetching related data: ' . $e->getMessage());
@@ -245,7 +321,20 @@ class AdminUsersController extends Controller
                     Storage::disk('public')->delete($user->userImage);
                 }
                 
-                $user->userImage = $request->file('userImage')->store('userImages', 'public');
+                // Get file extension
+                $extension = $request->file('userImage')->getClientOriginalExtension();
+                
+                // Create custom filename with userID
+                $filename = 'user_' . $user->userID . '_' . time() . '.' . $extension;
+                
+                // Store with custom filename
+                $imagePath = $request->file('userImage')->storeAs(
+                    'userImages', 
+                    $filename, 
+                    'public'
+                );
+                
+                $user->userImage = $imagePath;
             }
             
             $user->save();

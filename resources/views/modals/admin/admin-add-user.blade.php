@@ -59,7 +59,7 @@
                 <!-- Password field - Single row -->
                 <div class="tw-mb-4">
                     <label for="password" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Password</label>
-                    <input type="password" name="password" id="password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <input type="password" name="password" id="a-password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                 </div>
 
                 <!-- Confirm Password field - Single row -->
@@ -124,7 +124,9 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
+    document.addEventListener(eventName, function() {     
+    
     let cropper = null;
     const uploadArea = document.getElementById('upload-area');
     const cropperArea = document.getElementById('cropper-area');
@@ -237,9 +239,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 
                 // Validate password match
-                const password = document.getElementById('password').value;
+                const password = document.getElementById('a-password').value;
                 const passwordConfirm = document.getElementById('password-confirm').value;
-                
+                console.log('Password:', password);
+                console.log('Confirm Password:', passwordConfirm);
+
                 if (password !== passwordConfirm) {
                     Swal.fire({
                         title: 'Password Error',
@@ -414,4 +418,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+});
 </script>

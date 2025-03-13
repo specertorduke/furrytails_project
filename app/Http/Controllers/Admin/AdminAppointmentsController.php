@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\Service;
 use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Storage;
 
 class AdminAppointmentsController extends Controller
 {
@@ -338,12 +339,15 @@ class AdminAppointmentsController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            // Update validation rules to include grooming-related fields
             $validator = Validator::make($request->all(), [
                 'petID' => 'required|exists:pets,petID',
                 'date' => 'required|date',
                 'time' => 'required',
                 'serviceID' => 'required|exists:services,serviceID',
-                'status' => 'required|in:Pending,Confirmed,Completed,Cancelled'
+                'status' => 'required|in:Pending,Confirmed,Completed,Cancelled',
+                'before_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'after_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
         
             if ($validator->fails()) {
@@ -371,12 +375,64 @@ class AdminAppointmentsController extends Controller
                 ], 422);
             }
         
-            // Update appointment
+            // Update appointment basic details
             $appointment->petID = $request->petID;
             $appointment->date = $request->date;
             $appointment->time = $request->time;
             $appointment->serviceID = $request->serviceID;
             $appointment->status = $request->status;
+            
+            // Check if this is a grooming appointment by checking the service category
+            $isGrooming = false;
+            try {
+                $service = Service::findOrFail($request->serviceID);
+                $isGrooming = strtolower($service->category) === 'grooming';
+            } catch (\Exception $e) {
+                \Log::warning('Error checking if service is grooming: ' . $e->getMessage());
+            }
+            
+            // Only process grooming-related fields for grooming appointments
+            if ($isGrooming) {
+                // Handle before image upload
+                if ($request->hasFile('before_image')) {
+                    // Delete old image if exists
+                    if ($appointment->before_image) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($appointment->before_image);
+                    }
+                    
+                    $extension = $request->file('before_image')->getClientOriginalExtension();
+                    $filename = 'grooming_before_' . $appointment->appointmentID . '_' . time() . '.' . $extension;
+                    
+                    $imagePath = $request->file('before_image')->storeAs(
+                        'groomingImages', 
+                        $filename, 
+                        'public'
+                    );
+                    
+                    $appointment->before_image = $imagePath;
+                }
+                
+                // Handle after image upload
+                if ($request->hasFile('after_image')) {
+                    // Delete old image if exists
+                    if ($appointment->after_image) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($appointment->after_image);
+                    }
+                    
+                    $extension = $request->file('after_image')->getClientOriginalExtension();
+                    $filename = 'grooming_after_' . $appointment->appointmentID . '_' . time() . '.' . $extension;
+                    
+                    $imagePath = $request->file('after_image')->storeAs(
+                        'groomingImages', 
+                        $filename, 
+                        'public'
+                    );
+                    
+                    $appointment->after_image = $imagePath;
+                }
+            }
+            
+            // Save all changes
             $appointment->save();
         
             return response()->json([
