@@ -48,6 +48,8 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
     // Manage Page routes
     Route::get('/manage/fetch-appointments', [ManageController::class, 'fetchAppointments'])->name('manage.appointments');
     Route::get('/manage/fetch-boardings', [ManageController::class, 'fetchBoardings'])->name('manage.boardings');
+    Route::get('/manage/pets', [ManageController::class, 'getUserPets']);
+    Route::post('/manage/appointments', [ManageController::class, 'storeAppointment']);
 
     // Pet Page routes
     Route::get('/pets/{id}/edit', [PetController::class, 'edit'])->name('pets.edit');

@@ -226,5 +226,38 @@
              document.getElementById('viewPet-modal').classList.add('tw-hidden');
          });
      });
+
+     // Function to close modal
+     function closeModal() {
+         const modal = document.getElementById('viewPet-modal');
+         modal.classList.add('tw-hidden');
+         // Optional: Clear currentPetData when closing
+         currentPetData = null;
+     }
+
+     // Event listeners for all close buttons
+     const closeButtons = [
+         ...document.querySelectorAll('[data-modal-toggle="viewPet-modal"]'),
+         document.querySelector('[data-bs-dismiss="modal"]')
+     ].filter(Boolean);
+
+     closeButtons.forEach(button => {
+         button.addEventListener('click', closeModal);
+     });
+
+     // Optional: Close on clicking outside the modal
+     const modalContainer = document.getElementById('viewPet-modal');
+     modalContainer.addEventListener('click', (e) => {
+         if (e.target === modalContainer) {
+             closeModal();
+         }
+     });
+
+     // Optional: Close on Escape key press
+     document.addEventListener('keydown', (e) => {
+         if (e.key === 'Escape' && !modalContainer.classList.contains('tw-hidden')) {
+             closeModal();
+         }
+     });
  });
  </script>

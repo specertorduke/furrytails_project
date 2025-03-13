@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\Boarding;
+use App\Models\Pet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class ManageController extends Controller
 {
@@ -101,5 +103,63 @@ class ManageController extends Controller
         $boarding = Boarding::findOrFail($id);
         $boarding->delete();
         return response()->json(['success' => true]);
+    }
+
+    public function getUserPets()
+    {
+        return Pet::where('userID', Auth::id())->get();
+    }
+
+    public function storeAppointment(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'petID' => 'required|exists:pets,petID',
+                'serviceID' => 'required|exists:services,serviceID',
+                'date' => 'required|date|after:today',
+                'time' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Verify pet belongs to user
+            $pet = Pet::where('petID', $request->petID)
+                ->where('userID', Auth::id())
+                ->first();
+
+            if (!$pet) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid pet selection'
+                ], 403);
+            }
+
+            // Create appointment
+            $appointment = new Appointment();
+            $appointment->petID = $request->petID;
+            $appointment->serviceID = $request->serviceID;
+            $appointment->date = $request->date;
+            $appointment->time = $request->time;
+            $appointment->status = 'Pending';
+            $appointment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment created successfully',
+                'appointment' => $appointment
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create appointment: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -39,7 +39,7 @@
 
                 <div class="tw-col-span-1 tw-mb-4">
                     <label for="breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed/Type</label>
-                    <input type="text" name="petType" id="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
+                    <input type="text" name="breed" id="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-primary-600 tw-focus:tw-border-primary-600 tw-block tw-w-full tw-p-2.5" required>
                 </div>
 
                 <!-- Gender and Birth Date fields -->

@@ -10,7 +10,7 @@
             <h1 class="tw-text-2xl tw-font-bold">Manage</h1>
         </div>
         <div class="tw-flex tw-gap-2">
-            <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
+            <button type="button" data-modal-target="addAppointment" data-modal-toggle="addAppointment-modal" 
                 class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
                 <i class="fas fa-plus"></i> New Appointment
             </button>
