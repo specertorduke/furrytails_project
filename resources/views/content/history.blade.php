@@ -224,6 +224,6 @@ window.addEventListener('popstate', function() {
 </script>
 
 
-@include('modals.payment-modal')
+@include('modals.user.payment-modal')
 
 @endsection

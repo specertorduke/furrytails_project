@@ -334,6 +334,6 @@ document.addEventListener('click', function(event) {
     }
 });
 </script>
-@include('modals.view-pet')
-@include('modals.edit-pet')
+@include('modals.user.view-pet')
+@include('modals.user.edit-pet')
 @endsection

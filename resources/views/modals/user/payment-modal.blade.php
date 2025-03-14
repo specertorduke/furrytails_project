@@ -318,8 +318,11 @@ const PaymentModal = {
         // Get data from the event
         const boarding = data.boarding;
         const pet = data.pet;
-        const boardingType = data.boardingType;
+        const service = data.service || {};
+        const boardingType = data.boardingType || { name: boarding.boardingType };
         const price = data.price;
+        
+        console.log('Payment modal received boarding data:', data);
         
         // Show boarding details and hide appointment details
         document.querySelectorAll('.boarding-detail').forEach(el => el.classList.remove('tw-hidden'));
@@ -329,10 +332,12 @@ const PaymentModal = {
         this.elements.serviceType.textContent = 'Boarding Summary';
         
         // Set service name (boarding type)
-        this.elements.serviceName.textContent = boardingType.name;
+        this.elements.serviceName.textContent = service.name || boardingType.name || boarding.boardingType;
         
-        // Set pet info
-        this.elements.petInfo.textContent = `${pet.name} (${pet.species})`;
+        // Set pet info with fallbacks
+        const petName = pet && pet.name ? pet.name : "Unknown";
+        const petSpecies = pet && pet.species ? pet.species : "Pet";
+        this.elements.petInfo.textContent = `${petName} (${petSpecies})`;
         
         // Format and set date range
         const startDate = new Date(boarding.start_date).toLocaleDateString('en-US', { 
@@ -356,13 +361,39 @@ const PaymentModal = {
         // Set amount
         this.elements.amount.textContent = `₱${price}`;
         
-        // Set hidden form values
+        // Set hidden form values - CRITICAL FIX: Use correct field names matching controller
         document.getElementById('booking-type').value = 'boarding';
         document.getElementById('p.petID').value = boarding.petID;
+        document.getElementById('p.serviceID').value = boarding.serviceID || (service ? service.serviceID : '');
         document.getElementById('amount').value = price;
         document.getElementById('start_date').value = boarding.start_date;
         document.getElementById('end_date').value = boarding.end_date;
-        document.getElementById('boarding_type').value = boarding.boardingType;
+        
+        // THIS IS THE KEY FIX: Set boardingType not boarding_type to match controller validation
+        // And make sure we use the correct field name
+        const hiddenBoardingTypeField = document.getElementById('boarding_type');
+        if (hiddenBoardingTypeField) {
+            hiddenBoardingTypeField.name = 'boardingType'; // Rename the field to match controller
+            hiddenBoardingTypeField.value = boarding.boardingType;
+        } else {
+            // If the field doesn't exist, create it
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = 'boarding_type';
+            input.name = 'boardingType'; // Use the name the controller expects
+            input.value = boarding.boardingType;
+            this.elements.form.appendChild(input);
+        }
+        
+        console.log('Form data set for submission:', {
+            booking_type: document.getElementById('booking-type').value,
+            petID: document.getElementById('p.petID').value,
+            serviceID: document.getElementById('p.serviceID').value,
+            amount: document.getElementById('amount').value,
+            start_date: document.getElementById('start_date').value,
+            end_date: document.getElementById('end_date').value,
+            boardingType: boarding.boardingType // This should match controller validation
+        });
     },
     
     closeModal: function() {

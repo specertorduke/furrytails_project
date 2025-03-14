@@ -335,8 +335,8 @@
     });
 </script>
 
-@include('modals.add-appointment')
-@include('modals.add-boarding')
+@include('modals.user.add-appointment')
+@include('modals.user.add-boarding')
 
 @endpush
 @endsection

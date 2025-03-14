@@ -117,7 +117,7 @@
             <div class="tw-bg-white tw-shadow-md tw-rounded-2xl tw-p-6 mb-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Upcoming Appointments</h2>
-                    <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">Edit</a>
+                    <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">See All</a>
                 </div>
                 <div class="table-responsive">
                 <table id="appointmentsTable" class="table table-hover">
@@ -174,7 +174,7 @@
             <div class="tw-bg-white tw-shadow-md tw-rounded-2xl tw-p-6 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="tw-text-xl tw-font-bold mb-0">Current Boarding Reservations</h2>
-                    <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">Edit</a>
+                    <a href="{{ route('content.manage') }}" class="tw-bg-[#F4F7FE] tw-text-[#159cbb] tw-px-4 tw-py-1 tw-rounded-full tw-transition-all tw-no-underline tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] hover:tw-text-white" onclick="loadContent(event, '{{ route('content.manage') }}')">See All</a>
                 </div>
                 <div class="table-responsive">
                 <table id="boardingReservationsTable" class="table table-hover">
@@ -608,7 +608,7 @@ window.DashboardPage = window.DashboardPage || {
         // Initialize pets table (assuming you have an endpoint; adjust if using server-rendered data)
         this.petsTable = $('#petsTable').DataTable({
             ...commonConfig,
-            dom: 'lfrtip', // Removed 'B' (buttons) from the dom
+            dom: 'lrtip', 
             buttons: [],
             ajax: {
                 url: '{{ route("dashboard.pets") }}',
@@ -622,7 +622,11 @@ window.DashboardPage = window.DashboardPage || {
                     data: 'petImage', 
                     width: '20%',
                     render: function(data) {
-                        return `<img src="{{ asset('storage') }}/${data}" class="tw-w-10 tw-h-10 tw-rounded-full tw-object-cover tw-border tw-border-gray-200">`;
+                        return `<div class="tw-flex tw-justify-center tw-items-center">
+                            <div class="tw-w-10 tw-h-10 tw-min-w-[40px] tw-overflow-hidden tw-rounded-full tw-flex-shrink-0 tw-border tw-border-gray-200">
+                                <img src="{{ asset('storage') }}/${data}" class="tw-w-full tw-h-full tw-object-cover">
+                            </div>
+                        </div>`;
                     }
                 },
                 { data: 'name', width: '45%' },
@@ -631,8 +635,8 @@ window.DashboardPage = window.DashboardPage || {
                     width: '45%',
                     render: function(data) {
                         let colorClass = data === 'Dog' ? 'tw-bg-green-100 tw-text-green-800' :
-                                         data === 'Cat' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
-                                         'tw-bg-red-100 tw-text-red-800';
+                                        data === 'Cat' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
+                                        'tw-bg-red-100 tw-text-red-800';
                         return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                     }
                 }
@@ -785,10 +789,10 @@ document.addEventListener('contentWillChange', function() {
 </script>
 @endpush
 
-@include('modals.add-appointment')
-@include('modals.add-boarding')
-@include('modals.add-pet')
-@include('modals.payment-modal')
+@include('modals.user.add-appointment')
+@include('modals.user.add-boarding')
+@include('modals.user.add-pet')
+@include('modals.user.payment-modal')
 
 @endsection
 

@@ -59,7 +59,23 @@ class PetController extends Controller
             
             \Log::info('Pet created successfully', ['pet_id' => $pet->id]);
             
-            return redirect()->back()->with('success', 'Pet added successfully!');
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pet added successfully',
+                    'pet' => [
+                        'id' => $pet->petID,
+                        'name' => $pet->name,
+                        'image' => $pet->petImage
+                    ]
+                ]);
+            }
+        
+            // For non-AJAX requests, redirect with flash message
+            return redirect()->back()->with('pet_added', [
+                'success' => true,
+                'name' => $pet->name
+            ]);
         } catch (\Exception $e) {
             \Log::error('Pet creation failed', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to add pet. Please try again.');

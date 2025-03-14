@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Boarding;
 use App\Models\Payment;
+use App\Models\Service;
 use App\Models\Pet;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\ActivityLogger; 
 
 class BoardingsController extends Controller
 {
@@ -21,33 +23,30 @@ class BoardingsController extends Controller
         // Validate request
         $request->validate([
             'petID' => 'required|exists:pets,petID',
+            'boardingType' => 'required|in:Daycare,Overnight,Extended',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'boardingType' => 'required|in:Standard,Deluxe,Premium',
             'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
             'payment_reference' => 'nullable|string|max:255',
         ]);
 
+        // Get the service to determine the price
+        $service = Service::findOrFail($request->serviceID);
+
         // Calculate duration and price
         $startDate = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
-        $days = $startDate->diffInDays($endDate) + 1; // Include both start and end days
         
-        // Set price based on boarding type
-        $pricePerDay = 0;
-        switch ($request->boardingType) {
-            case 'Premium':
-                $pricePerDay = 800;
-                break;
-            case 'Deluxe':
-                $pricePerDay = 600;
-                break;
-            case 'Standard':
-            default:
-                $pricePerDay = 400;
-                break;
+        // Include both start and end days in calculation
+        $days = $startDate->diffInDays($endDate) + 1;
+        
+        // For daycare type, ensure price is just for one day
+        if ($request->boardingType === 'Daycare') {
+            $days = 1;
         }
         
+        // Use the price from the service
+        $pricePerDay = $service->price;
         $totalPrice = $pricePerDay * $days;
 
         // Begin transaction
@@ -76,20 +75,6 @@ class BoardingsController extends Controller
             $payment->payable_type = 'App\Models\Boarding';
             
             $payment->save();
-
-            // Log the activity
-            activity()
-                ->causedBy(Auth::user())
-                ->performedOn($boarding)
-                ->withProperties([
-                    'petID' => $boarding->petID,
-                    'boardingType' => $boarding->boardingType,
-                    'start_date' => $boarding->start_date,
-                    'end_date' => $boarding->end_date,
-                    'days' => $days,
-                    'payment_status' => $payment->status
-                ])
-                ->log('boarding_created');
 
             DB::commit();
 
@@ -141,14 +126,27 @@ class BoardingsController extends Controller
         $boarding->save();
         
         // Log the cancellation
-        activity()
-            ->causedBy(Auth::user())
-            ->performedOn($boarding)
-            ->log('boarding_cancelled');
+        ActivityLogger::log(
+            'boardings',
+            $boarding->boardingID,
+            'update',
+            ['status' => 'Confirmed'], // Old status
+            ['status' => 'Cancelled']  // New status
+        );
             
         return response()->json([
             'success' => true,
             'message' => 'Boarding cancelled successfully'
         ]);
+    }
+
+    public function getBoardingServices()
+    {
+        // Get services with "boarding" in the name or "daycare"
+        $services = Service::where('name', 'like', '%boarding%')
+                        ->orWhere('name', 'like', '%daycare%')
+                        ->get();
+                        
+        return response()->json($services);
     }
 }

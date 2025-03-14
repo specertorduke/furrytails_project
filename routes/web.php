@@ -79,6 +79,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::put('/boardings/{id}', [ManageController::class, 'updateBoarding']);
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
     Route::post('/boardings/store', [BoardingsController::class, 'store'])->name('boardings.store');
+    Route::get('/services/boarding', [BoardingsController::class, 'getBoardingServices'])->name('services.boarding');
 
     // Payments
     Route::post('/payments/store', [PaymentsController::class, 'store'])->name('payments.store');
