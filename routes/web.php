@@ -6,9 +6,11 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\ManageController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\BoardingsController;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUsersController;
@@ -33,8 +35,9 @@ Route::get('/main', function () { return view('main'); })->middleware('auth')->n
 
 Route::get('/', function () { return view('home'); })->name('home');
 
-//content routes
-Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'ajax.headers' from here
+//user-side routes!!
+Route::middleware(['auth', 'redirect.admin'])->group(function () {  
+    // Dashboard Routes
     Route::get('/content', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/content/explore', [ContentController::class, 'exploreContent'])->name('content.explore');
     Route::get('/content/manage', [ContentController::class, 'manageContent'])->name('content.manage');
@@ -60,19 +63,29 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {  // Remove 'a
     Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete');
     Route::get('/pets/{id}', [PetController::class, 'show'])->name('pets.show');
     Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('pets.update');
+    Route::get('/user/pets/list', [PetController::class, 'getUserPets'])->name('user.pets.list');
 
-    // CRUD routes for appointments
+    // Appointments
+    Route::get('/appointments/available-times', [AppointmentsController::class, 'getAvailableTimes'])->name('appointments.available-times');
+    Route::get('/services/list', [AppointmentsController::class, 'getServicesList'])->name('services.list');
     Route::get('/appointments/{id}', [ManageController::class, 'showAppointment']);
     Route::put('/appointments/{id}', [ManageController::class, 'updateAppointment']);
+    Route::post('/appointments/store', [AppointmentsController::class, 'store'])->name('appointments.store');
+    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancelAppointment'])->name('appointments.cancel');
     Route::delete('/appointments/{id}', [ManageController::class, 'deleteAppointment']);
-    
-    // CRUD routes for boardings
+
+    // Boardings
     Route::get('/boardings/{id}', [ManageController::class, 'showBoarding']);
     Route::put('/boardings/{id}', [ManageController::class, 'updateBoarding']);
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
+    Route::post('/boardings/store', [BoardingsController::class, 'store'])->name('boardings.store');
+
+    // Payments
+    Route::post('/payments/store', [PaymentsController::class, 'store'])->name('payments.store');
 });
 
-// Admin Routes
+
+// Admin Routes!!
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Dashboard routes
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');

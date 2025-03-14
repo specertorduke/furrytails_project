@@ -689,16 +689,39 @@ window.DashboardPage = window.DashboardPage || {
             confirmButtonText: 'Yes, cancel it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Add your cancel AJAX call here
-                console.log("Cancelling appointment", id);
-                Swal.fire(
-                    'Cancelled!',
-                    'The appointment has been cancelled.',
-                    'success'
-                );
+                // Send AJAX request to cancel the appointment
+                fetch(`/appointments/cancel/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh the datatable
+                        this.appointmentsTable.ajax.reload();
+                        
+                        Swal.fire(
+                            'Cancelled!',
+                            'The appointment has been cancelled.',
+                            'success'
+                        );
+                    } else {
+                        throw new Error(data.message || 'An error occurred');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire(
+                        'Error!',
+                        error.message,
+                        'error'
+                    );
+                });
             }
         });
-    },
+},
 
     // Boarding actions
     viewBoarding: function(id) {
@@ -765,6 +788,7 @@ document.addEventListener('contentWillChange', function() {
 @include('modals.add-appointment')
 @include('modals.add-boarding')
 @include('modals.add-pet')
+@include('modals.payment-modal')
 
 @endsection
 

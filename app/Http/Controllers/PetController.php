@@ -195,4 +195,13 @@ class PetController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get the current user's pets for appointment selection
+     */
+    public function getUserPets()
+    {
+        $pets = Auth::user()->pets;
+        return response()->json($pets);
+    }
 }
