@@ -29,7 +29,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <input type="file" id="profile_image" name="profile_image" class="tw-hidden" accept="image/*">
                             </div>
                             <h2 class="tw-text-xl tw-font-bold tw-mt-4">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</h2>
                             <p class="tw-text-gray-500">{{ Auth::user()->email }}</p>
@@ -38,6 +37,8 @@
                     <form method="POST" id="accountupdate" action="{{ route('account.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+                        
+                        <input type="file" id="profile_image" name="profile_image" class="tw-hidden" accept="image/*">
 
                         <div class="row g-4">
                             <!-- Username Field -->

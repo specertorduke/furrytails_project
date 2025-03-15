@@ -318,78 +318,86 @@
     
     // Function to populate pet details
     function populatePetDetails(pet) {
-        if (!pet) return;
-        
-        // Set pet name
-        document.getElementById('view-pet-name').textContent = pet.name;
-        
-        // Set pet image or use default
-        const petImage = document.getElementById('boarding.pet-image');
-        if (boarding.pet.petImage) {
-            let imageUrl = "{{ asset('storage/') }}/" + boarding.pet.petImage.replace(/^storage\//i, '');
-            petImage.innerHTML = `<img src="${imageUrl}" alt="${boarding.pet.name}" class="tw-h-full tw-w-full tw-object-cover">`;
-        } else {
-            // Default icon based on species
-            let speciesIcon = '<i class="fas fa-paw tw-text-sm tw-text-gray-500"></i>';
-            
-            if (boarding.pet.species && boarding.pet.species.toLowerCase() === 'dog') {
-                speciesIcon = '<i class="fas fa-dog tw-text-sm tw-text-gray-500"></i>';
-            } else if (boarding.pet.species && boarding.pet.species.toLowerCase() === 'cat') {
-                speciesIcon = '<i class="fas fa-cat tw-text-sm tw-text-gray-500"></i>';
-            }
-            
-            petImage.innerHTML = speciesIcon;
-        }
+    console.log("Pet data received:", pet);
+    if (!pet) return;
     
-        // Set pet species with appropriate styling
-        const speciesElement = document.getElementById('view-pet-species');
-        speciesElement.textContent = pet.species || 'Unknown';
-        
-        // Apply species-specific styling
-        speciesElement.className = "tw-px-3 tw-py-1 tw-rounded-full tw-text-sm";
-        if (pet.species && pet.species.toLowerCase() === 'dog') {
-            speciesElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
-        } else if (pet.species && pet.species.toLowerCase() === 'cat') {
-            speciesElement.classList.add('tw-bg-purple-100', 'tw-text-purple-800');
-        } else {
-            speciesElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
-        }
-        
-        // Set other pet details
-        document.getElementById('view-pet-breed').textContent = pet.breed || 'Not specified';
-        
-        // Calculate and format age
-        let ageText = 'Not specified';
-        if (pet.birthdate) {
-            const birthDate = new Date(pet.birthdate);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDifference = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            
-            if (age < 1) {
-                // Calculate months for puppies/kittens
-                const months = today.getMonth() - birthDate.getMonth();
-                ageText = months + ' month' + (months !== 1 ? 's' : '');
-            } else {
-                ageText = age + ' year' + (age !== 1 ? 's' : '');
-            }
-        }
-        document.getElementById('view-pet-age').textContent = ageText;
-        
-        // Set gender with icon
-        const genderIcon = pet.gender?.toLowerCase() === 'female' ? '♀' : '♂';
-        document.getElementById('view-pet-gender').innerHTML = `${genderIcon} ${pet.gender || 'Not specified'}`;
-        
-        // Set weight with unit
-        document.getElementById('view-pet-weight').textContent = pet.weight ? `${pet.weight} kg` : 'Not specified';
-        
-        // Set special notes or default message
-        document.getElementById('view-pet-notes').textContent = pet.special_notes || 'No special notes provided.';
+    // Extract pet from nested structure if needed
+    if (pet["App\\Models\\Pet"]) {
+        pet = pet["App\\Models\\Pet"];
+        console.log("Extracted pet from nested structure:", pet);
     }
+    
+    // Set pet name
+    document.getElementById('view-pet-name').textContent = pet.name;
+    
+    // Set pet image or use default
+    const petImage = document.getElementById('boarding.pet-image');
+    if (pet.petImage) {
+        let imageUrl = "{{ asset('storage/') }}/" + pet.petImage.replace(/^storage\//i, '');
+        petImage.src = imageUrl;
+    } else {
+        // Default icon based on species
+        let speciesIcon = '<i class="fas fa-paw tw-text-lg tw-text-gray-500"></i>';
+        
+        if (pet.species && pet.species.toLowerCase() === 'dog') {
+            speciesIcon = '<i class="fas fa-dog tw-text-lg tw-text-gray-500"></i>';
+        } else if (pet.species && pet.species.toLowerCase() === 'cat') {
+            speciesIcon = '<i class="fas fa-cat tw-text-lg tw-text-gray-500"></i>';
+        }
+        
+        petImage.innerHTML = speciesIcon;
+    }
+    
+    // Set pet species with appropriate styling
+    const speciesElement = document.getElementById('view-pet-species');
+    speciesElement.textContent = pet.species || 'Unknown';
+    
+    // Apply species-specific styling
+    speciesElement.className = "tw-px-3 tw-py-1 tw-rounded-full tw-text-sm";
+    if (pet.species && pet.species.toLowerCase() === 'dog') {
+        speciesElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
+    } else if (pet.species && pet.species.toLowerCase() === 'cat') {
+        speciesElement.classList.add('tw-bg-purple-100', 'tw-text-purple-800');
+    } else {
+        speciesElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
+    }
+    
+    // Set other pet details
+    document.getElementById('view-pet-breed').textContent = pet.breed || 'Not specified';
+    
+    // Calculate and format age
+    let ageText = 'Not specified';
+    if (pet.birthDate || pet.birthdate) { // Check both possible property names
+        const birthDate = new Date(pet.birthDate || pet.birthdate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        if (age < 1) {
+            // Calculate months for puppies/kittens
+            const months = today.getMonth() - birthDate.getMonth();
+            ageText = months + ' month' + (months !== 1 ? 's' : '');
+        } else {
+            ageText = age + ' year' + (age !== 1 ? 's' : '');
+        }
+    }
+    document.getElementById('view-pet-age').textContent = ageText;
+    
+    // Set gender with icon
+    const genderIcon = pet.gender?.toLowerCase() === 'female' ? '♀' : '♂';
+    document.getElementById('view-pet-gender').innerHTML = `${genderIcon} ${pet.gender || 'Not specified'}`;
+    
+    // Set weight with unit
+    document.getElementById('view-pet-weight').textContent = pet.weight ? `${pet.weight} kg` : 'Not specified';
+    
+    // Set special notes or default message
+    document.getElementById('view-pet-notes').textContent = 
+        pet.petNotes || pet.special_notes || 'No special notes provided.';
+}
     
     // Function to populate payment details
     function populatePaymentDetails(payment, boarding) {

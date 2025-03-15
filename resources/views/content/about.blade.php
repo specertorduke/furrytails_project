@@ -85,32 +85,7 @@
     </div>
 
     <!-- Developers Section -->
-    <div class="container-fluid mb-5">
-        <div class="row g-4">
-            <div class="col-12">
-                <h2 class="tw-text-3xl tw-font-bold text-center mb-4 tw-text-[#24CFF4]">Our Team</h2>
-            </div>
-            <!-- Zander -->
-            <div class="col-12 col-md-6">
-                <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 text-center tw-transition-all tw-duration-300 hover:tw-shadow-lg">
-                    <img src="{{ asset('images/developer_images/realzander.png') }}" alt="Zander" 
-                         class="tw-rounded-full mx-auto mb-4 tw-w-32 tw-h-32 tw-object-cover">
-                    <h3 class="tw-text-xl tw-font-bold tw-text-[#24CFF4]">Zander Duhaylungsod</h3>
-                    <p class="tw-text-gray-600">Developer</p>
-                </div>
-            </div>
-
-            <!-- Charms -->
-            <div class="col-12 col-md-6">
-                <div class="tw-bg-white tw-shadow-sm tw-rounded-2xl tw-p-6 text-center tw-transition-all tw-duration-300 hover:tw-shadow-lg">
-                    <img src="{{ asset('images/developer_images/realcharmelle.png') }}" alt="Charmelle" 
-                         class="tw-rounded-full mx-auto mb-4 tw-w-32 tw-h-32 tw-object-cover">
-                    <h3 class="tw-text-xl tw-font-bold tw-text-[#24CFF4]">Charmelle John Cahucom</h3>
-                    <p class="tw-text-gray-600">Developer</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Contact Section -->
     <div class="container-fluid mb-4">

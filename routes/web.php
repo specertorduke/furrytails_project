@@ -89,6 +89,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
 
     // Payments
     Route::post('/payments/store', [PaymentsController::class, 'store'])->name('payments.store');
+    Route::post('/check-boarding-availability', [BoardingsController::class, 'checkAvailability'])->name('boarding.check-availability');
 });
 
 
@@ -178,4 +179,5 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Data for Boarding Modal
     Route::post('/boarding/store', [\App\Http\Controllers\Admin\AdminBoardingsController::class, 'store'])
     ->name('admin.boarding.store');
+
 });

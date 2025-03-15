@@ -15,48 +15,49 @@ use Illuminate\Support\Facades\Storage;
 
 class AppointmentsController extends Controller
 {
-    /**
-     * Get available time slots for a selected date
-     */
-    public function getAvailableTimes(Request $request)
-    {
-        // Validate request
-        $request->validate([
-            'date' => 'required|date|after:today',
-        ]);
+/**
+ * Get available time slots for a selected date
+ */
+public function getAvailableTimes(Request $request)
+{
+    // Validate request
+    $request->validate([
+        'date' => 'required|date|after:today',
+    ]);
 
-        // Define business hours (9 AM to 5 PM)
-        $startTime = 9; // 9 AM
-        $endTime = 17;  // 5 PM
-        $interval = 60; // 60 minutes per appointment
+    // Define business hours (9 AM to 5 PM)
+    $startTime = 9; // 9 AM
+    $endTime = 17;  // 5 PM
+    $interval = 60; // 60 minutes per appointment
 
-        // Get booked appointments for this date
-        $bookedTimes = Appointment::where('date', $request->date)
-            ->whereIn('status', ['Confirmed', 'Pending'])
-            ->pluck('time')
-            ->toArray();
+    // ALWAYS get the latest booking data - never use cached values
+    // Get booked appointments for this date with a fresh query
+    $bookedTimes = Appointment::where('date', $request->date)
+        ->whereIn('status', ['Confirmed', 'Pending'])
+        ->pluck('time')
+        ->toArray();
 
-        // Generate available time slots
-        $timeSlots = [];
-        for ($hour = $startTime; $hour < $endTime; $hour++) {
-            $time = sprintf('%02d:00:00', $hour);
-            $label = date('h:i A', strtotime($time));
-            
-            // Check if this time is booked
-            $isAvailable = !in_array($time, $bookedTimes);
-            
-            $timeSlots[] = [
-                'value' => $time,
-                'label' => $label,
-                'available' => $isAvailable
-            ];
-        }
-
-        return response()->json([
-            'date' => $request->date,
-            'timeSlots' => $timeSlots
-        ]);
+    // Generate available time slots
+    $timeSlots = [];
+    for ($hour = $startTime; $hour < $endTime; $hour++) {
+        $time = sprintf('%02d:00:00', $hour);
+        $label = date('h:i A', strtotime($time));
+        
+        // Check if this time is booked
+        $isAvailable = !in_array($time, $bookedTimes);
+        
+        $timeSlots[] = [
+            'value' => $time,
+            'label' => $label,
+            'available' => $isAvailable
+        ];
     }
+
+    return response()->json([
+        'date' => $request->date,
+        'timeSlots' => $timeSlots
+    ]);
+}
 
     /**
      * Show appointment details
@@ -214,79 +215,101 @@ class AppointmentsController extends Controller
         }
     }
 
-    /**
-     * Store a new appointment
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'petID'          => 'required|exists:pets,petID',
-            'date'           => 'required|date|after:today',
-            'time'           => 'required',
-            'serviceID'      => 'required|exists:services,serviceID',
-            'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
-            'payment_reference' => 'nullable|string|max:255',
-        ]);
+  /**
+ * Store a new appointment with concurrency protection
+ */
+public function store(Request $request)
+{
+    $request->validate([
+        'petID'          => 'required|exists:pets,petID',
+        'date'           => 'required|date|after:today',
+        'time'           => 'required',
+        'serviceID'      => 'required|exists:services,serviceID',
+        'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
+        'payment_reference' => 'nullable|string|max:255',
+    ]);
 
-        // Retrieve the pet record
-        $pet = Pet::findOrFail($request->petID);
-        // Optionally ensure the pet belongs to the current user
-        if ($pet->userID !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
+    // Retrieve the pet record
+    $pet = Pet::findOrFail($request->petID);
+    // Optionally ensure the pet belongs to the current user
+    if ($pet->userID !== Auth::id()) {
+        abort(403, 'Unauthorized');
+    }
 
-        // Begin transaction
-        DB::beginTransaction();
+    // Begin transaction with exclusive lock to prevent concurrent booking
+    DB::beginTransaction();
 
-        try {
-            // Create the appointment WITHOUT setting a userID
-            $appointment = new Appointment();
-            // $appointment->userID = Auth::id(); // Remove this line
-            $appointment->petID = $request->petID;
-            $appointment->serviceID = $request->serviceID;
-            $appointment->date = $request->date;
-            $appointment->time = $request->time;
-            $appointment->status = 'Pending';
-            $appointment->save();
-
-            // Create payment record (Payment table uses userID)
-            $service = Service::find($request->serviceID);
-            $payment = new \App\Models\Payment();
-            $payment->userID = Auth::id();
-            $payment->amount = $service->price;
-            $payment->payment_method = $request->payment_method;
-            $payment->reference_number = $request->reference_number;
-            $payment->status = $request->payment_method === 'Cash' ? 'Pending' : 'Completed';
+    try {
+        // CRITICAL: Lock the time slot first by checking with a lock
+        $existingAppointment = Appointment::where('date', $request->date)
+            ->where('time', $request->time)
+            ->whereIn('status', ['Pending', 'Confirmed'])
+            ->lockForUpdate() // This is key - it prevents concurrent access
+            ->first();
             
-            // Set polymorphic relationship
-            $payment->payable_id = $appointment->appointmentID;
-            $payment->payable_type = 'App\Models\Appointment';
-            $payment->save();
-
-            // If payment is completed, update appointment status
-            if ($payment->status === 'Completed') {
-                $appointment->status = 'Confirmed';
-                $appointment->save();
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success'     => true,
-                'message'     => 'Appointment created successfully',
-                'appointment' => $appointment,
-                'payment'     => $payment
-            ], 201);
-        } catch (\Exception $e) {
+        if ($existingAppointment) {
             DB::rollBack();
-            \Log::error('Error creating appointment: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while creating the appointment',
-                'error'   => $e->getMessage()
-            ], 500);
+                'message' => 'This time slot has just been booked by another client. Please select a different time.'
+            ], 409); // 409 Conflict status code
         }
+
+        // Create the appointment since we've locked the slot
+        $appointment = new Appointment();
+        $appointment->petID = $request->petID;
+        $appointment->serviceID = $request->serviceID;
+        $appointment->date = $request->date;
+        $appointment->time = $request->time;
+        $appointment->status = 'Pending';
+        $appointment->save();
+
+        // Create payment record
+        $service = Service::find($request->serviceID);
+        $payment = new \App\Models\Payment();
+        $payment->userID = Auth::id();
+        $payment->amount = $service->price;
+        $payment->payment_method = $request->payment_method;
+        $payment->reference_number = $request->reference_number ?? null;
+        $payment->status = $request->payment_method === 'Cash' ? 'Pending' : 'Completed';
+        
+        // Set polymorphic relationship
+        $payment->payable_id = $appointment->appointmentID;
+        $payment->payable_type = 'App\Models\Appointment';
+        $payment->save();
+
+        // If payment is completed, update appointment status
+        if ($payment->status === 'Completed') {
+            $appointment->status = 'Confirmed';
+            $appointment->save();
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success'     => true,
+            'message'     => 'Appointment created successfully',
+            'appointment' => $appointment,
+            'payment'     => $payment
+        ], 201);
+    } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+        DB::rollBack();
+        // This is a fallback if somehow we missed the existing appointment check
+        return response()->json([
+            'success' => false,
+            'message' => 'This time slot has already been booked. Please select a different time.'
+        ], 409);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error creating appointment: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while creating the appointment',
+            'error'   => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Cancel an appointment

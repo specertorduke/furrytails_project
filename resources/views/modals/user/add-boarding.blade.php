@@ -49,6 +49,10 @@
                     </div>
                 </div>
 
+                <div id="availability-indicator" class="tw-mb-4 tw-p-2 tw-rounded-lg tw-text-center tw-hidden">
+                    <span class="tw-text-yellow-500">Checking availability...</span>
+                </div>
+
                 <!-- Single Date field (for daycare) -->
                 <div id="single-date-container" class="tw-mb-4 tw-hidden">
                     <label for="daycare-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Date</label>
@@ -80,6 +84,9 @@
 <script>
 // Create a namespace for our boarding modal functionality
 const BoardingModal = {
+
+    hasCapacity: true,
+    isCheckingCapacity: false,
     // Store elements references
     elements: {
         petSelect: null,
@@ -133,9 +140,20 @@ const BoardingModal = {
     
     setupEventHandlers: function() {
         // Setup input change handlers for price calculation
-        this.elements.startDateInput.addEventListener('change', this.calculatePrice.bind(this));
-        this.elements.endDateInput.addEventListener('change', this.calculatePrice.bind(this));
-        this.elements.daycareDate.addEventListener('change', this.calculatePrice.bind(this));
+        this.elements.startDateInput.addEventListener('change', () => {
+        this.calculatePrice();
+        this.checkBoardingAvailability();
+    });
+    
+    this.elements.endDateInput.addEventListener('change', () => {
+        this.calculatePrice();
+        this.checkBoardingAvailability();
+    });
+    
+    this.elements.daycareDate.addEventListener('change', () => {
+        this.calculatePrice();
+        this.checkBoardingAvailability();
+    });
         this.elements.boardingTypeSelect.addEventListener('change', this.handleServiceChange.bind(this));
         
         // Setup form submission
@@ -162,23 +180,29 @@ const BoardingModal = {
         }
     },
     
-    resetForm: function() {
-        this.elements.form.reset();
-        this.elements.startDateInput.value = '';
-        this.elements.endDateInput.value = '';
-        this.elements.daycareDate.value = '';
-        this.elements.priceDisplay.textContent = '₱0.00';
-        this.elements.priceCalculation.textContent = 'Select service and dates';
-        this.selectedService = null;
-        this.isDaycare = false;
-        this.isOvernight = false;
-        this.isExtended = false;
-        
-        // Reset visibility of end date field
-        document.querySelector('label[for="end-date"]').parentElement.classList.remove('tw-hidden');
+    // Modify resetForm method
+resetForm: function() {
+    this.elements.form.reset();
+    this.elements.startDateInput.value = '';
+    this.elements.endDateInput.value = '';
+    this.elements.daycareDate.value = '';
+    this.elements.priceDisplay.textContent = '₱0.00';
+    this.elements.priceCalculation.textContent = 'Select service and dates';
+    this.selectedService = null;
+    this.isDaycare = false;
+    this.isOvernight = false;
+    this.isExtended = false;
+    
+    // Reset capacity check
+    this.hasCapacity = true;
+    this.isCheckingCapacity = false;
+    document.getElementById('availability-indicator').classList.add('tw-hidden');
+    
+    // Reset visibility of end date field
+    document.querySelector('label[for="end-date"]').parentElement.classList.remove('tw-hidden');
 
-        this.elements.startDateInput.removeEventListener('change', this.boundOvernightListener);
-    },
+    this.elements.startDateInput.removeEventListener('change', this.boundOvernightListener);
+},
     
     loadPets: function() {
         // Set loading state
@@ -320,6 +344,25 @@ const BoardingModal = {
             }
         }
         
+        const availabilityIndicator = document.getElementById('availability-indicator');
+    availabilityIndicator.classList.add('tw-hidden');
+    this.hasCapacity = true; // Reset to optimistic default
+    
+    // Check dates to see if we can check capacity now
+    let startDate, endDate;
+    if (this.isDaycare && this.elements.daycareDate.value) {
+        startDate = this.elements.daycareDate.value;
+        endDate = this.elements.daycareDate.value;
+    } else if (!this.isDaycare && this.elements.startDateInput.value && this.elements.endDateInput.value) {
+        startDate = this.elements.startDateInput.value;
+        endDate = this.elements.endDateInput.value;
+    }
+    
+    // If dates are set, check availability
+    if (startDate && endDate) {
+        this.checkBoardingAvailability();
+    }
+
         // Recalculate price
         this.calculatePrice();
     },
@@ -345,7 +388,90 @@ const BoardingModal = {
         // Recalculate price
         this.calculatePrice();
     },
+    checkBoardingAvailability: function() {
+    // Get the appropriate date values based on boarding type
+    let startDate, endDate;
     
+    if (this.isDaycare) {
+        startDate = this.elements.daycareDate.value;
+        endDate = this.elements.daycareDate.value;
+    } else {
+        startDate = this.elements.startDateInput.value;
+        endDate = this.elements.endDateInput.value;
+    }
+    
+    if (!startDate || !endDate) {
+        // Hide availability indicator if dates aren't selected
+        document.getElementById('availability-indicator').classList.add('tw-hidden');
+        return;
+    }
+    
+    // Show and update availability indicator
+    const availabilityIndicator = document.getElementById('availability-indicator');
+    availabilityIndicator.classList.remove('tw-hidden');
+    availabilityIndicator.innerHTML = '<span class="tw-text-yellow-500"><i class="fas fa-spinner fa-spin mr-1"></i> Checking availability...</span>';
+    
+    // Set flag to indicate we're checking
+    this.isCheckingCapacity = true;
+    
+    // Get CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // Make API request to check capacity
+    fetch('{{ route("boarding.check-availability") }}', {  // Use Laravel's route helper
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            start_date: startDate,
+            end_date: endDate
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        this.isCheckingCapacity = false;
+        
+        if (data.success) {
+            this.hasCapacity = data.available;
+            
+            if (data.available) {
+                availabilityIndicator.innerHTML = 
+                    `<span class="tw-text-green-500">
+                        <i class="fas fa-check-circle tw-mr-1"></i>
+                        Available! ${data.remainingSpots} ${data.remainingSpots === 1 ? 'spot' : 'spots'} left.
+                    </span>`;
+            } else {
+                availabilityIndicator.innerHTML = 
+                    `<span class="tw-text-red-500">
+                        <i class="fas fa-exclamation-circle tw-mr-1"></i>
+                        Sorry, we're fully booked for these dates. Please select different dates.
+                    </span>`;
+            }
+        } else {
+            this.hasCapacity = false;
+            console.error('Error checking availability:', data.message);
+            availabilityIndicator.innerHTML = 
+                `<span class="tw-text-red-500">
+                    <i class="fas fa-exclamation-circle tw-mr-1"></i>
+                    Error checking availability. Please try again.
+                </span>`;
+        }
+    })
+    .catch(error => {
+        this.isCheckingCapacity = false;
+        this.hasCapacity = false;
+        console.error('Error checking boarding availability:', error);
+        availabilityIndicator.innerHTML = 
+            `<span class="tw-text-red-500">
+                <i class="fas fa-exclamation-circle tw-mr-1"></i>
+                Error checking availability. Please try again.
+            </span>`;
+    });
+},
     calculatePrice: function() {
         if (!this.selectedService) {
             this.price = 0;
@@ -466,6 +592,19 @@ const BoardingModal = {
                 return;
             }
         }
+        
+        // Check if we're currently in the process of checking capacity
+    if (this.isCheckingCapacity) {
+        this.showError('Please wait while we check availability...');
+        return;
+    }
+
+    // Validate capacity
+    if (!this.hasCapacity) {
+        this.showError("We're sorry, but we don't have capacity for the selected dates. Please choose different dates.");
+        return;
+    }
+
 
         // Show confirmation dialog
         Swal.fire({

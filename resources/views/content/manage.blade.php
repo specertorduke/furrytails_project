@@ -426,19 +426,16 @@
     });
 
     // Cleanup when content will change
-    document.addEventListener('contentWillChange', function() {
-        console.log('Content will change event received');
-        ManagePage.destroyTables();
-    });
+    
 </script>
-
-@include('modals.user.edit-appointment')
-@include('modals.user.add-appointment')
 @include('modals.user.edit-boarding')
+@include('modals.user.edit-appointment')
 @include('modals.user.add-boarding')
+@include('modals.user.add-appointment')
 @include('modals.user.add-pet')
 @include('modals.user.view-boarding')
 @include('modals.user.view-appointment')
+@include('modals.user.payment-modal')
 
 @endpush
 @endsection

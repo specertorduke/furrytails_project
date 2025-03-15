@@ -44,16 +44,10 @@
                 <div class="tw-flex tw-flex-wrap tw-gap-2">
                     <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter active"
                             data-species="all">All</button>
-                    <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
-                            data-species="Dog">Dogs</button>
-                    <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
-                            data-species="Cat">Cats</button>
-                    <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
-                            data-species="Rabbit">Rabbits</button>
-                    <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
-                            data-species="Hamster">Hamsters</button>
-                    <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
-                            data-species="Guinea Pig">Guinea Pigs</button>
+                    @foreach($uniqueSpecies as $species)
+                        <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all species-filter"
+                                data-species="{{ $species }}">{{ Str::plural($species) }}</button>
+                    @endforeach
                 </div>
             </div>
         </div>

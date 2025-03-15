@@ -206,7 +206,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'date' => '2025-03-15',
+                'date' => '2025-03-16',
                 'time' => '10:00:00',
                 'serviceID' => 2, 
                 'petID' => 1,
@@ -220,17 +220,17 @@ class DatabaseSeeder extends Seeder
         DB::table('boardings')->insert([
             [
                 'boardingType' => 'Overnight',
-                'start_date' => '2025-03-01',
-                'end_date' => '2025-03-05',
+                'start_date' => '2025-03-15',
+                'end_date' => '2025-03-16',
                 'petID' => 1,
                 'status' => 'Active',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'boardingType' => 'Overnight',
-                'start_date' => '2025-03-06',
-                'end_date' => '2025-03-08',
+                'boardingType' => 'Daycare',
+                'start_date' => '2025-03-18',
+                'end_date' => '2025-03-18',
                 'petID' => 1,
                 'status' => 'Active',
                 'created_at' => now(),
@@ -301,5 +301,10 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'boarding_capacity'],
+            ['value' => '10', 'description' => 'Maximum number of pets that can be boarded at once']
+        );
     }
 }

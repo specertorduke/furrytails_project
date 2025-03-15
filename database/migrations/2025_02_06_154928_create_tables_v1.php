@@ -69,6 +69,7 @@ return new class extends Migration
             $table->string('after_image')->nullable();  // After grooming image
             $table->foreign('serviceID')->references('serviceID')->on('services')->onDelete('cascade');
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
+            $table->unique(['date', 'time', 'status'], 'unique_active_appointment_slot');
             $table->timestamps();
         });
 
@@ -131,7 +132,15 @@ return new class extends Migration
             
             // Foreign key for user
             $table->foreign('userID')->references('userID')->on('users')->onDelete('set null');
-        });        
+        });
+
+        Schema::create('settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->text('value');
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -146,5 +155,6 @@ return new class extends Migration
         Schema::dropIfExists('pets');
         Schema::dropIfExists('users');
         Schema::dropIfExists('activity_logs');
+        Schema::dropIfExists('settings');
     }
 };

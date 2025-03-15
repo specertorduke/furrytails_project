@@ -15,7 +15,10 @@ class PetController extends Controller
     public function index()
     {
         $pets = Pet::where('userID', Auth::id())->get();
-        return view('content.pets', compact('pets'));
+        $user = Auth::user();
+        $uniqueSpecies = $user->pets()->distinct()->pluck('species')->toArray();
+
+        return view('content.pets', compact('pets', 'uniqueSpecies'));
     }
 
     public function edit($id)
