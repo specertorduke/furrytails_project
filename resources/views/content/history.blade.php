@@ -129,10 +129,10 @@
 
                 <!-- Right: Actions -->
                 <div class="tw-flex tw-gap-2">
-                    <button onclick="viewDetails({{ $item->id }})" 
-                            class="tw-text-[#24CFF4] tw-text-sm hover:tw-underline">
-                        View Details
-                    </button>
+                <button onclick="viewDetails({{ $item->id }}, '{{ $item->type }}')" 
+                        class="tw-text-[#24CFF4] tw-text-sm hover:tw-underline">
+                    View Details
+                </button>
                 </div>
             </div>
         </div>
@@ -203,9 +203,37 @@
         }
     }
 
-    window.viewDetails = function(id) {
-        // Implement view details logic
-        console.log('Viewing details for:', id);
+    window.viewDetails = function(id, type) {
+        console.log('Viewing details for:', id, 'Type:', type);
+        
+        // Determine which modal to open based on the type
+        if (type === 'appointment') {
+            // Check if the appointment modal function exists
+            if (typeof window.openAppointmentModal === 'function') {
+                window.openAppointmentModal(id);
+            } else {
+                console.error('openAppointmentModal function not found');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not load appointment details',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4'
+                });
+            }
+        } else if (type === 'boarding') {
+            // Check if the boarding modal function exists
+            if (typeof window.openViewBoardingModal === 'function') {
+                window.openViewBoardingModal(id);
+            } else {
+                console.error('openViewBoardingModal function not found');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not load boarding details',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4'
+                });
+            }
+        }
     }
 
 // Initialize on direct page load
@@ -223,7 +251,13 @@ window.addEventListener('popstate', function() {
 // document.dispatchEvent(new Event('contentChanged'));
 </script>
 
-
+@include('modals.user.edit-appointment')
+@include('modals.user.add-appointment')
+@include('modals.user.edit-boarding')
+@include('modals.user.add-boarding')
+@include('modals.user.add-pet')
 @include('modals.user.payment-modal')
+@include('modals.user.view-boarding')
+@include('modals.user.view-appointment')
 
 @endsection

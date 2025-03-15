@@ -76,14 +76,14 @@
                             <!-- Password Fields -->
                             <div class="col-12 col-md-6">
                                 <label for="password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">New Password</label>
-                                <input type="password" id="password" name="password" 
+                                <input type="password" id="password" name="password" autocomplete="new-password"
                                     class="tw-mt-1 tw-w-full tw-px-4 tw-py-2 tw-border tw-rounded-xl tw-shadow-sm focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-transition-all tw-duration-300">
                                 <span class="tw-text-xs tw-text-gray-500">Leave blank to keep your current password</span>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label for="password_confirmation" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Confirm Password</label>
-                                <input type="password" id="password_confirmation" name="password_confirmation" 
+                                <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password"
                                     class="tw-mt-1 tw-w-full tw-px-4 tw-py-2 tw-border tw-rounded-xl tw-shadow-sm focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-transition-all tw-duration-300">
                             </div>
                         </div>
@@ -119,6 +119,13 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.querySelector('.tw-w-32.tw-h-32 img').src = e.target.result;
+                
+                // Create a hidden input to store the fact that the image was changed
+                const imageChangedInput = document.createElement('input');
+                imageChangedInput.type = 'hidden';
+                imageChangedInput.name = 'image_changed';
+                imageChangedInput.value = '1';
+                document.getElementById('accountupdate').appendChild(imageChangedInput);
             };
             reader.readAsDataURL(e.target.files[0]);
         }
@@ -181,11 +188,14 @@
                     }
                 }).then(response => {
                     if (response.ok) {
-                        Swal.fire('Error!', 'Failed to delete your account.', 'error');
-                        
-                    } else {
+                        // If successful, go to login page
                         window.location.href = '{{ route('login') }}';
+                    } else {
+                        // If failed, show error
+                        Swal.fire('Error!', 'Failed to delete your account.', 'error');
                     }
+                }).catch(error => {
+                    Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
                 });
             }
         });

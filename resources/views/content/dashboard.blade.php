@@ -412,13 +412,6 @@
                             <p class="tw-text-gray-600 tw-text-sm">Maintain a balanced diet appropriate for your pet's needs.</p>
                         </div>
                     </div>
-
-                    <!-- Quick Action Button -->
-                    <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
-                        class="tw-w-full tw-mt-4 tw-bg-gradient-to-r tw-from-[#24CFF4] tw-to-[#45E3FF] tw-text-white tw-rounded-xl tw-py-3 tw-px-4 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-transition-all hover:tw-shadow-md hover:tw-opacity-90">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Schedule a Check-up</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -661,25 +654,31 @@ window.DashboardPage = window.DashboardPage || {
 
     // Appointment actions
     viewAppointment: function(id) {
-        console.log("View appointment", id);
-        // You can implement modal opening here similar to admin pages
-        Swal.fire({
-            title: 'View Appointment',
-            text: `Opening appointment details for ID: ${id}`,
-            icon: 'info',
-            confirmButtonColor: '#24CFF4',
-        });
+        if(typeof window.openAppointmentModal === 'function') {
+            window.openAppointmentModal(id);
+        } else {
+            console.error("openAppointmentModal function not found");
+            Swal.fire({
+                title: 'Error',
+                text: 'Could not open appointment details. Please try again later.',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4',
+            });
+        }
     },
 
     editAppointment: function(id) {
-        console.log("Edit appointment", id);
-        // Implement edit appointment functionality
-        Swal.fire({
-            title: 'Edit Appointment',
-            text: `Opening edit form for appointment ID: ${id}`,
-            icon: 'info',
-            confirmButtonColor: '#24CFF4',
-        });
+        if(typeof window.openEditAppointmentModal === 'function') {
+            window.openEditAppointmentModal(id);
+        } else {
+            console.error("openEditAppointmentModal function not found");
+            Swal.fire({
+                title: 'Error',
+                text: 'Could not fetch appointment details. Please try again later.',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4',
+            });
+        }
     },
 
     cancelAppointment: function(id) {
@@ -694,7 +693,7 @@ window.DashboardPage = window.DashboardPage || {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to cancel the appointment
-                fetch(`/appointments/cancel/${id}`, {
+                fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -729,25 +728,31 @@ window.DashboardPage = window.DashboardPage || {
 
     // Boarding actions
     viewBoarding: function(id) {
-        console.log("View boarding", id);
-        // You can implement modal opening here
-        Swal.fire({
-            title: 'View Boarding',
-            text: `Opening boarding details for ID: ${id}`,
-            icon: 'info',
-            confirmButtonColor: '#24CFF4',
-        });
+        if(typeof window.openViewBoardingModal === 'function') {
+            window.openViewBoardingModal(id);
+        } else {
+            console.error("openViewBoardingModal function not found");
+            Swal.fire({
+                title: 'Error',
+                text: 'Could not fetch boarding details. Please try again later.',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4',
+            });
+        }
     },
 
     editBoarding: function(id) {
-        console.log("Edit boarding", id);
-        // Implement edit boarding functionality
-        Swal.fire({
-            title: 'Edit Boarding',
-            text: `Opening edit form for boarding ID: ${id}`,
-            icon: 'info',
-            confirmButtonColor: '#24CFF4',
-        });
+        if(typeof window.openEditBoardingModal === 'function') {
+            window.openEditBoardingModal(id);
+        } else {
+            console.error("openEditBoardingModal function not found");
+            Swal.fire({
+                title: 'Error',
+                text: 'Could not fetch boarding details. Please try again later.',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4',
+            });
+        }
     },
 
     cancelBoarding: function(id) {
@@ -761,13 +766,36 @@ window.DashboardPage = window.DashboardPage || {
             confirmButtonText: 'Yes, cancel it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Add your cancel AJAX call here
-                console.log("Cancelling boarding", id);
-                Swal.fire(
-                    'Cancelled!',
-                    'The boarding has been cancelled.',
-                    'success'
-                );
+                // Send AJAX request to cancel the boarding
+                fetch(`{{ route('user.boardings.cancel', ['id' => ':id']) }}`.replace(':id', id), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh the datatable
+                        this.boardingsTable.ajax.reload();
+                        
+                        Swal.fire(
+                            'Cancelled!',
+                            'The boarding has been cancelled.',
+                            'success'
+                        );
+                    } else {
+                        throw new Error(data.message || 'An error occurred');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire(
+                        'Error!',
+                        error.message,
+                        'error'
+                    );
+                });
             }
         });
     }
@@ -789,10 +817,14 @@ document.addEventListener('contentWillChange', function() {
 </script>
 @endpush
 
+@include('modals.user.edit-appointment')
 @include('modals.user.add-appointment')
+@include('modals.user.edit-boarding')
 @include('modals.user.add-boarding')
 @include('modals.user.add-pet')
 @include('modals.user.payment-modal')
+@include('modals.user.view-boarding')
+@include('modals.user.view-appointment')
 
 @endsection
 

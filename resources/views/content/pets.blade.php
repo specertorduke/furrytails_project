@@ -165,17 +165,21 @@
             background: '#fff'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/pets/${petId}/delete`, {
-                    method: 'POST',
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                // Send request to delete pet
+                fetch(`{{ url('/pets') }}/${petId}`, { // Changed from /pets/ to /user/pets/
+                    method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }
                 })
                 .then(response => {
                     if (!response.ok) {
-                        return response.json().then(err => Promise.reject(err));
+                        throw new Error('Failed to delete pet');
                     }
                     return response.json();
                 })
@@ -185,28 +189,32 @@
                             title: 'Deleted!',
                             text: 'Pet has been deleted successfully',
                             icon: 'success',
-                            confirmButtonColor: '#24CFF4'
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         }).then(() => {
                             // Close any open modals
                             const viewPetModal = document.getElementById('viewPet-modal');
-                            const editPetModal = document.getElementById('editPet-modal');
-                            if (viewPetModal) viewPetModal.classList.add('tw-hidden');
-                            if (editPetModal) editPetModal.classList.add('tw-hidden');
+                            if (viewPetModal) {
+                                viewPetModal.classList.add('tw-hidden');
+                            }
                             
                             // Reload page to refresh the pet list
-                            window.location.reload();
+                            location.reload();
                         });
                     } else {
                         throw new Error(data.message || 'Failed to delete pet');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error deleting pet:', error);
                     Swal.fire({
                         title: 'Error!',
                         text: error.message || 'Failed to delete pet',
                         icon: 'error',
-                        confirmButtonColor: '#24CFF4'
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 });
             }
@@ -264,36 +272,35 @@ function initializePetsPage() {
 
 // Global functions for pet actions
 window.editPet = function(petId) {
-    // Fetch pet details first
-    fetch(`/pets/${petId}`, {
+    // Use the full URL path with proper prefix
+    fetch(`{{ url('/pets') }}/${petId}`, {
+        method: 'GET',
         headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Show and populate the edit modal
-            const modal = document.getElementById('editPet-modal');
-            modal.classList.remove('tw-hidden');
-            
-            // Use the populate function defined in edit-pet.blade.php
+            // Show modal
+            document.getElementById('editPet-modal').classList.remove('tw-hidden');
+            // Populate form
             window.populateEditPetForm(data.pet);
         } else {
-            Swal.fire({
-                title: 'Error',
-                text: data.message || 'Could not load pet details',
-                icon: 'error',
-                confirmButtonColor: '#24CFF4'
-            });
+            throw new Error(data.message || 'Failed to load pet data');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error fetching pet data:', error);
         Swal.fire({
-            title: 'Error',
-            text: 'Failed to load pet details',
+            title: 'Error!',
+            text: 'Failed to load pet details. Please try again.',
             icon: 'error',
             confirmButtonColor: '#24CFF4'
         });
@@ -334,6 +341,9 @@ document.addEventListener('click', function(event) {
     }
 });
 </script>
-@include('modals.user.view-pet')
+
 @include('modals.user.edit-pet')
+@include('modals.user.view-pet')
+@include('modals.user.add-pet')
+@include('modals.user.add-appointment') 
 @endsection

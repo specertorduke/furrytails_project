@@ -57,29 +57,35 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/manage/fetch-boardings', [ManageController::class, 'fetchBoardings'])->name('manage.boardings');
 
     // Pet Page routes
-    Route::get('/pets/{id}/edit', [PetController::class, 'edit'])->name('pets.edit');
     Route::post('/pets/add', [PetController::class, 'addPet'])->name('pets.add');
     Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.delete');
     Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete');
     Route::get('/pets/{id}', [PetController::class, 'show'])->name('pets.show');
-    Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('pets.update');
+    Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('user.pets.update');
     Route::get('/user/pets/list', [PetController::class, 'getUserPets'])->name('user.pets.list');
+    Route::get('/pets/{id}', [PetController::class, 'getPet'])->name('user.pets.get');
+    Route::get('/pets/{id}', [PetController::class, 'showPet'])->name('user.pets.show');
+    Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.destroy');
+    Route::get('/pet-activities/{id}', [PetController::class, 'getPetActivities'])->name('user.pets.activities'); 
 
     // Appointments
     Route::get('/appointments/available-times', [AppointmentsController::class, 'getAvailableTimes'])->name('appointments.available-times');
     Route::get('/services/list', [AppointmentsController::class, 'getServicesList'])->name('services.list');
-    Route::get('/appointments/{id}', [ManageController::class, 'showAppointment']);
-    Route::put('/appointments/{id}', [ManageController::class, 'updateAppointment']);
+    Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])->name('user.appointments.show');
+    Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])->name('user.appointments.edit');
     Route::post('/appointments/store', [AppointmentsController::class, 'store'])->name('appointments.store');
-    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancelAppointment'])->name('appointments.cancel');
+    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancelAppointment'])->name('user.appointments.cancel');
+    Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])->name('user.appointments.update');
     Route::delete('/appointments/{id}', [ManageController::class, 'deleteAppointment']);
 
     // Boardings
-    Route::get('/boardings/{id}', [ManageController::class, 'showBoarding']);
-    Route::put('/boardings/{id}', [ManageController::class, 'updateBoarding']);
+    Route::get('/boardings/{id}', [BoardingsController::class, 'show'])->name('user.boardings.show');
+    Route::put('/boardings/{id}', [BoardingsController::class, 'update'])->name('user.boardings.update');
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
     Route::post('/boardings/store', [BoardingsController::class, 'store'])->name('boardings.store');
     Route::get('/services/boarding', [BoardingsController::class, 'getBoardingServices'])->name('services.boarding');
+    Route::post('/boardings/{id}/cancel', [BoardingsController::class, 'cancelBoarding'])->name('user.boardings.cancel');
+    Route::get('/services', [BoardingsController::class, 'getBServices'])->name('user.boardings.services');
 
     // Payments
     Route::post('/payments/store', [PaymentsController::class, 'store'])->name('payments.store');

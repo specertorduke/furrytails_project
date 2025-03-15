@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ActivityLogger; 
+use Illuminate\Support\Facades\Validator; 
+
 
 class BoardingsController extends Controller
 {
@@ -97,6 +99,49 @@ class BoardingsController extends Controller
         }
     }
 
+     /**
+     * Get boarding details for view modal
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        try {
+            // Get boarding with pet, user, AND PAYMENT information
+            $boarding = Boarding::with(['pet.user', 'payments'])
+                ->findOrFail($id);
+                
+            // Get the service information for this boarding type
+            $service = \App\Models\Service::where('category', 'boarding')
+                ->where('name', 'LIKE', '%'.$boarding->boardingType.'%')
+                ->first();
+                
+            // Add service price info to the boarding data
+            $boarding->baseRate = $service ? $service->price : 0;
+                
+            // Get boarding history for this pet
+            $boardingHistory = Boarding::where('petID', $boarding->petID)
+                ->where('boardingID', '!=', $id)
+                ->orderBy('start_date', 'desc')
+                ->take(5)
+                ->get();
+                
+            return response()->json([
+                'success' => true,
+                'boarding' => $boarding,
+                'boardingHistory' => $boardingHistory
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching boarding details: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve boarding details',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+    
     /**
      * Cancel a boarding
      */
@@ -148,5 +193,123 @@ class BoardingsController extends Controller
                         ->get();
                         
         return response()->json($services);
+    }
+
+    /**
+     * Get all boarding services for the dropdown
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getBServices()
+    {
+        try {
+            // Get all active boarding services
+            $services = Service::where(function($query) {
+                    $query->where('type', 'boarding')
+                        ->orWhere('name', 'like', '%boarding%')
+                        ->orWhere('name', 'like', '%daycare%');
+                })
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get();
+                
+            return response()->json([
+                'success' => true,
+                'services' => $services
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching boarding services: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load services. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update boarding details
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'petID' => 'required|exists:pets,petID',
+            'boardingType' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'status' => 'required|in:Confirmed,Active,Completed,Cancelled',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            
+            // Update boarding
+            $boarding = Boarding::findOrFail($id);
+            $boarding->petID = $request->petID;
+            $boarding->boardingType = $request->boardingType;
+            $boarding->start_date = $request->start_date;
+            $boarding->end_date = $request->end_date;
+            $boarding->status = $request->status;
+            $boarding->save();
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Boarding updated successfully',
+                'boarding' => $boarding
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error updating boarding: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update boarding: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function showPet($id)
+    {
+        try {
+            $pet = \App\Models\Pet::with('user')->findOrFail($id);
+            
+            // Calculate age from birth date
+            $birthDate = \Carbon\Carbon::parse($pet->birthDate);
+            $pet->age = $birthDate->diffForHumans(null, true);
+            
+            // Format vaccination date if exists
+            if ($pet->lastVaccinationDate) {
+                $pet->vaccinationDate = \Carbon\Carbon::parse($pet->lastVaccinationDate)->format('Y-m-d');
+            }
+            
+            // Ensure pet image path is properly formatted
+            if ($pet->petImage) {
+                $pet->petImage = str_replace('public/', '', $pet->petImage);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'pet' => $pet
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve pet data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

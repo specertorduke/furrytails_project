@@ -89,38 +89,74 @@
         boardingsTable: null,
 
         // CRUD Functions
-    viewAppointment: function(id) {
-            // Show appointment details modal
+        viewAppointment: function(id) {
+            if(typeof window.openAppointmentModal === 'function') {
+                window.openAppointmentModal(id);
+            } else {
+                console.error("openAppointmentModal function not found");
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not open appointment details. Please try again later.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                });
+            }
         },
 
         editAppointment: function(id) {
-            // Show edit appointment modal
+            if(typeof window.openEditAppointmentModal === 'function') {
+                window.openEditAppointmentModal(id);
+            } else {
+                console.error("openEditAppointmentModal function not found");
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not fetch appointment details. Please try again later.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                });
+            }
         },
 
-        deleteAppointment: function(id) {
+        cancelAppointment: function(id) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Cancel Appointment?',
+                text: "This action cannot be undone.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Make AJAX call to delete
-                    fetch(`/appointments/${id}`, {
-                        method: 'DELETE',
+                    // Send AJAX request to cancel the appointment
+                    fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
+                        method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         }
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if(data.success) {
+                        if (data.success) {
+                            // Refresh the datatable
                             this.appointmentsTable.ajax.reload();
-                            Swal.fire('Deleted!', 'Appointment has been deleted.', 'success');
+                            
+                            Swal.fire(
+                                'Cancelled!',
+                                'The appointment has been cancelled.',
+                                'success'
+                            );
+                        } else {
+                            throw new Error(data.message || 'An error occurred');
                         }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            error.message,
+                            'error'
+                        );
                     });
                 }
             });
@@ -128,15 +164,76 @@
 
         // Similar functions for boarding...
         viewBoarding: function(id) {
-            // Show boarding details modal
+            if(typeof window.openViewBoardingModal === 'function') {
+                window.openViewBoardingModal(id);
+            } else {
+                console.error("openViewBoardingModal function not found");
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not fetch boarding details. Please try again later.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                });
+            }
         },
 
         editBoarding: function(id) {
-            // Show edit boarding modal
+            if(typeof window.openEditBoardingModal === 'function') {
+                window.openEditBoardingModal(id);
+            } else {
+                console.error("openEditBoardingModal function not found");
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not fetch boarding details. Please try again later.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                });
+            }
         },
 
-        deleteBoarding: function(id) {
-            // Similar to deleteAppointment
+        cancelBoarding: function(id) {
+            Swal.fire({
+                title: 'Cancel Boarding?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send AJAX request to cancel the boarding
+                    fetch(`{{ route('user.boardings.cancel', ['id' => ':id']) }}`.replace(':id', id), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Refresh the datatable
+                            this.boardingsTable.ajax.reload();
+                            
+                            Swal.fire(
+                                'Cancelled!',
+                                'The boarding has been cancelled.',
+                                'success'
+                            );
+                        } else {
+                            throw new Error(data.message || 'An error occurred');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            error.message,
+                            'error'
+                        );
+                    });
+                }
+            });
         },
 
         initializeTables: function() {
@@ -236,9 +333,9 @@
                                             class="tw-text-yellow-500 hover:tw-text-yellow-700">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="ManagePage.deleteAppointment(${data.appointmentID})" 
+                                    <button onclick="ManagePage.cancelAppointment(${data.appointmentID})" 
                                             class="tw-text-red-500 hover:tw-text-red-700">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-ban"></i>
                                     </button>
                                 </div>
                             `;
@@ -293,9 +390,9 @@
                                             class="tw-text-yellow-500 hover:tw-text-yellow-700">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="ManagePage.deleteBoarding(${data.boardingID})" 
+                                    <button onclick="ManagePage.cancelBoarding(${data.boardingID})" 
                                             class="tw-text-red-500 hover:tw-text-red-700">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-ban"></i>
                                     </button>
                                 </div>
                             `;
@@ -335,8 +432,13 @@
     });
 </script>
 
+@include('modals.user.edit-appointment')
 @include('modals.user.add-appointment')
+@include('modals.user.edit-boarding')
 @include('modals.user.add-boarding')
+@include('modals.user.add-pet')
+@include('modals.user.view-boarding')
+@include('modals.user.view-appointment')
 
 @endpush
 @endsection

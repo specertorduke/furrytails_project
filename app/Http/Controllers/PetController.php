@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Models\Appointment; 
+use App\Models\Boarding; 
 
 class PetController extends Controller
 {
@@ -117,6 +121,30 @@ class PetController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            $pet = Pet::findOrFail($id);
+            
+            // Delete pet image if it exists
+            if ($pet->petImage && Storage::exists('public/' . $pet->petImage)) {
+                Storage::delete('public/' . $pet->petImage);
+            }
+            
+            $pet->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete pet',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     
     public function show($id)
     {
@@ -147,6 +175,7 @@ class PetController extends Controller
         try {
             $pet = Pet::findOrFail($id);
             
+            // Check if user owns this pet
             if ($pet->userID !== Auth::id()) {
                 return response()->json([
                     'success' => false,
@@ -155,21 +184,21 @@ class PetController extends Controller
             }
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'species' => 'required|string',
-                'breed' => 'required|string',
-                'gender' => 'required|string',
+                'name' => 'required|string|max:50',
+                'species' => 'required|string|max:50',
+                'breed' => 'nullable|string|max:50',
+                'gender' => 'required|string|max:10',
                 'birthDate' => 'required|date',
-                'weight' => 'nullable|numeric|min:0',
-                'cropped_image' => 'nullable|string',
+                'weight' => 'nullable|numeric',
+                // Remove the userID validation since we're using Auth::id()
                 'petNotes' => 'nullable|string',
                 'medicalHistory' => 'nullable|string',
                 'allergies' => 'nullable|string',
                 'isVaccinated' => 'required|boolean',
                 'lastVaccinationDate' => 'required_if:isVaccinated,1|nullable|date'
             ]);
-
-            // Handle image update if provided
+            
+            // Handle image upload if provided
             if ($request->has('cropped_image') && $request->cropped_image !== null) {
                 if ($pet->petImage && $pet->petImage !== 'petImages/default.png') {
                     \Storage::disk('public')->delete($pet->petImage);
@@ -188,23 +217,21 @@ class PetController extends Controller
                 $validated['lastVaccinationDate'] = null;
             }
 
+            // Update pet
             $pet->update($validated);
-
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Pet updated successfully',
                 'pet' => $pet->fresh()
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Pet update validation failed', ['errors' => $e->errors()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Pet update failed', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update pet: ' . $e->getMessage()
@@ -220,4 +247,116 @@ class PetController extends Controller
         $pets = Auth::user()->pets;
         return response()->json($pets);
     }
+
+    /**
+     * Get a specific pet by ID (for the current user)
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPet($id)
+    {
+        try {
+            $pet = Pet::where('petID', $id)
+                     ->where('userID', Auth::id())
+                     ->first();
+            
+            if (!$pet) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pet not found or not authorized'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'pet' => $pet
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load pet details. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function showPet($id)
+    {
+        try {
+            $pet = \App\Models\Pet::with('user')->findOrFail($id);
+            
+            // Calculate age from birth date
+            $birthDate = \Carbon\Carbon::parse($pet->birthDate);
+            $pet->age = $birthDate->diffForHumans(null, true);
+            
+            // Format vaccination date if exists
+            if ($pet->lastVaccinationDate) {
+                $pet->vaccinationDate = \Carbon\Carbon::parse($pet->lastVaccinationDate)->format('Y-m-d');
+            }
+            
+            // Ensure pet image path is properly formatted
+            if ($pet->petImage) {
+                $pet->petImage = str_replace('public/', '', $pet->petImage);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'pet' => $pet
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve pet data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+ * Get pet's recent activities (appointments and boardings)
+ *
+ * @param int $id
+ * @return \Illuminate\Http\JsonResponse
+ */
+public function getPetActivities($id)
+{
+    try {
+        // Verify pet belongs to authenticated user
+        $pet = Pet::where('petID', $id)
+                ->where('userID', Auth::id())
+                ->first();
+                
+        if (!$pet) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pet not found or not authorized'
+            ], 403);
+        }
+        
+        // Get recent appointments (last 5)
+        $appointments = Appointment::where('petID', $id)
+            ->with(['service'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+            
+        // Get recent boardings (last 5)
+        $boardings = Boarding::where('petID', $id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+            
+        return response()->json([
+            'success' => true,
+            'appointments' => $appointments,
+            'boardings' => $boardings
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error getting pet activities: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load pet activities'
+        ], 500);
+    }
+}
 }
