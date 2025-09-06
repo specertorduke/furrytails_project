@@ -3,7 +3,7 @@
 @section('title', 'History')
 
 @section('content')
-<div class="tw-p-6 tw-bg-gradient-to-tl tw-h-screen tw-overflow-y-auto tw-to-[#b7f4ff] tw-from-white">
+<div class="tw-p-6 tw-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd]">
     <!-- Header -->
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>

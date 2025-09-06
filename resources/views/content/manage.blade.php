@@ -3,7 +3,7 @@
 @section('title', 'Manage')
 
 @section('content')
-<div class="tw-p-6 tw-bg-gradient-to-tl tw-h-screen tw-to-[#b7f4ff] tw-from-white">
+<div class="tw-p-6 tw-h-screen tw-bg-[#f4fbfd]">
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>
             <p class="tw-text-sm tw-text-gray-500">Pages / Manage</p>

@@ -3,7 +3,7 @@
 @section('title', 'Manage Pets')
 
 @section('content')
-<div class="tw-p-6 tw-bg-gradient-to-br tw-from-gray-900 tw-to-gray-800 tw-min-h-screen tw-overflow-y-auto">
+<div class="tw-p-6 tw-bg-gray-900 tw-min-h-screen tw-overflow-y-auto">
     <!-- Header with Title -->
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>

@@ -4,7 +4,6 @@
 
 @section('content')
 @php
-    // Create safe variables in case they're not passed from the controller
     $boardings = $boardings ?? collect([]);
     $appointments = $appointments ?? collect([]);
     $pets = $pets ?? collect([]);
@@ -17,7 +16,7 @@
         </div>
         <div class="col-12 col-md-6 d-flex justify-content-md-end tw-justify-end align-items-center mt-3 mt-md-0">
             <div class="tw-flex tw-items-center tw-justify-end tw-bg-white tw-py-1 tw-px-4 tw-rounded-full tw-shadow-md tw-gap-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
-                <!-- Add user's first name -->
+                <!--    user's first name -->
                 <span class="tw-text-gray-700 tw-font-medium">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</span>
                 <!-- Profile dropdown -->
                 <div class="tw-relative">

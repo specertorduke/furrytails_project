@@ -429,7 +429,7 @@
             
             // View log details handler
             viewLogDetails: function(id) {
-                fetch(`/admin/reports/${id}`)
+                fetch(`{{ route('admin.reports.show', ':id') }}`.replace(':id', id))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
