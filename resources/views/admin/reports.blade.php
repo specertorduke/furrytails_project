@@ -204,6 +204,14 @@
                 <input type="datetime-local" id="restore-datetime" name="restore_datetime" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" required>
             </div>
             
+            <div>
+                <label for="admin-password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">
+                    <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
+                </label>
+                <input type="password" id="admin-password" name="admin_password" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" placeholder="Enter your current password" required>
+                <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm this critical operation</p>
+            </div>
+            
             <div class="tw-mt-4">
                 <label class="tw-flex tw-items-center">
                     <input type="checkbox" id="restore-confirm" name="restore_confirm" class="tw-rounded tw-bg-gray-700 tw-text-blue-500 tw-border-gray-600" required>
@@ -213,7 +221,9 @@
             
             <div class="tw-flex tw-justify-end tw-pt-4">
                 <button type="button" class="close-modal tw-bg-gray-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-mr-2">Cancel</button>
-                <button type="submit" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Restore Database</button>
+                <button type="submit" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">
+                    <i class="fas fa-shield-alt tw-mr-2"></i>Restore Database
+                </button>
             </div>
         </form>
     </div>
@@ -656,68 +666,101 @@
                     });
             },
             // Restore database to a point in time
-            restoreDatabase: function(timestamp) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    html: `
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
-                        <p>You are about to restore the database to ${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
-                        <p>All changes after this point will be lost.</p>
-                    `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, restore it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Show loading state
+            restoreDatabase: function(timestamp, password = null) {
+                const performRestore = (adminPassword) => {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Restoring Database',
+                        html: 'This may take some time. Please wait...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    fetch("{{ route('admin.reports.restore') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            timestamp: timestamp,
+                            password: adminPassword,
+                            confirm: true
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Restored!',
+                                text: 'Database has been restored successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Reload the page to show restored data
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: data.message || 'Failed to restore database.',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire({
-                            title: 'Restoring Database',
-                            html: 'This may take some time. Please wait...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            willOpen: () => {
-                                Swal.showLoading();
-                            }
+                            title: 'Error',
+                            text: 'An error occurred during database restoration.',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4'
                         });
-                        
-                        fetch("{{ route('admin.reports.restore') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                timestamp: timestamp,
-                                confirm: true
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Restored!',
-                                    text: 'Database has been restored successfully.',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    // Reload the page to show restored data
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', data.message || 'Failed to restore database.', 'error');
+                    });
+                };
+
+                if (password) {
+                    // Password already provided, proceed with restore
+                    performRestore(password);
+                } else {
+                    // Show password confirmation dialog
+                    Swal.fire({
+                        title: 'Admin Password Required',
+                        html: `
+                            <div class="tw-text-left tw-mb-4">
+                                <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
+                                <p class="tw-mb-2">You are about to restore the database to:</p>
+                                <p class="tw-font-bold tw-bg-gray-100 tw-p-2 tw-rounded">${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
+                                <p class="tw-mt-2 tw-text-sm">All changes after this point will be lost.</p>
+                            </div>
+                            <input type="password" id="swal-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Confirm Restore',
+                        cancelButtonText: 'Cancel',
+                        preConfirm: () => {
+                            const password = document.getElementById('swal-password').value;
+                            if (!password) {
+                                Swal.showValidationMessage('Please enter your password');
+                                return false;
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error', 'An error occurred during database restoration.', 'error');
-                        });
-                    }
-                });
-            }
+                            return password;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            performRestore(result.value);
+                        }
+                    });
+                }
+            },
         };
         
         // Initialize the page
@@ -748,14 +791,39 @@
         });
         
         // Restore database form
-        $('#restoreDatabaseBtn').on('click', function() {
-            // Set default datetime to current time minus 24 hours
-            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            const defaultDatetime = yesterday.toISOString().slice(0, 16);
-            $('#restore-datetime').val(defaultDatetime);
+        $('#restoreDatabaseForm').on('submit', function(e) {
+            e.preventDefault();
             
-            // Show the modal
-            $('#restoreDatabaseModal').removeClass('tw-hidden');
+            const timestamp = $('#restore-datetime').val();
+            const password = $('#admin-password').val();
+            const confirmed = $('#restore-confirm').is(':checked');
+            
+            if (confirmed && timestamp && password) {
+                // Hide the modal
+                $('#restoreDatabaseModal').addClass('tw-hidden');
+                
+                // Call restore function with password
+                ReportsPage.restoreDatabase(timestamp, password);
+            } else {
+                Swal.fire({
+                    title: 'Missing Information',
+                    text: 'Please fill in all required fields and confirm the action.',
+                    icon: 'warning',
+                    confirmButtonColor: '#24CFF4'
+                });
+            }
+        });
+
+        // Update the quick restore buttons to use the password dialog:
+        $(document).on('click', '.restore-point-btn', function() {
+            const timestamp = $(this).data('time');
+            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
+        });
+
+        $('#restoreToPointBtn').on('click', function() {
+            const timestamp = $(this).data('time');
+            $('.modal').addClass('tw-hidden');
+            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
         });
         
         // Handle form submission for database restoration
@@ -831,6 +899,17 @@
                     }
                 });
             }
+        });
+
+        $(document).on('click', '.restore-point-btn', function() {
+            const timestamp = $(this).data('time');
+            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
+        });
+
+        $('#restoreToPointBtn').on('click', function() {
+            const timestamp = $(this).data('time');
+            $('.modal').addClass('tw-hidden');
+            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
         });
     });
 </script>

@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -91,16 +92,26 @@ class AdminReportsController extends Controller
         // Validate input
         $validated = $request->validate([
             'timestamp' => 'required|date',
+            'password' => 'required|string',
             'confirm' => 'required|boolean'
         ]);
-        
+
         if (!$validated['confirm']) {
             return response()->json([
                 'success' => false,
                 'message' => 'Confirmation is required'
             ], 400);
         }
-        
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($validated['password'], $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
         try {
             // Parse the timestamp
             $timestamp = Carbon::parse($validated['timestamp']);
@@ -114,12 +125,16 @@ class AdminReportsController extends Controller
             // Get command output
             $output = Artisan::output();
             
-            // Log the restoration action
+            // Log the restoration action with admin details
             ActivityLog::create([
                 'table_name' => 'system',
                 'record_id' => 0,
                 'action' => 'restore',
-                'new_values' => json_encode(['timestamp' => $timestamp->toDateTimeString()]),
+                'new_values' => json_encode([
+                    'timestamp' => $timestamp->toDateTimeString(),
+                    'admin_id' => $admin->userID,
+                    'admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
                 'userID' => auth()->id(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
