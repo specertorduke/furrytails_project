@@ -95,9 +95,11 @@
                         <i class="fas fa-edit tw-mr-2"></i> Edit User
                     </button>
                     
-                    <div class="tw-flex tw-gap-2">
-                        <button id="deleteUserBtn" class="tw-text-white tw-bg-red-600 hover:tw-bg-red-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
-                            <i class="fas fa-trash-alt tw-mr-2"></i> Delete User
+                   <div class="tw-flex tw-gap-2">
+                        <button id="deleteUserBtn" 
+                                class="tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-flex tw-items-center tw-gap-2">
+                            <i class="fas fa-trash"></i>
+                            Delete User
                         </button>
                     </div>
                 </div>
@@ -351,124 +353,146 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Edit user button handler
-    document.getElementById('editUserBtn').addEventListener('click', function() {
-        if (currentUserData) {
-            // Implement edit user functionality
-            // This could open an edit modal or redirect to an edit page
-            console.log('Edit user with ID:', currentUserData.id);
-        }
-    });
+    const viewEditUserBtn = document.getElementById('editUserBtn');
+    if (viewEditUserBtn) {
+        viewEditUserBtn.addEventListener('click', function() {
+            if (window.currentUserData) {
+                document.getElementById('viewUser-modal').classList.add('tw-hidden');
+                const id = window.currentUserData.userID || window.currentUserData.id;
+                console.log('Edit user with ID:', id);
+                if (typeof window.openEditUserModal === 'function') {
+                    window.openEditUserModal(id);
+                } else {
+                    console.error('openEditUserModal function not found');
+                }
+            }
+        }); 
+    }
     
-    // Disable/Enable user button handler
-    document.getElementById('disableUserBtn').addEventListener('click', function() {
-        if (!currentUserData) return;
-        
-        const action = currentUserData.status === 'inactive' ? 'enable' : 'disable';
-        const actionText = action === 'disable' ? 'disable' : 'enable';
+    // DELETE USER BUTTON HANDLER - Add this new section
+    const deleteUserBtn = document.getElementById('deleteUserBtn');
+    if (deleteUserBtn) {
+        deleteUserBtn.addEventListener('click', function() {
+            console.log('Delete button clicked'); // Debug log
+            
+            if (window.currentUserData) {
+                const userId = window.currentUserData.userID || window.currentUserData.id;
+                const userName = window.currentUserData.firstName + ' ' + window.currentUserData.lastName;
+                
+                console.log('Attempting to delete user:', userId, userName); // Debug log
+                
+                // Check if the function exists
+                if (typeof window.deleteUser === 'function') {
+                    window.deleteUser(userId, userName);
+                } else if (typeof window.UsersPage?.deleteUser === 'function') {
+                    window.UsersPage.deleteUser(userId, userName);
+                } else {
+                    console.error('No delete function available');
+                    // Fallback: implement delete here directly
+                    deleteUserDirectly(userId, userName);
+                }
+            } else {
+                console.error('No current user data available');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No user data available for deletion',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
+            }
+        });
+    }
+    
+    // Fallback delete function if the main one isn't available
+    function deleteUserDirectly(userId, userName) {
+        console.log('Using direct delete function for:', userId, userName);
         
         Swal.fire({
-            title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
-            text: `Are you sure you want to ${actionText} this user's account?`,
+            title: 'Delete User Account',
+            html: `
+                <div class="tw-text-left tw-mb-4">
+                    <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                    <p class="tw-mb-2">You are about to permanently delete:</p>
+                    <p class="tw-font-bold tw-bg-gray-100 tw-p-2 tw-rounded tw-text-gray-800">${userName || 'this user'}</p>
+                    <p class="tw-mt-2 tw-text-sm">This will remove all user data, appointments, pets, and boarding records.</p>
+                </div>
+                <input type="password" id="delete-user-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+            `,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: action === 'disable' ? '#FF9666' : '#66FF8F',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `Yes, ${actionText} account`,
-            background: '#374151',
-            color: '#fff'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete user!',
+            cancelButtonText: 'Cancel',
+            preConfirm: () => {
+                const password = document.getElementById('delete-user-password').value;
+                if (!password) {
+                    Swal.showValidationMessage('Please enter your admin password');
+                    return false;
+                }
+                return password;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show loading state
+                Swal.fire({
+                    title: 'Deleting User',
+                    text: 'Please wait...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
                 // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                // Send request to disable/enable user
-                fetch(`/admin/users/${currentUserData.id}/${action}`, {
-                    method: 'POST',
+                // Send delete request with password
+                fetch(`{{ route('admin.users.destroy', ':id') }}`.replace(':id', userId), {
+                    method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        admin_password: result.value
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Failed to ${actionText} user`);
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Failed to delete user');
+                        });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: `User has been ${actionText}d successfully`,
-                        icon: 'success',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
-                    }).then(() => {
-                        // Reload current page to reflect changes
-                        window.location.reload();
-                    });
-                })
-                .catch(error => {
-                    console.error(`Error ${actionText}ing user:`, error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: error.message || `Failed to ${actionText} user`,
-                        icon: 'error',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
-                    });
-                });
-            }
-        });
-    });
-    
-    // Delete user button handler
-    document.getElementById('deleteUserBtn').addEventListener('click', function() {
-        if (!currentUserData) return;
-        
-        Swal.fire({
-            title: 'Delete User',
-            text: 'Are you sure you want to delete this user? This action cannot be undone!',
-            icon: 'error',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Yes, delete user',
-            background: '#374151',
-            color: '#fff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Get CSRF token
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                
-                // Send request to delete user
-                fetch(`/admin/users/${currentUserData.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'User has been deleted successfully',
+                            icon: 'success',
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
+                        }).then(() => {
+                            // Close the modal
+                            document.getElementById('viewUser-modal').classList.add('tw-hidden');
+                            
+                            // Reload users table or page
+                            if (window.UsersPage && window.UsersPage.usersTable) {
+                                window.UsersPage.usersTable.ajax.reload();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to delete user');
                     }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to delete user');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    Swal.fire({
-                        title: 'Deleted!',
-                        text: 'User has been deleted successfully',
-                        icon: 'success',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
-                    }).then(() => {
-                        // Reload current page to reflect changes
-                        window.location.reload();
-                    });
                 })
                 .catch(error => {
                     console.error('Error deleting user:', error);
@@ -483,6 +507,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    });
+    }
 });
 </script>

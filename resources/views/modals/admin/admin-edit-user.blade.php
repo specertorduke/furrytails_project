@@ -85,6 +85,16 @@
                                 <label for="password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Password (leave blank to keep current)</label>
                                 <input type="password" id="password" name="password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500">
                             </div>
+
+                            <!-- Admin Password -->
+                            <div class="tw-col-span-2" id="adminPasswordSection" style="display: none;">
+                                <label for="admin-password-edit" class="tw-block tw-text-sm tw-font-medium tw-text-red-400 tw-mb-1">
+                                    <i class="fas fa-shield-alt tw-mr-2"></i>Admin Password Required (Role Change Detected)
+                                </label>
+                                <input type="password" id="admin-password-edit" name="admin_password" 
+                                    class="tw-bg-gray-700 tw-border tw-border-red-500 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-red-400 focus:tw-ring-red-400">
+                                <p class="tw-text-xs tw-text-red-400 tw-mt-1">Enter your admin password to confirm role changes</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -104,117 +114,224 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Global variable to store the editing user's ID
-    let editingUserID = null;
-    
-    // Function to open edit user modal with data
-    window.openEditUserModal = function(userId) {
-        // Store the user ID we're editing
-        editingUserID = userId;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Global variables
+        let editingUserID = null;
+        let originalRole = null;
         
-        // Show loading state
-        const editUserModal = document.getElementById('editUser-modal');
-        if (!editUserModal) {
-            console.error('Edit user modal not found in DOM');
-            return;
+        // Function to check if role has changed and show/hide admin password field
+        function checkRoleChange() {
+            const roleSelect = document.getElementById('role');
+            const adminPasswordSection = document.getElementById('adminPasswordSection');
+            const adminPasswordInput = document.getElementById('admin-password-edit');
+            
+            if (roleSelect && adminPasswordSection) {
+                const currentRole = roleSelect.value;
+                
+                console.log('Original role:', originalRole, 'Current role:', currentRole); // Debug log
+                
+                if (originalRole && currentRole !== originalRole) {
+                    // Role changed - show admin password field
+                    adminPasswordSection.style.display = 'block';
+                    adminPasswordInput.required = true;
+                    console.log('Showing admin password field'); // Debug log
+                } else {
+                    // Role not changed - hide admin password field
+                    adminPasswordSection.style.display = 'none';
+                    adminPasswordInput.required = false;
+                    adminPasswordInput.value = ''; // Clear the field
+                    console.log('Hiding admin password field'); // Debug log
+                }
+            }
         }
         
-        // Show modal
-        editUserModal.classList.remove('tw-hidden');
-        
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        // Fetch user data
-        fetch("{{ route('admin.users.show', ['id' => ':userId']) }}".replace(':userId', userId), {           
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+        // Function to open edit user modal with data
+        window.openEditUserModal = function(userId) {
+            // Store the user ID we're editing
+            editingUserID = userId;
+            
+            // Show loading state
+            const editUserModal = document.getElementById('editUser-modal');
+            if (!editUserModal) {
+                console.error('Edit user modal not found in DOM');
+                return;
             }
-        })
-        .then(response => {
-            if (!response.ok) {
-                console.error('Server responded with status:', response.status);
-                return response.json().then(err => {
-                    throw new Error(err.message || 'Failed to load user data');
+            
+            // Show modal
+            editUserModal.classList.remove('tw-hidden');
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            // Fetch user data
+            fetch("{{ route('admin.users.show', ['id' => ':userId']) }}".replace(':userId', userId), {           
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Server responded with status:', response.status);
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Failed to load user data');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load user data');
+                }
+                
+                // Fill form with user data
+                populateEditForm(data.user);
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to load user data',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
                 });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to load user data');
-            }
-            
-            // Fill form with user data
-            populateEditForm(data.user);
-        })
-        .catch(error => {
-            console.error('Error fetching user data:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to load user data',
-                icon: 'error',
-                confirmButtonColor: '#24CFF4',
-                background: '#374151',
-                color: '#fff'
-            });
 
-            editUserModal.classList.add('tw-hidden');
-        });
-    };
-    
-    // Function to populate edit form with user data
-    function populateEditForm(user) {
-        // Set form field values
-        document.getElementById('editUserID').value = user.userID;
-        document.getElementById('firstName').value = user.firstName;
-        document.getElementById('lastName').value = user.lastName;
-        document.getElementById('email-edit').value = user.email;
-        document.getElementById('username-edit').value = user.username;
-        document.getElementById('phone-edit').value = user.phone;
-        document.getElementById('role').value = user.role;
-        document.getElementById('password').value = ''; // Clear password field
+                editUserModal.classList.add('tw-hidden');
+            });
+        };
         
-        // Set profile image
-        const userImage = document.getElementById('editUserImage');
-        if (user.profileImage) {
-            userImage.innerHTML = `<img src="${user.profileImage}" alt="${user.firstName}" class="tw-h-full tw-w-full tw-object-cover">`;
-        } else {
-            userImage.innerHTML = `
-                <div class="tw-h-full tw-w-full tw-flex tw-items-center tw-justify-center tw-bg-gray-700">
-                    <i class="fas fa-user tw-text-4xl tw-text-gray-500"></i>
-                </div>
-            `;
-        }
-    }
-    
-    // Image upload preview handler
-    const userImageUpload = document.getElementById('userImageUpload');
-    const editUserImage = document.getElementById('editUserImage');
-    
-    if (userImageUpload && editUserImage) {
-        userImageUpload.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    editUserImage.innerHTML = `<img src="${e.target.result}" alt="Preview" class="tw-h-full tw-w-full tw-object-cover">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    
-    // Handle form submission
-    const editUserForm = document.getElementById('editUserForm');
-    if (editUserForm) {
-        editUserForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+        // Function to populate edit form with user data
+        function populateEditForm(user) {
+            console.log('Populating form with user:', user); // Debug log
             
+            // Set form field values
+            document.getElementById('editUserID').value = user.userID;
+            document.getElementById('firstName').value = user.firstName;
+            document.getElementById('lastName').value = user.lastName;
+            document.getElementById('email-edit').value = user.email;
+            document.getElementById('username-edit').value = user.username;
+            document.getElementById('phone-edit').value = user.phone;
+            document.getElementById('role').value = user.role;
+            document.getElementById('password').value = ''; // Clear password field
+            
+            // Store the original role
+            originalRole = user.role;
+            console.log('Set original role to:', originalRole); // Debug log
+            
+            // Hide admin password section initially
+            const adminPasswordSection = document.getElementById('adminPasswordSection');
+            const adminPasswordInput = document.getElementById('admin-password-edit');
+            if (adminPasswordSection && adminPasswordInput) {
+                adminPasswordSection.style.display = 'none';
+                adminPasswordInput.required = false;
+                adminPasswordInput.value = ''; // Clear the field
+            }
+            
+            // Set profile image
+            const userImage = document.getElementById('editUserImage');
+            if (user.profileImage) {
+                userImage.innerHTML = `<img src="${user.profileImage}" alt="${user.firstName}" class="tw-h-full tw-w-full tw-object-cover">`;
+            } else {
+                userImage.innerHTML = `
+                    <div class="tw-h-full tw-w-full tw-flex tw-items-center tw-justify-center tw-bg-gray-700">
+                        <i class="fas fa-user tw-text-4xl tw-text-gray-500"></i>
+                    </div>
+                `;
+            }
+        }
+        
+        // Make the function globally available
+        window.populateEditForm = populateEditForm;
+        
+        // Add event listener to role select - wait for DOM to be ready
+        setTimeout(() => {
+            const roleSelect = document.getElementById('role');
+            if (roleSelect) {
+                roleSelect.addEventListener('change', checkRoleChange);
+                console.log('Role select event listener added'); // Debug log
+            } else {
+                console.error('Role select not found'); // Debug log
+            }
+        }, 100);
+        
+        // Image upload preview handler
+        const userImageUpload = document.getElementById('userImageUpload');
+        const editUserImage = document.getElementById('editUserImage');
+        
+        if (userImageUpload && editUserImage) {
+            userImageUpload.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        editUserImage.innerHTML = `<img src="${e.target.result}" alt="Preview" class="tw-h-full tw-w-full tw-object-cover">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Handle form submission
+        const editUserForm = document.getElementById('editUserForm');
+        if (editUserForm) {
+            editUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const currentRole = document.getElementById('role').value;
+                const adminPasswordInput = document.getElementById('admin-password-edit');
+                
+                // Check if role changed and admin password is required but not provided
+                if (originalRole && currentRole !== originalRole && !adminPasswordInput.value) {
+                    Swal.fire({
+                        title: 'Admin Password Required',
+                        text: 'You must enter your admin password to confirm role changes.',
+                        icon: 'warning',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                    adminPasswordInput.focus();
+                    return;
+                }
+                
+                // If role is being changed to/from admin, show additional warning
+                if (originalRole && currentRole !== originalRole) {
+                    let warningMessage = '';
+                    if (originalRole === 'admin' && currentRole === 'user') {
+                        warningMessage = 'You are removing admin privileges from this user. They will lose access to admin functions.';
+                    } else if (originalRole === 'user' && currentRole === 'admin') {
+                        warningMessage = 'You are granting admin privileges to this user. They will have full system access.';
+                    }
+                    
+                    Swal.fire({
+                        title: 'Confirm Role Change',
+                        text: warningMessage,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#24CFF4',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, change role',
+                        cancelButtonText: 'Cancel',
+                        background: '#374151',
+                        color: '#fff'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitEditUserForm();
+                        }
+                    });
+                    return;
+                }
+                
+                // Normal form submission if no role change
+                submitEditUserForm();
+            });
+        }
+        
+        function submitEditUserForm() {
             // Show loading state
             const saveButton = document.getElementById('saveUserBtn');
             const originalButtonHTML = saveButton.innerHTML;
@@ -222,8 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
             
             // Create FormData object (handles file uploads)
-            const formData = new FormData(this);
-            // Make sure method spoofing is set
+            const formData = new FormData(editUserForm);
             formData.append('_method', 'PUT');
 
             // Get CSRF token
@@ -231,17 +347,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Send update request
             fetch("{{ url('/admin/users') }}/" + editingUserID, {
-                method: 'POST', // POST with _method=PUT for Laravel method spoofing
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
-                    // Don't set Content-Type with FormData
                 },
                 body: formData
             })
             .then(response => {
                 if (!response.ok) {
                     console.error('Server responded with status:', response.status);
-                    // Try to parse error response if possible
                     return response.text().then(text => {
                         try {
                             return JSON.parse(text);
@@ -254,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.success) {
-                    // Show success message
                     Swal.fire({
                         title: 'Success!',
                         text: 'User updated successfully',
@@ -263,9 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         background: '#374151',
                         color: '#fff'
                     }).then(() => {
-                        // Hide modal and refresh data
                         document.getElementById('editUser-modal').classList.add('tw-hidden');
-                        // Reload the table or page
                         if (window.UsersPage && window.UsersPage.usersTable) {
                             window.UsersPage.usersTable.ajax.reload();
                         } else {
@@ -288,35 +399,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             })
             .finally(() => {
-                // Restore button state
                 saveButton.disabled = false;
                 saveButton.innerHTML = originalButtonHTML;
             });
-        });
-    }
-    
-    // Modal close handler
-    const editModalToggle = document.querySelector('[data-modal-toggle="editUser-modal"]');
-    if (editModalToggle) {
-        editModalToggle.addEventListener('click', function() {
-            document.getElementById('editUser-modal').classList.add('tw-hidden');
-        });
-    }
-    
-    // Connect edit button from view modal
-    const viewEditUserBtn = document.getElementById('editUserBtn');
-    if (viewEditUserBtn) {
-        viewEditUserBtn.addEventListener('click', function() {
-            // Get the current user ID from the view modal
-            if (window.currentUserData) {
-                // Hide view modal first
-                document.getElementById('viewUser-modal').classList.add('tw-hidden');
-                // Use userID if exists; otherwise fallback to id
-                const id = window.currentUserData.userID || window.currentUserData.id;
-                console.log('Edit user with ID:', id);
-                openEditUserModal(id);
-            }
-        });
-    }
-});
+        }
+        
+        // Modal close handler
+        const editModalToggle = document.querySelector('[data-modal-toggle="editUser-modal"]');
+        if (editModalToggle) {
+            editModalToggle.addEventListener('click', function() {
+                document.getElementById('editUser-modal').classList.add('tw-hidden');
+            });
+        }
+        
+        // Connect edit button from view modal
+        const viewEditUserBtn = document.getElementById('editUserBtn');
+        if (viewEditUserBtn) {
+            viewEditUserBtn.addEventListener('click', function() {
+                if (window.currentUserData) {
+                    document.getElementById('viewUser-modal').classList.add('tw-hidden');
+                    const id = window.currentUserData.userID || window.currentUserData.id;
+                    console.log('Edit user with ID:', id);
+                    openEditUserModal(id);
+                }
+            });
+        }
+    });
 </script>
+

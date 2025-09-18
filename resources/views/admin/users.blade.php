@@ -90,21 +90,39 @@
                 console.error('openEditUserModal function not found');
             }
         },
-        deleteUser: function(id) {
+        // Update the deleteUser function in users.blade.php:
+       deleteUser: function(userId, userName) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this! All user data including pets, appointments and boardings will be deleted.",
+                title: 'Delete User Account',
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">You are about to permanently delete:</p>
+                        <p class="tw-font-bold tw-bg-gray-100 tw-p-2 tw-rounded tw-text-gray-800">${userName || 'this user'}</p>
+                        <p class="tw-mt-2 tw-text-sm">This will remove all user data, appointments, pets, and boarding records.</p>
+                    </div>
+                    <input type="password" id="delete-user-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete user!',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    const password = document.getElementById('delete-user-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your admin password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Show loading state
                     Swal.fire({
-                        title: 'Deleting...',
-                        text: 'Please wait while we delete the user data.',
+                        title: 'Deleting User',
+                        text: 'Please wait...',
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         willOpen: () => {
@@ -112,33 +130,66 @@
                         }
                     });
                     
-                    // Make AJAX call to delete
-                    fetch("{{ route('admin.users.destroy', ['id' => ':userId']) }}".replace(':userId', id), {                        method: 'DELETE',
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    
+                    // Send delete request with password
+                    fetch(`{{ route('admin.users.destroy', ':id') }}`.replace(':id', userId), {
+                        method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            admin_password: result.value
+                        })
                     })
                     .then(response => {
                         if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+                            return response.json().then(err => {
+                                throw new Error(err.message || 'Failed to delete user');
                             });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        if(data.success) {
-                            this.usersTable.ajax.reload();
-                            Swal.fire('Deleted!', 'User has been deleted successfully.', 'success');
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'User has been deleted successfully',
+                                icon: 'success',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
+                            }).then(() => {
+                                // Close any open modals
+                                const viewUserModal = document.getElementById('viewUser-modal');
+                                if (viewUserModal) {
+                                    viewUserModal.classList.add('tw-hidden');
+                                }
+                                
+                                // Reload users table or page
+                                if (window.UsersPage && window.UsersPage.usersTable) {
+                                    window.UsersPage.usersTable.ajax.reload();
+                                } else {
+                                    location.reload();
+                                }
+                            });
                         } else {
-                            Swal.fire('Error!', data.message || 'Failed to delete user.', 'error');
+                            throw new Error(data.message || 'Failed to delete user');
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Error!', error.message || 'An error occurred while deleting the user.', 'error');
+                        console.error('Error deleting user:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: error.message || 'Failed to delete user',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
+                        });
                     });
                 }
             });

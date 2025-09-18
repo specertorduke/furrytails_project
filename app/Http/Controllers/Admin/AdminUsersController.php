@@ -283,6 +283,9 @@ class AdminUsersController extends Controller
         try {
             $user = User::findOrFail($id);
             
+            // Store original role to check if it's being changed
+            $originalRole = $user->role;
+            
             // Validate the request
             $rules = [
                 'firstName' => 'required|string|max:100',
@@ -294,12 +297,44 @@ class AdminUsersController extends Controller
                 'userImage' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ];
             
+            $messages = [
+                'admin_password.required' => 'Admin password is required when changing user roles.',
+                'admin_password.string' => 'Admin password must be a valid string.',
+            ];
+
             // Add password validation only if it's provided
             if ($request->filled('password')) {
                 $rules['password'] = 'string|min:8';
             }
             
+            // Add admin password requirement if role is being changed
+            if ($request->role !== $originalRole) {
+                $rules['admin_password'] = 'required|string';
+            }
+            
             $validated = $request->validate($rules);
+            
+            // Verify admin password if role is being changed
+            if ($request->role !== $originalRole) {
+                $admin = auth()->user();
+                if (!Hash::check($validated['admin_password'], $admin->password)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid admin password. Please enter your current password to confirm role changes.'
+                    ], 401);
+                }
+                
+                // Additional safety check - don't allow removing the last admin
+                if ($originalRole === 'admin' && $request->role === 'user') {
+                    $adminCount = User::where('role', 'admin')->where('userID', '!=', $id)->count();
+                    if ($adminCount < 1) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Cannot remove admin role. At least one admin must remain in the system.'
+                        ], 403);
+                    }
+                }
+            }
             
             // Update user data
             $user->firstName = $validated['firstName'];
@@ -339,6 +374,24 @@ class AdminUsersController extends Controller
             
             $user->save();
             
+            // Log the role change if it occurred
+            if ($request->role !== $originalRole) {
+                \App\Models\ActivityLog::create([
+                    'table_name' => 'users',
+                    'record_id' => $user->userID,
+                    'action' => 'update',
+                    'old_values' => json_encode(['role' => $originalRole]),
+                    'new_values' => json_encode([
+                        'role' => $user->role,
+                        'admin_id' => auth()->id(),
+                        'admin_name' => auth()->user()->firstName . ' ' . auth()->user()->lastName
+                    ]),
+                    'userID' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'User updated successfully',
@@ -356,66 +409,80 @@ class AdminUsersController extends Controller
     /**
      * Delete a user and all related data
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
-            \DB::beginTransaction();
-            
-            // Find the user
             $user = User::findOrFail($id);
             
-            // Safety check - don't allow deleting the last admin
+            // Validate admin password requirement
+            $validated = $request->validate([
+                'admin_password' => 'required|string'
+            ], [
+                'admin_password.required' => 'Admin password is required to delete users.',
+            ]);
+            
+            // Verify admin password
+            $admin = auth()->user();
+            if (!Hash::check($validated['admin_password'], $admin->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid admin password. Please enter your current password to confirm user deletion.'
+                ], 401);
+            }
+            
+            // Prevent deleting yourself
+            if ($user->userID == auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot delete your own account.'
+                ], 403);
+            }
+            
+            // Prevent deleting the last admin
             if ($user->role === 'admin') {
-                $adminCount = User::where('role', 'admin')->count();
-                if ($adminCount <= 1) {
+                $adminCount = User::where('role', 'admin')->where('userID', '!=', $id)->count();
+                if ($adminCount < 1) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Cannot delete the last admin user.'
+                        'message' => 'Cannot delete the last admin user. At least one admin must remain in the system.'
                     ], 403);
                 }
             }
             
-            // Get all pets belonging to this user
-            $pets = Pet::where('userID', $id)->get();
+            // Store user data for logging before deletion
+            $userData = $user->toArray();
             
-            // Delete related data for each pet
-            foreach ($pets as $pet) {
-                // Delete appointments for this pet
-                Appointment::where('petID', $pet->petID)->delete();
-                
-                // Delete boardings for this pet
-                Boarding::where('petID', $pet->petID)->delete();
-                
-                // Delete pet's image if exists
-                if ($pet->petImage && $pet->petImage != 'petImages/default.png') {
-                    Storage::disk('public')->delete($pet->petImage);
-                }
-                
-                // Delete the pet
-                $pet->delete();
-            }
+            // Log the deletion action
+            ActivityLog::create([
+                'table_name' => 'users',
+                'record_id' => $user->userID,
+                'action' => 'delete',
+                'old_values' => json_encode($userData),
+                'new_values' => json_encode([
+                    'deleted_by_admin_id' => $admin->userID,
+                    'deleted_by_admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
             
-            // Delete payments linked to this user
-            \DB::table('payments')->where('userID', $id)->delete();
-            
-            // Delete user's profile image if exists and not default
-            if ($user->userImage && $user->userImage != 'userImages/default.png') {
-                Storage::disk('public')->delete($user->userImage);
-            }
-            
-            // Finally delete the user
+            // Delete user
             $user->delete();
-            
-            \DB::commit();
             
             return response()->json([
                 'success' => true,
                 'message' => 'User deleted successfully'
             ]);
-        } catch (\Exception $e) {
-            \DB::rollBack();
-            \Log::error('Error deleting user: ' . $e->getMessage());
             
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->validator->errors()->all()),
+                'errors' => $e->validator->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting user: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete user: ' . $e->getMessage()
