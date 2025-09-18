@@ -96,13 +96,24 @@
                         </div>
                     </div>
                     
+                    <div class="tw-mb-4">
+                        <label for="edit-admin-password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">
+                            <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
+                        </label>
+                        <input type="password" id="edit-admin-password" name="admin_password" 
+                            class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" 
+                            placeholder="Enter your current password" required>
+                        <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm payment changes</p>
+                    </div>
+                    
                     <!-- Actions Section -->
                     <div class="tw-flex tw-justify-between tw-mt-8 tw-pt-4 tw-border-t tw-border-gray-700">
                         <button type="button" data-modal-toggle="editPayment-modal" class="tw-text-gray-300 tw-bg-gray-700 hover:tw-bg-gray-600 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                             Cancel
                         </button>
-                        <button type="submit" id="savePaymentBtn" class="tw-text-white tw-bg-[#24CFF4] hover:tw-bg-blue-500 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
-                            <i class="fas fa-save tw-mr-2"></i> Save Changes
+                        <button type="button" onclick="PaymentsPage.submitEditPayment(window.currentPaymentId)" 
+                                class="tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">
+                            <i class="fas fa-shield-alt tw-mr-2"></i>Update Payment
                         </button>
                     </div>
                 </form>
@@ -115,12 +126,12 @@
 ['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
     document.addEventListener(eventName, function() {
         // Global variable to store the editing payment's ID
-        let editingPaymentID = null;
+        window.currentPaymentId = null; 
 
         // Make function available globally
         window.openEditPaymentModal = function(paymentId) {
             // Store the payment ID we're editing
-            editingPaymentID = paymentId;
+            window.currentPaymentId = paymentId;
             
             // Show loading state
             const editPaymentModal = document.getElementById('editPayment-modal');

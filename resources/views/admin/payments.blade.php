@@ -143,22 +143,39 @@
         markAsRefunded: function(id) {
             Swal.fire({
                 title: 'Mark as refunded?',
-                text: "This will update the payment status.",
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">This will mark the payment as refunded and update the status permanently.</p>
+                    </div>
+                    <input type="password" id="refund-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, mark as refunded!'
+                confirmButtonText: 'Yes, mark as refunded!',
+                preConfirm: () => {
+                    const password = document.getElementById('refund-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Make AJAX call to update status
+                    // Make AJAX call to update status with password
                     fetch(`{{ route('admin.payments.refund', ':id') }}`.replace(':id', id), {
-                        method: 'POST',  // CORRECT - method is a top-level option
+                        method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({
+                            password: result.value
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -176,6 +193,76 @@
                 }
             });
         },
+
+        submitEditPayment: function() {
+            const editingPaymentId = window.currentPaymentId;
+    
+            if (!editingPaymentId) {
+                Swal.fire('Error', 'No payment selected for editing', 'error');
+                return;
+            }
+            
+            const form = document.getElementById('editPaymentForm');
+            const formData = new FormData(form);
+            
+            // Get the password field value
+            const password = document.getElementById('edit-admin-password').value;
+            
+            if (!password) {
+                Swal.fire('Error', 'Please enter your admin password to confirm changes', 'error');
+                return;
+            }
+            
+            // Prepare data for submission
+            const data = {
+                payment_method: formData.get('payment_method'),
+                reference_number: formData.get('reference_number'),
+                status: formData.get('status'),
+                amount: formData.get('amount'),
+                password: password
+            };
+            
+            // Show loading
+            Swal.fire({
+                title: 'Updating Payment',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form
+            fetch(`{{ route('admin.payments.update', ':id') }}`.replace(':id', paymentId), {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide modal
+                    document.getElementById('editPayment-modal').classList.add('tw-hidden');
+                    
+                    // Reload table
+                    PaymentsPage.paymentsTable.ajax.reload();
+                    
+                    // Show success
+                    Swal.fire('Success!', 'Payment updated successfully', 'success');
+                } else {
+                    Swal.fire('Error!', data.message || 'Failed to update payment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'An error occurred while updating the payment', 'error');
+            });
+        },   
 
         initializeTables: function() {
             console.log('Initializing payments table...');
