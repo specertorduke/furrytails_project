@@ -190,12 +190,26 @@
         cancelBoarding: function(id) {
             Swal.fire({
                 title: 'Cancel this boarding?',
-                text: "You can't undo this action!",
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">This will permanently cancel the boarding.</p>
+                    </div>
+                    <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#66FF8F',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!'
+                confirmButtonText: 'Yes, cancel it!',
+                preConfirm: () => {
+                    const password = document.getElementById('cancel-boarding-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your admin password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to cancel
@@ -206,20 +220,44 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },
+                        body: JSON.stringify({
+                            admin_password: result.value
+                        }),
                         credentials: 'same-origin'
                     })
                     .then(response => response.json())
                     .then(data => {
                         if(data.success) {
                             this.boardingsTable.ajax.reload();
-                            Swal.fire('Cancelled!', 'Boarding has been cancelled.', 'success');
+                            Swal.fire({
+                                title: 'Cancelled!',
+                                text: 'Boarding has been cancelled.',
+                                icon: 'success',
+                                confirmButtonColor: '#66FF8F',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         } else {
-                            Swal.fire('Error!', data.message || 'Failed to cancel boarding.', 'error');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to cancel boarding.',
+                                icon: 'error',
+                                confirmButtonColor: '#66FF8F',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        Swal.fire('Error!', 'An error occurred while cancelling the boarding.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while cancelling the boarding.',
+                            icon: 'error',
+                            confirmButtonColor: '#66FF8F',
+                            background: '#374151',
+                            color: '#fff'
+                        });
                     });
                 }
             });
@@ -351,30 +389,12 @@
                         data: 'status',
                         width: '10%',
                         render: function(data) {
-                            let badgeClass;
-                            let iconClass;
-                            
-                            switch(data) {
-                                case 'Active':
-                                    badgeClass = 'tw-bg-blue-900 tw-text-blue-300';
-                                    iconClass = 'tw-text-blue-300 fa-bed';
-                                    break;
-                                case 'Completed':
-                                    badgeClass = 'tw-bg-green-900 tw-text-green-300';
-                                    iconClass = 'tw-text-green-300 fa-check-double';
-                                    break;
-                                case 'Cancelled':
-                                    badgeClass = 'tw-bg-red-900 tw-text-red-300';
-                                    iconClass = 'tw-text-red-300 fa-times-circle';
-                                    break;
-                                default: // Pending or other status
-                                    badgeClass = 'tw-bg-yellow-900 tw-text-yellow-300';
-                                    iconClass = 'tw-text-yellow-300 fa-clock';
-                            }
-                            
-                            return `<span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs ${badgeClass}">
-                                <i class="fas ${iconClass} tw-mr-1"></i> ${data}
-                            </span>`;
+                            let colorClass = data === 'Confirmed' ? 'tw-bg-blue-900 tw-text-blue-300' :
+                                        data === 'Completed' ? 'tw-bg-green-900 tw-text-green-300' :
+                                        data === 'Pending' ? 'tw-bg-yellow-900 tw-text-yellow-300' :
+                                        data === 'Active' ? 'tw-bg-blue-900 tw-text-blue-300' :
+                                        'tw-bg-red-900 tw-text-red-300';
+                            return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                         }
                     },
                     {

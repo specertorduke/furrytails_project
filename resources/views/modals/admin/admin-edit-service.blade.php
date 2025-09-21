@@ -76,6 +76,16 @@
                     <input id="edit-service-active" name="isActive" type="checkbox" value="1" class="tw-w-4 tw-h-4 tw-text-blue-600 tw-bg-gray-700 tw-border-gray-600 tw-rounded">
                     <label for="edit-service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white">Service is active and available to customers</label>
                 </div>
+
+                <div class="tw-mb-4">
+                    <label for="admin-password-edit" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">
+                        <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
+                    </label>
+                    <input type="password" id="admin-password-edit" name="admin-password" 
+                        class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" 
+                        placeholder="Enter your current password" required>
+                    <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm service changes</p>
+                </div>                
                 
                 <button type="submit" class="tw-text-black tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                     <i class="fas fa-save tw-me-1 tw--ms-1"></i>
@@ -315,7 +325,8 @@ const AdminEditServiceModal = {
         
         // Create FormData object for file upload
         const formData = new FormData(this.elements.form);
-        
+        formData.append('admin_password', document.getElementById('admin-password-edit').value);
+
         // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         

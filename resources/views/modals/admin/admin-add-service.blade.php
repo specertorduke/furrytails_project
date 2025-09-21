@@ -70,6 +70,17 @@
                     <input checked id="service-active" name="service-active" type="checkbox" class="tw-w-4 tw-h-4 tw-text-blue-600 tw-bg-gray-700 tw-border-gray-600 tw-rounded">
                     <label for="service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white">Service is active and available to customers</label>
                 </div>
+
+                <!-- Admin Password Section -->
+                <div class="tw-mb-4">
+                    <label for="admin-password-create" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">
+                        <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
+                    </label>
+                    <input type="password" id="admin-password-create" name="admin-password" 
+                        class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" 
+                        placeholder="Enter your current password" required>
+                    <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm service creation</p>
+                </div>
                 
                 <button type="submit" class="tw-text-black tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                     <svg class="tw-me-1 tw--ms-1 tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -268,6 +279,7 @@ const AdminAddServiceModal = {
         formData.append('price', this.elements.priceInput.value);
         formData.append('description', this.elements.descriptionInput.value.trim());
         formData.append('isActive', this.elements.activeCheckbox.checked ? 1 : 0);
+        formData.append('admin_password', document.getElementById('admin-password-create').value);
         
         if (this.elements.imageInput.files.length > 0) {
             formData.append('serviceImage', this.elements.imageInput.files[0]);

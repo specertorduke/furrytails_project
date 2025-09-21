@@ -119,44 +119,68 @@
 
         cancelAppointment: function(id) {
             Swal.fire({
-                title: 'Cancel Appointment?',
-                text: "This action cannot be undone.",
+                title: 'Cancel this appointment?',
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">This will permanently cancel your appointment.</p>
+                    </div>
+                    <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
+                confirmButtonColor: '#24CFF4',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!',
+                preConfirm: () => {
+                    const password = document.getElementById('cancel-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Send AJAX request to cancel the appointment
+                    // Make AJAX call to cancel
                     fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
                         method: 'POST',
                         headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_password: result.value
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            // Refresh the datatable
+                        if(data.success) {
                             this.appointmentsTable.ajax.reload();
-                            
-                            Swal.fire(
-                                'Cancelled!',
-                                'The appointment has been cancelled.',
-                                'success'
-                            );
+                            Swal.fire({
+                                title: 'Cancelled!',
+                                text: 'Your appointment has been cancelled.',
+                                icon: 'success',
+                                confirmButtonColor: '#24CFF4'
+                            });
                         } else {
-                            throw new Error(data.message || 'An error occurred');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to cancel appointment.',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4'
+                            });
                         }
                     })
                     .catch(error => {
-                        Swal.fire(
-                            'Error!',
-                            error.message,
-                            'error'
-                        );
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while cancelling the appointment.',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4'
+                        });
                     });
                 }
             });
@@ -193,44 +217,68 @@
 
         cancelBoarding: function(id) {
             Swal.fire({
-                title: 'Cancel Boarding?',
-                text: "This action cannot be undone.",
+                title: 'Cancel this boarding?',
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">This will permanently cancel your boarding reservation.</p>
+                    </div>
+                    <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
+                confirmButtonColor: '#24CFF4',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!',
+                preConfirm: () => {
+                    const password = document.getElementById('cancel-boarding-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Send AJAX request to cancel the boarding
-                    fetch(`{{ route('user.boardings.cancel', ['id' => ':id']) }}`.replace(':id', id), {
+                    // Make AJAX call to cancel
+                    fetch("{{ route('user.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
                         method: 'POST',
                         headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_password: result.value
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            // Refresh the datatable
+                        if(data.success) {
                             this.boardingsTable.ajax.reload();
-                            
-                            Swal.fire(
-                                'Cancelled!',
-                                'The boarding has been cancelled.',
-                                'success'
-                            );
+                            Swal.fire({
+                                title: 'Cancelled!',
+                                text: 'Your boarding has been cancelled.',
+                                icon: 'success',
+                                confirmButtonColor: '#24CFF4'
+                            });
                         } else {
-                            throw new Error(data.message || 'An error occurred');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to cancel boarding.',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4'
+                            });
                         }
                     })
                     .catch(error => {
-                        Swal.fire(
-                            'Error!',
-                            error.message,
-                            'error'
-                        );
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while cancelling the boarding.',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4'
+                        });
                     });
                 }
             });
@@ -313,7 +361,8 @@
                         data: 'status',
                         width: '15%',
                         render: function(data) {
-                            let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
+                            let colorClass = data === 'Confirmed' ? 'tw-bg-blue-100 tw-text-blue-800' :
+                                        data === 'Completed' ? 'tw-bg-green-100 tw-text-green-800' :
                                         data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
                                         'tw-bg-red-100 tw-text-red-800';
                             return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;

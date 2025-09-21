@@ -16,134 +16,82 @@
             
             <!-- Modal body -->
             <div class="tw-p-4 md:tw-p-5">
-            <form id="editAppointmentForm" enctype="multipart/form-data">
+                <form id="editAppointmentForm" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="_method" value="PUT">
                     <input type="hidden" id="editAppointmentID" name="appointmentID">
+                    <input type="hidden" id="edit-petID" name="petID">
+                    <input type="hidden" id="edit-serviceID" name="serviceID">
                     
-                    <!-- Client & Pet Selection Section -->
+                    <!-- Current Appointment Details Section (Read-only) -->
                     <div class="tw-mb-6">
-                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Client & Pet</h4>
+                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Current Appointment Details</h4>
                         
-                        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-                            <!-- Client Selection -->
-                            <div>
-                                <label for="edit-userID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Client</label>
-                                <select id="edit-userID" name="userID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
-                                    <option value="">Select a client</option>
-                                    <!-- Will be populated via JavaScript -->
-                                </select>
+                        <div class="tw-bg-gray-700 tw-rounded-lg tw-p-4 tw-space-y-3">
+                            <!-- Client Information (Read-only) -->
+                            <div class="tw-flex tw-justify-between tw-items-center">
+                                <span class="tw-text-sm tw-text-gray-400">Client:</span>
+                                <span class="tw-text-sm tw-font-medium tw-text-white" id="current-client-info">-</span>
                             </div>
                             
-                            <!-- Pet Selection -->
-                            <div>
-                                <label for="edit-petID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Pet</label>
-                                <select id="edit-petID" name="petID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
-                                    <option value="">Select a pet</option>
-                                    <!-- Will be populated via JavaScript -->
-                                </select>
+                            <!-- Pet Information (Read-only) -->
+                            <div class="tw-flex tw-justify-between tw-items-center">
+                                <span class="tw-text-sm tw-text-gray-400">Pet:</span>
+                                <span class="tw-text-sm tw-font-medium tw-text-white" id="current-pet-info">-</span>
+                            </div>
+                            
+                            <!-- Service Information (Read-only) -->
+                            <div class="tw-flex tw-justify-between tw-items-center">
+                                <span class="tw-text-sm tw-text-gray-400">Service:</span>
+                                <span class="tw-text-sm tw-font-medium tw-text-white" id="current-service-info">-</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Service & Time Selection Section -->
+                    <!-- Editable Status Section -->
                     <div class="tw-mb-6">
-                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Service Details</h4>
+                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Update Status</h4>
                         
-                        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-                            <!-- Service Selection -->
-                            <div>
-                                <label for="edit-serviceID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Service</label>
-                                <select id="edit-serviceID" name="serviceID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
-                                    <option value="">Select a service</option>
-                                    <!-- Will be populated via JavaScript -->
-                                </select>
-                            </div>
+                        <!-- Hidden input to store the selected status -->
+                        <input type="hidden" id="edit-status" name="status" value="Pending">
+                        
+                        <div class="tw-flex tw-flex-wrap tw-gap-2">
+                            <button type="button" data-status="Pending" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-yellow-700">
+                                <i class="fas fa-clock"></i> Pending
+                            </button>
                             
-                            <!-- Status Selection -->
-                            <div class="tw-col-span-2 tw-mt-4">
-                                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Appointment Status</label>
-                                
-                                <!-- Hidden input to store the selected status -->
-                                <input type="hidden" id="edit-status" name="status" value="Pending">
-                                
-                                <div class="tw-flex tw-flex-wrap tw-gap-2">
-                                    <button type="button" data-status="Pending" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-yellow-700">
-                                        <i class="fas fa-clock"></i> Pending
-                                    </button>
-                                    
-                                    <button type="button" data-status="Confirmed" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-blue-700">
-                                        <i class="fas fa-check-circle"></i> Confirmed
-                                    </button>
-                                    
-                                    <button type="button" data-status="Completed" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-green-700">
-                                        <i class="fas fa-check-double"></i> Completed
-                                    </button>
-                                    
-                                    <button type="button" data-status="Cancelled" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-red-700">
-                                        <i class="fas fa-times-circle"></i> Cancelled
-                                    </button>
-                                </div>
-                            </div>
+                            <button type="button" data-status="Confirmed" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-blue-700">
+                                <i class="fas fa-check-circle"></i> Confirmed
+                            </button>
+                            
+                            <button type="button" data-status="Completed" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-green-700">
+                                <i class="fas fa-check-double"></i> Completed
+                            </button>
+                            
+                            <button type="button" data-status="Cancelled" class="status-button tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 hover:tw-bg-red-700">
+                                <i class="fas fa-times-circle"></i> Cancelled
+                            </button>
                         </div>
                     </div>
                     
-                    <!-- Date & Time Selection Section -->
+                    <!-- Editable Date & Time Section -->
                     <div class="tw-mb-6">
-                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Date & Time</h4>
+                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Reschedule Appointment</h4>
                         
                         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
                             <!-- Date Selection -->
                             <div>
-                                <label for="edit-date" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Date</label>
+                                <label for="edit-date" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">New Date</label>
                                 <input type="date" id="edit-date" name="date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
                             </div>
                             
                             <!-- Time Selection -->
                             <div>
-                                <label for="edit-time" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Time</label>
+                                <label for="edit-time" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">New Time</label>
                                 <select id="edit-time" name="time" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
                                     <option value="">Select a time</option>
                                     <!-- Will be populated via JavaScript -->
                                 </select>
-                            </div>
-                        </div>
-
-                        <!-- Grooming Section - Only visible for grooming services -->
-                        <div id="grooming-section" class="tw-mb-6 tw-hidden">
-                            <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Grooming Information</h4>
-                            
-                            <div class="tw-grid tw-grid-cols-1 tw-gap-4">
-                                <!-- Before and After Images -->
-                                <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
-                                    <!-- Before Image -->
-                                    <div>
-                                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Before Grooming</label>
-                                        <div class="tw-flex tw-flex-col tw-items-center">
-                                            <div id="before-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
-                                                <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
-                                            </div>
-                                            <label for="before_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
-                                                <i class="fas fa-camera tw-mr-2"></i> Upload Before Image
-                                            </label>
-                                            <input type="file" name="before_image" id="before_image" class="tw-hidden" accept="image/*">
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- After Image -->
-                                    <div>
-                                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">After Grooming</label>
-                                        <div class="tw-flex tw-flex-col tw-items-center">
-                                            <div id="after-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
-                                                <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
-                                            </div>
-                                            <label for="after_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
-                                                <i class="fas fa-camera tw-mr-2"></i> Upload After Image
-                                            </label>
-                                            <input type="file" name="after_image" id="after_image" class="tw-hidden" accept="image/*">
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
@@ -151,9 +99,58 @@
                         <div id="time-warning" class="tw-mt-2 tw-hidden">
                             <p class="tw-text-yellow-500 tw-text-sm tw-flex tw-items-center">
                                 <i class="fas fa-exclamation-triangle tw-mr-2"></i>
-                                <span id="time-warning-text">This time slot may conflict with existing appointments.</span>
+                                <span id="time-warning-text">Some time slots may not be available</span>
                             </p>
                         </div>
+                    </div>
+
+                    <!-- Grooming Section - Only visible for grooming services -->
+                    <div id="grooming-section" class="tw-mb-6 tw-hidden">
+                        <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-3">Grooming Information</h4>
+                        
+                        <div class="tw-grid tw-grid-cols-1 tw-gap-4">
+                            <!-- Before and After Images -->
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
+                                <!-- Before Image -->
+                                <div>
+                                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Before Grooming</label>
+                                    <div class="tw-flex tw-flex-col tw-items-center">
+                                        <div id="before-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
+                                            <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
+                                        </div>
+                                        <label for="before_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
+                                            <i class="fas fa-camera tw-mr-2"></i> Upload Before Image
+                                        </label>
+                                        <input type="file" name="before_image" id="before_image" class="tw-hidden" accept="image/*">
+                                    </div>
+                                </div>
+                                
+                                <!-- After Image -->
+                                <div>
+                                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">After Grooming</label>
+                                    <div class="tw-flex tw-flex-col tw-items-center">
+                                        <div id="after-image-preview" class="tw-mb-2 tw-w-full tw-h-40 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
+                                            <span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>
+                                        </div>
+                                        <label for="after_image" class="tw-cursor-pointer tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-white tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2 tw-text-center tw-flex tw-items-center">
+                                            <i class="fas fa-camera tw-mr-2"></i> Upload After Image
+                                        </label>
+                                        <input type="file" name="after_image" id="after_image" class="tw-hidden" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Password Section -->
+                    <div class="tw-mb-6">
+                        <label for="admin-password-edit-appointment" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">
+                            <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
+                        </label>
+                        <input type="password" id="admin-password-edit-appointment" name="admin-password" 
+                               class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#FF9666] tw-focus:tw-border-[#FF9666] tw-block tw-w-full tw-p-2.5" 
+                               placeholder="Enter your current password" required>
+                        <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm appointment changes</p>
                     </div>
                     
                     <!-- Actions Section -->
@@ -187,6 +184,9 @@
         // Reset the grooming section
         document.getElementById('before-image-preview').innerHTML = '<span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>';
         document.getElementById('after-image-preview').innerHTML = '<span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>';
+        
+        // Clear admin password field
+        document.getElementById('admin-password-edit-appointment').value = '';
         
         // Show loading state
         const editAppointmentModal = document.getElementById('editAppointment-modal');
@@ -231,7 +231,12 @@
             // Populate form with data
             document.getElementById('editAppointmentID').value = data.appointment.appointmentID;
             document.getElementById('edit-date').value = data.appointment.date;
+            document.getElementById('edit-petID').value = data.appointment.petID;
+            document.getElementById('edit-serviceID').value = data.appointment.serviceID;
             updateStatusButtons(data.appointment.status);
+            
+            // Display current appointment details (read-only)
+            displayCurrentAppointmentDetails(data.appointment, data.pet, data.service, data.user);
             
             // Show before image if available
             if (data.appointment.before_image) {
@@ -248,25 +253,16 @@
                     <img src="{{ asset('storage') }}/${data.appointment.after_image}" alt="After Grooming" class="tw-h-full tw-w-full tw-object-cover tw-rounded-lg">
                 `;
             }
-                        
-            // Fetch users, pet's user will be selected
-            fetchUsers(data.appointment.pet.userID);
-            
-            // Fetch services, appointment's service will be selected
-            fetchServices(data.appointment.serviceID);
             
             // Fetch time slots after we have the date
             fetchTimeSlots(data.appointment.date, data.appointment.time);
             
-            // Fetch pets for the selected user after user is set
-            setTimeout(() => {
-                fetchPets(data.appointment.pet.userID, data.appointment.petID);
-            }, 500);
-            
             // Check if this is a grooming appointment and show section if needed
-            setTimeout(() => {
-                toggleGroomingSection();
-            }, 800);
+            if (data.service && data.service.category && data.service.category.toLowerCase() === 'grooming') {
+                document.getElementById('grooming-section').classList.remove('tw-hidden');
+            } else {
+                document.getElementById('grooming-section').classList.add('tw-hidden');
+            }
         })
         .catch(error => {
             console.error('Error fetching appointment data:', error);
@@ -283,131 +279,16 @@
         });
     };
     
-    // Function to fetch users for dropdown
-    function fetchUsers(selectedUserID) {
-        fetch("{{ route('admin.users.list') }}", {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load users');
-            }
-            return response.json();
-        })
-        .then(users => {
-            const userSelect = document.getElementById('edit-userID');
-            userSelect.innerHTML = '<option value="">Select a client</option>';
-            
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.userID;
-                option.textContent = `${user.firstName} ${user.lastName}`;
-                
-                // Set as selected if this is the correct user
-                if (user.userID == selectedUserID) {
-                    option.selected = true;
-                }
-                
-                userSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching users:', error);
-        });
-    }
-    
-    // Function to fetch services for dropdown
-    function fetchServices(selectedServiceID) {
-        fetch("{{ route('admin.services.list') }}", {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load services');
-            }
-            return response.json();
-        })
-        .then(services => {
-            const serviceSelect = document.getElementById('edit-serviceID');
-            serviceSelect.innerHTML = '<option value="">Select a service</option>';
-            
-            services.forEach(service => {
-                const option = document.createElement('option');
-                option.value = service.serviceID;
-                option.textContent = `${service.name} (₱${service.price})`;
-                
-                // Add data attribute for category to help determine if grooming
-                option.dataset.category = service.category || '';
-                
-                // Set as selected if this is the correct service
-                if (service.serviceID == selectedServiceID) {
-                    option.selected = true;
-                }
-                
-                serviceSelect.appendChild(option);
-            });
-            
-            // After loading services, check if we need to show grooming section
-            toggleGroomingSection();
-        })
-        .catch(error => {
-            console.error('Error fetching services:', error);
-        });
-    }
-    
-    // Function to fetch pets for a user
-    function fetchPets(userID, selectedPetID) {
-        if (!userID) return;
+    // Function to display current appointment details
+    function displayCurrentAppointmentDetails(appointment, pet, service, user) {
+        // Set client info
+        document.getElementById('current-client-info').textContent = user ? `${user.firstName} ${user.lastName}` : 'Unknown Client';
         
-        fetch("{{ route('admin.users.pets', ['userId' => ':userId']) }}".replace(':userId', userID), {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load pets');
-            }
-            return response.json();
-        })
-        .then(pets => {
-            const petSelect = document.getElementById('edit-petID');
-            petSelect.innerHTML = '<option value="">Select a pet</option>';
-            
-            if (pets.length === 0) {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = "No pets found for this user";
-                petSelect.appendChild(option);
-                return;
-            }
-            
-            pets.forEach(pet => {
-                const option = document.createElement('option');
-                option.value = pet.petID;
-                option.textContent = `${pet.name} (${pet.species})`;
-                
-                // Set as selected if this is the correct pet
-                if (pet.petID == selectedPetID) {
-                    option.selected = true;
-                }
-                
-                petSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching pets:', error);
-        });
+        // Set pet info
+        document.getElementById('current-pet-info').textContent = pet ? `${pet.name} (${pet.species})` : 'Unknown Pet';
+        
+        // Set service info
+        document.getElementById('current-service-info').textContent = service ? `${service.name} (₱${service.price})` : 'Unknown Service';
     }
     
     // Function to fetch available time slots
@@ -429,68 +310,50 @@
             return response.json();
         })
         .then(data => {
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to load time slots');
-            }
-            
             const timeSelect = document.getElementById('edit-time');
             timeSelect.innerHTML = '<option value="">Select a time</option>';
             
-            // Handle different data formats that might be returned from the API
-            if (Array.isArray(data.timeSlots)) {
-                // Format where timeSlots is an array of objects with value and label properties
+            // Show warning if some slots might be booked
+            const timeWarning = document.getElementById('time-warning');
+            timeWarning.classList.add('tw-hidden');
+            
+            let atLeastOneUnavailable = false;
+            
+            // Process the time slots
+            if (data.timeSlots && Array.isArray(data.timeSlots)) {
                 data.timeSlots.forEach(slot => {
                     const option = document.createElement('option');
                     option.value = slot.value;
                     option.textContent = slot.label;
                     
-                    // Mark booked slots
-                    const isBooked = data.bookedSlots && data.bookedSlots.includes(slot.value);
-                    if (isBooked) {
-                        // Only add the time if it's the current appointment's time
-                        if (slot.value === selectedTime) {
-                            option.textContent += ' (Current)';
-                            timeSelect.appendChild(option);
-                        }
-                    } else {
-                        timeSelect.appendChild(option);
-                    }
+                    // Check if this is the original time for this appointment
+                    const isOriginalTime = slot.value === originalTime && date === originalDate;
                     
-                    // Set as selected if this is the current time
-                    if (slot.value === selectedTime) {
-                        option.selected = true;
+                    // Include the time slot if it's available or it's the original time
+                    if (slot.available || isOriginalTime) {
+                        if (isOriginalTime) {
+                            option.textContent += ' (Current)';
+                            option.selected = true;
+                        }
+                        timeSelect.appendChild(option);
+                    } else {
+                        // Track that at least one slot is unavailable
+                        atLeastOneUnavailable = true;
                     }
                 });
-            } else {
-                // Format where timeSlots is an object with key-value pairs
-                Object.entries(data.timeSlots).forEach(([value, label]) => {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    
-                    // Handle if label is an object or string
-                    if (typeof label === 'object' && label !== null) {
-                        option.textContent = label.label || value;
-                    } else {
-                        option.textContent = label;
-                    }
-                    
-                    // Mark booked slots
-                    const isBooked = data.bookedSlots && data.bookedSlots.includes(value);
-                    if (isBooked) {
-                        // Only add the time if it's the current appointment's time
-                        if (value === selectedTime) {
-                            option.textContent += ' (Current)';
-                            timeSelect.appendChild(option);
-                        }
-                    } else {
-                        timeSelect.appendChild(option);
-                    }
-                    
-                    // Set as selected if this is the current time
-                    if (value === selectedTime) {
-                        option.selected = true;
-                    }
-                });
+            }
+            
+            // Show warning if needed
+            if (atLeastOneUnavailable) {
+                timeWarning.classList.remove('tw-hidden');
+            }
+
+            // If no valid options were added (besides the placeholder)
+            if (timeSelect.options.length <= 1) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No available times";
+                timeSelect.appendChild(option);
             }
         })
         .catch(error => {
@@ -498,101 +361,31 @@
         });
     }
     
-    // Set up event listeners for user selection change
-    const userSelect = document.getElementById('edit-userID');
-    if (userSelect) {
-        userSelect.addEventListener('change', function() {
-            const userID = this.value;
-            if (userID) {
-                fetchPets(userID);
-            } else {
-                // Clear pet dropdown if no user selected
-                const petSelect = document.getElementById('edit-petID');
-                petSelect.innerHTML = '<option value="">Select a pet</option>';
-            }
-        });
-    }
-    
-    function handleDateChange() {
-        const selectedDate = document.getElementById('edit-date').value;
-        const timeSelect = document.getElementById('edit-time');
-        
-        // Reset and disable time select if no date is selected
-        if (!selectedDate) {
-            timeSelect.innerHTML = '<option value="">Select date first</option>';
-            timeSelect.disabled = true;
-            return;
-        }
-
-        // Enable time select
-        timeSelect.disabled = false;
-        
-        // Set loading state
-        timeSelect.innerHTML = '<option value="">Loading available times...</option>';
-        
-        // Fetch time slots for the selected date, excluding current appointment
-        fetch(`{{ route('admin.appointments.available-times') }}?date=${selectedDate}${editingAppointmentID ? '&exclude=' + editingAppointmentID : ''}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            let timeOptions = '<option value="">Select a time</option>';
-            
-            // Check if we have time slots
-            if (data.timeSlots && data.timeSlots.length > 0) {
-                data.timeSlots.forEach(slot => {
-                    // Check if this is the original time for this appointment
-                    const isOriginalTime = slot.value === originalTime && selectedDate === originalDate;
-                    
-                    if (slot.available || isOriginalTime) {
-                        timeOptions += `<option value="${slot.value}" ${isOriginalTime ? 'selected' : ''}>${slot.label}${isOriginalTime ? ' (Current)' : ''}</option>`;
-                    } else {
-                        timeOptions += `<option value="${slot.value}" disabled>${slot.label} (Booked)</option>`;
-                    }
-                });
-            } else if (data.timeSlots && typeof data.timeSlots === 'object') {
-                // Handle case where timeSlots is an object instead of array
-                Object.entries(data.timeSlots).forEach(([value, label]) => {
-                    // Format the label if it's an object
-                    const displayLabel = typeof label === 'object' ? (label.label || value) : label;
-                    
-                    // Check if this is the original time for this appointment
-                    const isOriginalTime = value === originalTime && selectedDate === originalDate;
-                    
-                    // Check if slot is booked (and not the current time)
-                    const isBooked = data.bookedSlots && data.bookedSlots.includes(value) && !isOriginalTime;
-                    
-                    if (!isBooked) {
-                        timeOptions += `<option value="${value}" ${isOriginalTime ? 'selected' : ''}>${displayLabel}${isOriginalTime ? ' (Current)' : ''}</option>`;
-                    } else {
-                        timeOptions += `<option value="${value}" disabled>${displayLabel} (Booked)</option>`;
-                    }
-                });
-            } else {
-                timeOptions = '<option value="" disabled>No time slots available</option>';
-            }
-            
-            timeSelect.innerHTML = timeOptions;
-        })
-        .catch(err => {
-            console.error('Error loading available times:', err);
-            timeSelect.innerHTML = '<option value="">Error loading times</option>';
-        });
-    }
-
     // Set up event listeners for date selection change
     const dateInput = document.getElementById('edit-date');
     if (dateInput) {
         dateInput.addEventListener('change', function() {
-            handleDateChange();
+            const selectedDate = this.value;
+            const timeSelect = document.getElementById('edit-time');
+            
+            // Reset and disable time select if no date is selected
+            if (!selectedDate) {
+                timeSelect.innerHTML = '<option value="">Select date first</option>';
+                timeSelect.disabled = true;
+                return;
+            }
+
+            // Enable time select
+            timeSelect.disabled = false;
+            
+            // Set loading state
+            timeSelect.innerHTML = '<option value="">Loading available times...</option>';
+            
+            // Hide warning initially
+            document.getElementById('time-warning').classList.add('tw-hidden');
+            
+            // Fetch time slots for the selected date
+            fetchTimeSlots(selectedDate, originalTime);
         });
     }
 
@@ -603,15 +396,26 @@
             event.preventDefault();
             
             // Basic validation
-            const petID = document.getElementById('edit-petID').value;
-            const serviceID = document.getElementById('edit-serviceID').value;
             const date = document.getElementById('edit-date').value;
             const time = document.getElementById('edit-time').value;
+            const adminPassword = document.getElementById('admin-password-edit-appointment').value;
             
-            if (!petID || !serviceID || !date || !time) {
+            if (!date || !time) {
                 Swal.fire({
                     title: 'Missing Information',
                     text: 'Please fill in all required fields',
+                    icon: 'warning',
+                    confirmButtonColor: '#FF9666',
+                    background: '#374151',
+                    color: '#fff'
+                });
+                return;
+            }
+
+            if (!adminPassword) {
+                Swal.fire({
+                    title: 'Admin Password Required',
+                    text: 'Please enter your admin password to confirm this action',
                     icon: 'warning',
                     confirmButtonColor: '#FF9666',
                     background: '#374151',
@@ -647,12 +451,10 @@
             .then(response => {
                 if (!response.ok) {
                     // Try to parse error response if possible
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Server returned status ' + response.status);
-                        }
+                    return response.json().then(data => {
+                        throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+                    }).catch(parseError => {
+                        throw new Error(`Server returned status ${response.status}`);
                     });
                 }
                 return response.json();
@@ -701,10 +503,6 @@
             });
         });
     }
-    
-    // Connect the global edit function to this modal's open function
-    window.AppointmentsPage = window.AppointmentsPage || {};
-    window.AppointmentsPage.editAppointment = window.openEditAppointmentModal;
     
     // Modal close handler
     const editModalToggle = document.querySelector('[data-modal-toggle="editAppointment-modal"]');
@@ -758,39 +556,6 @@
             updateStatusButtons(status);
         });
     });
-
-    // Check if a service is a grooming service
-    function isGroomingService(serviceID) {
-        // We need to check if the selected service is a grooming service
-        const serviceSelect = document.getElementById('edit-serviceID');
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        
-        if (selectedOption) {
-            // First check the data-category attribute
-            if (selectedOption.dataset.category && 
-                selectedOption.dataset.category.toLowerCase() === 'grooming') {
-                return true;
-            }
-            
-            // Fallback: Check if the service name contains "grooming" (case insensitive)
-            return selectedOption.textContent.toLowerCase().includes('grooming');
-        }
-        
-        return false;
-    }
-    
-    // Toggle visibility of grooming section based on selected service
-    function toggleGroomingSection() {
-        const groomingSection = document.getElementById('grooming-section');
-        if (!groomingSection) return;
-        
-        // Check if current selected service is grooming
-        if (isGroomingService(document.getElementById('edit-serviceID').value)) {
-            groomingSection.classList.remove('tw-hidden');
-        } else {
-            groomingSection.classList.add('tw-hidden');
-        }
-    }
     
     // Set up image preview functionality
     function setupImagePreview(inputId, previewId) {
@@ -818,13 +583,9 @@
     setupImagePreview('before_image', 'before-image-preview');
     setupImagePreview('after_image', 'after-image-preview');
     
-    // Handle service selection change to show/hide grooming fields
-    const serviceSelect = document.getElementById('edit-serviceID');
-    if (serviceSelect) {
-        serviceSelect.addEventListener('change', function() {
-            toggleGroomingSection();
-        });
-    }
+    // Connect the global edit function
+    window.AppointmentsPage = window.AppointmentsPage || {};
+    window.AppointmentsPage.editAppointment = window.openEditAppointmentModal;
     });
 });
 </script>

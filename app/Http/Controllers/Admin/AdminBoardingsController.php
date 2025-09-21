@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Boarding;
 use Validator;
+use Illuminate\Support\Facades\Hash;
+use App\Models\ActivityLog;
+
 
 class AdminBoardingsController extends Controller {
     public function index()
@@ -51,12 +54,68 @@ class AdminBoardingsController extends Controller {
         }
     }
 
-    public function cancelBoarding($id)
+    // public function cancelBoarding($id)
+    // {
+    //     try {
+    //         $boarding = Boarding::findOrFail($id);
+    //         $boarding->status = 'Cancelled';
+    //         $boarding->save();
+            
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Boarding cancelled successfully'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error cancelling boarding: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to cancel boarding'
+    //         ], 500);
+    //     }
+    // }
+
+    public function cancel(Request $request, $id)
     {
+        // Validate admin password
+        $validated = $request->validate([
+            'admin_password' => 'required|string'
+        ], [
+            'admin_password.required' => 'Admin password is required to cancel boardings.',
+        ]);
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($validated['admin_password'], $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
         try {
             $boarding = Boarding::findOrFail($id);
+            
+            // Store original values for logging
+            $originalStatus = $boarding->status;
+            
             $boarding->status = 'Cancelled';
             $boarding->save();
+
+            // Log the cancellation action
+            ActivityLog::create([
+                'table_name' => 'boardings',
+                'record_id' => $boarding->boardingID,
+                'action' => 'update',
+                'old_values' => json_encode(['status' => $originalStatus]),
+                'new_values' => json_encode([
+                    'status' => 'Cancelled',
+                    'cancelled_by_admin_id' => $admin->userID,
+                    'cancelled_by_admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
             
             return response()->json([
                 'success' => true,

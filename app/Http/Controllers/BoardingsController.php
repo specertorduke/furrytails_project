@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ActivityLogger; 
 use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Hash;
+use App\Models\ActivityLog;
 
 
 class BoardingsController extends Controller
@@ -166,44 +168,107 @@ public function store(Request $request)
     /**
      * Cancel a boarding
      */
-    public function cancelBoarding($id)
-    {
-        $boarding = Boarding::findOrFail($id);
+    // public function cancelBoarding($id)
+    // {
+    //     $boarding = Boarding::findOrFail($id);
         
-        // Check if user owns this boarding via the pet
-        $pet = Pet::find($boarding->petID);
-        if (!$pet || Auth::id() !== $pet->userID) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
+    //     // Check if user owns this boarding via the pet
+    //     $pet = Pet::find($boarding->petID);
+    //     if (!$pet || Auth::id() !== $pet->userID) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Unauthorized'
+    //         ], 403);
+    //     }
         
-        // Check if boarding can be cancelled
-        if (in_array($boarding->status, ['Cancelled', 'Completed'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This boarding cannot be cancelled'
-            ], 400);
-        }
+    //     // Check if boarding can be cancelled
+    //     if (in_array($boarding->status, ['Cancelled', 'Completed'])) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'This boarding cannot be cancelled'
+    //         ], 400);
+    //     }
         
-        // Cancel the boarding
-        $boarding->status = 'Cancelled';
-        $boarding->save();
+    //     // Cancel the boarding
+    //     $boarding->status = 'Cancelled';
+    //     $boarding->save();
         
-        // Log the cancellation
-        ActivityLogger::log(
-            'boardings',
-            $boarding->boardingID,
-            'update',
-            ['status' => 'Confirmed'], // Old status
-            ['status' => 'Cancelled']  // New status
-        );
+    //     // Log the cancellation
+    //     ActivityLogger::log(
+    //         'boardings',
+    //         $boarding->boardingID,
+    //         'update',
+    //         ['status' => 'Confirmed'], // Old status
+    //         ['status' => 'Cancelled']  // New status
+    //     );
             
-        return response()->json([
-            'success' => true,
-            'message' => 'Boarding cancelled successfully'
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Boarding cancelled successfully'
+    //     ]);
+    // }
+
+    public function cancel(Request $request, $id)
+    {
+        // Validate user password
+        $validated = $request->validate([
+            'user_password' => 'required|string'
+        ], [
+            'user_password.required' => 'Password is required to cancel boardings.',
         ]);
+
+        // Verify user password
+        $user = auth()->user();
+        if (!Hash::check($validated['user_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
+        try {
+            $boarding = Boarding::with('pet')->findOrFail($id);
+            
+            // Make sure the boarding belongs to the authenticated user
+            if ($boarding->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            // Store original values for logging
+            $originalStatus = $boarding->status;
+            
+            $boarding->status = 'Cancelled';
+            $boarding->save();
+
+            // Log the cancellation action
+            ActivityLog::create([
+                'table_name' => 'boardings',
+                'record_id' => $boarding->boardingID,
+                'action' => 'update',
+                'old_values' => json_encode(['status' => $originalStatus]),
+                'new_values' => json_encode([
+                    'status' => 'Cancelled',
+                    'cancelled_by_user' => true
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Boarding cancelled successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error cancelling boarding: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel boarding'
+            ], 500);
+        }
     }
 
     public function getBoardingServices()

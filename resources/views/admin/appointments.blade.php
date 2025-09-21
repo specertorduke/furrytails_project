@@ -140,12 +140,26 @@
         cancelAppointment: function(id) {
             Swal.fire({
                 title: 'Cancel this appointment?',
-                text: "You can't undo this action!",
+                html: `
+                    <div class="tw-text-left tw-mb-4">
+                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                        <p class="tw-mb-2">This will permanently cancel the appointment.</p>
+                    </div>
+                    <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#FF9666',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!'
+                confirmButtonText: 'Yes, cancel it!',
+                preConfirm: () => {
+                    const password = document.getElementById('cancel-password').value;
+                    if (!password) {
+                        Swal.showValidationMessage('Please enter your admin password');
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to cancel
@@ -156,20 +170,44 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({
+                            admin_password: result.value
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if(data.success) {
                             this.appointmentsTable.ajax.reload();
-                            Swal.fire('Cancelled!', 'Appointment has been cancelled.', 'success');
+                            Swal.fire({
+                                title: 'Cancelled!',
+                                text: 'Appointment has been cancelled.',
+                                icon: 'success',
+                                confirmButtonColor: '#FF9666',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         } else {
-                            Swal.fire('Error!', data.message || 'Failed to cancel appointment.', 'error');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to cancel appointment.',
+                                icon: 'error',
+                                confirmButtonColor: '#FF9666',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        Swal.fire('Error!', 'An error occurred while cancelling the appointment.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while cancelling the appointment.',
+                            icon: 'error',
+                            confirmButtonColor: '#FF9666',
+                            background: '#374151',
+                            color: '#fff'
+                        });
                     });
                 }
             });

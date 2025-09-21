@@ -8,6 +8,8 @@ use App\Models\Appointment;
 use App\Models\Service;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use App\Models\ActivityLog;
 
 class AdminAppointmentsController extends Controller
 {
@@ -53,25 +55,25 @@ class AdminAppointmentsController extends Controller
         }
     }
 
-    public function cancelAppointment($id)
-    {
-        try {
-            $appointment = Appointment::findOrFail($id);
-            $appointment->status = 'Cancelled';
-            $appointment->save();
+    // public function cancelAppointment($id)
+    // {
+    //     try {
+    //         $appointment = Appointment::findOrFail($id);
+    //         $appointment->status = 'Cancelled';
+    //         $appointment->save();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment cancelled successfully'
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error cancelling appointment: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to cancel appointment'
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Appointment cancelled successfully'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error cancelling appointment: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to cancel appointment'
+    //         ], 500);
+    //     }
+    // }
 
     public function store(Request $request)
     {
@@ -338,112 +340,100 @@ class AdminAppointmentsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Validate request including admin password
+        $validator = Validator::make($request->all(), [
+            'petID' => 'required|exists:pets,petID',
+            'serviceID' => 'required|exists:services,serviceID', 
+            'date' => 'required|date|after_or_equal:today',
+            'time' => 'required',
+            'status' => 'required|in:Pending,Confirmed,Completed,Cancelled',
+            'before_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'after_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'admin_password' => 'required|string', // Add admin password requirement
+        ], [
+            'admin_password.required' => 'Admin password is required to update appointments.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($request->input('admin_password'), $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
         try {
-            // Update validation rules to include grooming-related fields
-            $validator = Validator::make($request->all(), [
-                'petID' => 'required|exists:pets,petID',
-                'date' => 'required|date',
-                'time' => 'required',
-                'serviceID' => 'required|exists:services,serviceID',
-                'status' => 'required|in:Pending,Confirmed,Completed,Cancelled',
-                'before_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                'after_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            ]);
-        
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation error',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            
-            // Find appointment
             $appointment = Appointment::findOrFail($id);
             
-            // Check for duplicate appointments (excluding this one)
-            $existingAppointment = Appointment::where('date', $request->date)
-                ->where('time', $request->time)
-                ->whereIn('status', ['Pending', 'Confirmed'])
-                ->where('appointmentID', '!=', $id)
-                ->exists();
-                
-            if ($existingAppointment) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This time slot is already booked'
-                ], 422);
-            }
-        
-            // Update appointment basic details
+            // Store original values for logging
+            $originalValues = $appointment->toArray();
+            
+            // Update appointment fields
             $appointment->petID = $request->petID;
+            $appointment->serviceID = $request->serviceID;
             $appointment->date = $request->date;
             $appointment->time = $request->time;
-            $appointment->serviceID = $request->serviceID;
             $appointment->status = $request->status;
             
-            // Check if this is a grooming appointment by checking the service category
-            $isGrooming = false;
-            try {
-                $service = Service::findOrFail($request->serviceID);
-                $isGrooming = strtolower($service->category) === 'grooming';
-            } catch (\Exception $e) {
-                \Log::warning('Error checking if service is grooming: ' . $e->getMessage());
-            }
-            
-            // Only process grooming-related fields for grooming appointments
-            if ($isGrooming) {
-                // Handle before image upload
-                if ($request->hasFile('before_image')) {
-                    // Delete old image if exists
-                    if ($appointment->before_image) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($appointment->before_image);
-                    }
-                    
-                    $extension = $request->file('before_image')->getClientOriginalExtension();
-                    $filename = 'grooming_before_' . $appointment->appointmentID . '_' . time() . '.' . $extension;
-                    
-                    $imagePath = $request->file('before_image')->storeAs(
-                        'groomingImages', 
-                        $filename, 
-                        'public'
-                    );
-                    
-                    $appointment->before_image = $imagePath;
+            // Handle image uploads
+            if ($request->hasFile('before_image')) {
+                // Delete old image if exists
+                if ($appointment->before_image && Storage::exists('public/' . $appointment->before_image)) {
+                    Storage::delete('public/' . $appointment->before_image);
                 }
                 
-                // Handle after image upload
-                if ($request->hasFile('after_image')) {
-                    // Delete old image if exists
-                    if ($appointment->after_image) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($appointment->after_image);
-                    }
-                    
-                    $extension = $request->file('after_image')->getClientOriginalExtension();
-                    $filename = 'grooming_after_' . $appointment->appointmentID . '_' . time() . '.' . $extension;
-                    
-                    $imagePath = $request->file('after_image')->storeAs(
-                        'groomingImages', 
-                        $filename, 
-                        'public'
-                    );
-                    
-                    $appointment->after_image = $imagePath;
-                }
+                $beforeImage = $request->file('before_image');
+                $beforeImageName = 'before_' . $appointment->appointmentID . '_' . time() . '.' . $beforeImage->getClientOriginalExtension();
+                $beforeImagePath = $beforeImage->storeAs('images/grooming', $beforeImageName, 'public');
+                $appointment->before_image = $beforeImagePath;
             }
             
-            // Save all changes
+            if ($request->hasFile('after_image')) {
+                // Delete old image if exists
+                if ($appointment->after_image && Storage::exists('public/' . $appointment->after_image)) {
+                    Storage::delete('public/' . $appointment->after_image);
+                }
+                
+                $afterImage = $request->file('after_image');
+                $afterImageName = 'after_' . $appointment->appointmentID . '_' . time() . '.' . $afterImage->getClientOriginalExtension();
+                $afterImagePath = $afterImage->storeAs('images/grooming', $afterImageName, 'public');
+                $appointment->after_image = $afterImagePath;
+            }
+            
             $appointment->save();
-        
+
+            // Log the update action
+            ActivityLog::create([
+                'table_name' => 'appointments',
+                'record_id' => $appointment->appointmentID,
+                'action' => 'update',
+                'old_values' => json_encode($originalValues),
+                'new_values' => json_encode(array_merge($appointment->toArray(), [
+                    'admin_id' => $admin->userID,
+                    'admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ])),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Appointment updated successfully',
-                'appointment' => $appointment
+                'data' => $appointment
             ]);
         } catch (\Exception $e) {
             \Log::error('Error updating appointment: ' . $e->getMessage());
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to update appointment: ' . $e->getMessage()
             ], 500);
         }
@@ -458,20 +448,76 @@ class AdminAppointmentsController extends Controller
     public function edit($id)
     {
         try {
-            $appointment = \App\Models\Appointment::with(['pet.user', 'service'])
-                ->findOrFail($id);
-                
+            $appointment = Appointment::with(['pet.user', 'service'])->findOrFail($id);
+            
             return response()->json([
                 'success' => true,
-                'appointment' => $appointment
+                'appointment' => $appointment,
+                'pet' => $appointment->pet,
+                'service' => $appointment->service,
+                'user' => $appointment->pet->user 
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error fetching appointment for edit: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve appointment details',
-                'error' => $e->getMessage()
+                'message' => 'Appointment not found'
             ], 404);
+        }
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        // Validate admin password
+        $validated = $request->validate([
+            'admin_password' => 'required|string'
+        ], [
+            'admin_password.required' => 'Admin password is required to cancel appointments.',
+        ]);
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($validated['admin_password'], $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
+        try {
+            $appointment = Appointment::findOrFail($id);
+            
+            // Store original values for logging
+            $originalStatus = $appointment->status;
+            
+            $appointment->status = 'Cancelled';
+            $appointment->save();
+
+            // Log the cancellation action
+            ActivityLog::create([
+                'table_name' => 'appointments',
+                'record_id' => $appointment->appointmentID,
+                'action' => 'update',
+                'old_values' => json_encode(['status' => $originalStatus]),
+                'new_values' => json_encode([
+                    'status' => 'Cancelled',
+                    'cancelled_by_admin_id' => $admin->userID,
+                    'cancelled_by_admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment cancelled successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error cancelling appointment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel appointment'
+            ], 500);
         }
     }
 }

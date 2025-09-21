@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Hash;
 
 class AdminServicesController extends Controller
 {
@@ -39,51 +41,6 @@ class AdminServicesController extends Controller
             return response()->json([], 500);
         }
     }
-
-    public function toggleStatus($id)
-    {
-        try {
-            $service = Service::findOrFail($id);
-            $service->isActive = !$service->isActive;
-            $service->save();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Service status updated successfully'
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error updating service status: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update service status'
-            ], 500);
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $service = Service::findOrFail($id);
-            
-            // Delete service image if it exists
-            if ($service->serviceImage && Storage::exists('public/' . $service->serviceImage)) {
-                Storage::delete('public/' . $service->serviceImage);
-            }
-            
-            $service->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Service deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error deleting service: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete service'
-            ], 500);
-        }
-    }    
 
     /**
      * Get service details for view modal
@@ -139,15 +96,9 @@ class AdminServicesController extends Controller
         }
     }
 
-    /**
-     * Store a newly created service in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request)
     {
-        // Validate request
+        // Validate request including admin password
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
@@ -155,6 +106,9 @@ class AdminServicesController extends Controller
             'description' => 'nullable|string',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'isActive' => 'required|boolean',
+            'admin_password' => 'required|string', // Add admin password requirement
+        ], [
+            'admin_password.required' => 'Admin password is required to create services.',
         ]);
 
         if ($validator->fails()) {
@@ -162,6 +116,15 @@ class AdminServicesController extends Controller
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($request->admin_password, $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
         }
 
         try {
@@ -190,6 +153,20 @@ class AdminServicesController extends Controller
                 $service->save();
             }
 
+            // Log the creation action
+            ActivityLog::create([
+                'table_name' => 'services',
+                'record_id' => $service->serviceID,
+                'action' => 'create',
+                'new_values' => json_encode(array_merge($service->toArray(), [
+                    'admin_id' => $admin->userID,
+                    'admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ])),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Service created successfully',
@@ -204,16 +181,9 @@ class AdminServicesController extends Controller
         }
     }
 
-    /**
-     * Update an existing service.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id)
     {
-        // Validate request
+        // Validate request including admin password
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
@@ -221,6 +191,9 @@ class AdminServicesController extends Controller
             'description' => 'nullable|string',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'isActive' => 'required|boolean',
+            'admin_password' => 'required|string', // Add admin password requirement
+        ], [
+            'admin_password.required' => 'Admin password is required to update services.',
         ]);
     
         if ($validator->fails()) {
@@ -229,9 +202,21 @@ class AdminServicesController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($request->admin_password, $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
     
         try {
             $service = Service::findOrFail($id);
+            
+            // Store original values for logging
+            $originalValues = $service->toArray();
             
             // Update service fields
             $service->name = $request->name;
@@ -260,6 +245,21 @@ class AdminServicesController extends Controller
             }
             
             $service->save();
+
+            // Log the update action
+            ActivityLog::create([
+                'table_name' => 'services',
+                'record_id' => $service->serviceID,
+                'action' => 'update',
+                'old_values' => json_encode($originalValues),
+                'new_values' => json_encode(array_merge($service->toArray(), [
+                    'admin_id' => $admin->userID,
+                    'admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ])),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
     
             return response()->json([
                 'success' => true,
@@ -271,6 +271,119 @@ class AdminServicesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update service: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        // Validate admin password
+        $validated = $request->validate([
+            'admin_password' => 'required|string'
+        ], [
+            'admin_password.required' => 'Admin password is required to change service status.',
+        ]);
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($validated['admin_password'], $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
+        try {
+            $service = Service::findOrFail($id);
+            $originalStatus = $service->isActive;
+            
+            $service->isActive = !$service->isActive;
+            $service->save();
+
+            // Log the status change
+            ActivityLog::create([
+                'table_name' => 'services',
+                'record_id' => $service->serviceID,
+                'action' => 'update',
+                'old_values' => json_encode(['isActive' => $originalStatus]),
+                'new_values' => json_encode([
+                    'isActive' => $service->isActive,
+                    'admin_id' => $admin->userID,
+                    'admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Service status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating service status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update service status'
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        // Validate admin password
+        $validated = $request->validate([
+            'admin_password' => 'required|string'
+        ], [
+            'admin_password.required' => 'Admin password is required to delete services.',
+        ]);
+
+        // Verify admin password
+        $admin = auth()->user();
+        if (!Hash::check($validated['admin_password'], $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
+        try {
+            $service = Service::findOrFail($id);
+            
+            // Store service data for logging before deletion
+            $serviceData = $service->toArray();
+            
+            // Delete service image if it exists
+            if ($service->serviceImage && Storage::exists('public/' . $service->serviceImage)) {
+                Storage::delete('public/' . $service->serviceImage);
+            }
+
+            // Log the deletion action before actual deletion
+            ActivityLog::create([
+                'table_name' => 'services',
+                'record_id' => $service->serviceID,
+                'action' => 'delete',
+                'old_values' => json_encode($serviceData),
+                'new_values' => json_encode([
+                    'deleted_by_admin_id' => $admin->userID,
+                    'deleted_by_admin_name' => $admin->firstName . ' ' . $admin->lastName
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            $service->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Service deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting service: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete service'
             ], 500);
         }
     }

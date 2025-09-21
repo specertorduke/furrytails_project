@@ -297,12 +297,14 @@ document.addEventListener('DOMContentLoaded', function() {
             petCard.innerHTML = `
                 ${petImageHtml}
                 <div class="tw-p-3">
-                    <h5 class="tw-text-white tw-font-medium tw-text-base">${petName}</h5>
-                    <div class="tw-flex tw-justify-between tw-items-center tw-mt-1">
-                        <span class="tw-text-xs tw-text-gray-400">${petType}</span>
-                        <span class="tw-text-xs tw-px-2 tw-py-1 tw-rounded-full tw-bg-gray-600 tw-text-gray-300">
-                            ${petBreed}
-                        </span>
+                    <h5 class="tw-text-white tw-font-medium tw-text-base tw-mb-1">${petName}</h5>
+                    <div class="tw-flex tw-flex-col tw-gap-1">
+                        <span class="tw-text-xs tw-text-gray-400 tw-mb-1">${petType}</span>
+                        <div class="tw-flex tw-justify-center">
+                            <span class="tw-text-xs tw-px-2 tw-py-1 tw-rounded-full tw-bg-gray-600 tw-text-gray-300 tw-text-center">
+                                ${petBreed}
+                            </span>
+                        </div>
                     </div>
                 </div>`;
             

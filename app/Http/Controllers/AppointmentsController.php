@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use App\Models\ActivityLog;
 
 class AppointmentsController extends Controller
 {
@@ -98,19 +100,27 @@ public function getAvailableTimes(Request $request)
     public function edit($id)
     {
         try {
-            $appointment = \App\Models\Appointment::with(['pet.user', 'service'])
-                ->findOrFail($id);
-                
+            $appointment = Appointment::with(['pet.user', 'service'])->findOrFail($id);
+            
+            // Make sure the appointment belongs to the authenticated user
+            if ($appointment->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
             return response()->json([
                 'success' => true,
-                'appointment' => $appointment
+                'appointment' => $appointment,
+                'pet' => $appointment->pet,
+                'service' => $appointment->service,
+                'user' => $appointment->pet->user  // Add this line
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error fetching appointment for edit: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve appointment details',
-                'error' => $e->getMessage()
+                'message' => 'Appointment not found'
             ], 404);
         }
     }
@@ -314,33 +324,96 @@ public function store(Request $request)
     /**
      * Cancel an appointment
      */
-    public function cancelAppointment($id)
-    {
-        $appointment = Appointment::findOrFail($id);
+    // public function cancelAppointment($id)
+    // {
+    //     $appointment = Appointment::findOrFail($id);
         
-        // Check if user owns this appointment
-        if (Auth::id() !== $appointment->pet->userID) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
+    //     // Check if user owns this appointment
+    //     if (Auth::id() !== $appointment->pet->userID) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Unauthorized'
+    //         ], 403);
+    //     }
         
-        // Check if appointment can be cancelled
-        if (in_array($appointment->status, ['Cancelled', 'Completed'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This appointment cannot be cancelled'
-            ], 400);
-        }
+    //     // Check if appointment can be cancelled
+    //     if (in_array($appointment->status, ['Cancelled', 'Completed'])) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'This appointment cannot be cancelled'
+    //         ], 400);
+    //     }
         
-        // Cancel the appointment
-        $appointment->status = 'Cancelled';
-        $appointment->save();
+    //     // Cancel the appointment
+    //     $appointment->status = 'Cancelled';
+    //     $appointment->save();
             
-        return response()->json([
-            'success' => true,
-            'message' => 'Appointment cancelled successfully'
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Appointment cancelled successfully'
+    //     ]);
+    // }
+
+    public function cancel(Request $request, $id)
+    {
+        // Validate user password
+        $validated = $request->validate([
+            'user_password' => 'required|string'
+        ], [
+            'user_password.required' => 'Password is required to cancel appointments.',
         ]);
+
+        // Verify user password
+        $user = auth()->user();
+        if (!Hash::check($validated['user_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password. Please enter your current password to confirm this action.'
+            ], 401);
+        }
+
+        try {
+            $appointment = Appointment::with('pet')->findOrFail($id);
+            
+            // Make sure the appointment belongs to the authenticated user
+            if ($appointment->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            // Store original values for logging
+            $originalStatus = $appointment->status;
+            
+            $appointment->status = 'Cancelled';
+            $appointment->save();
+
+            // Log the cancellation action
+            ActivityLog::create([
+                'table_name' => 'appointments',
+                'record_id' => $appointment->appointmentID,
+                'action' => 'update',
+                'old_values' => json_encode(['status' => $originalStatus]),
+                'new_values' => json_encode([
+                    'status' => 'Cancelled',
+                    'cancelled_by_user' => true
+                ]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment cancelled successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error cancelling appointment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel appointment'
+            ], 500);
+        }
     }
 }

@@ -123,7 +123,7 @@
                         
                         <!-- Cancel button -->
                         <button id="cancelAppointmentBtn" class="tw-bg-red-50 tw-text-red-600 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-transition-all hover:tw-bg-red-100 tw-hidden">
-                            <i class="fas fa-times-circle tw-mr-2"></i>Cancel
+                            <i class="fas fa-times-circle tw-mr-2"></i>Cancel Booking
                         </button>
                     </div>
                 </div>
@@ -296,7 +296,7 @@
             }
 
             // Show grooming images if available
-            if ((appointment.before_image || appointment.after_image) && appointment.service && appointment.service.name.toLowerCase().includes('groom')) {
+            if ((appointment.before_image || appointment.after_image) || appointment.service && appointment.service.name.toLowerCase().includes('groom')) {
                 document.getElementById('groomingSection').classList.remove('tw-hidden');
                 
                 if (appointment.before_image) {

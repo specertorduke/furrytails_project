@@ -256,36 +256,53 @@
     };
 
     window.toggleServiceStatus = function(serviceId, newStatus) {
-        console.log('Toggling service status:', serviceId, 'to', newStatus);
-        
-        Swal.fire({
-            title: newStatus ? 'Activate service?' : 'Deactivate service?',
-            text: newStatus 
-                ? "This service will be visible to customers" 
-                : "This service will be hidden from customers",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: newStatus ? '#66FF8F' : '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: newStatus ? 'Yes, activate it!' : 'Yes, deactivate it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Send status update request
-                fetch("{{ route('admin.services.toggle-status', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ isActive: newStatus })
+    console.log('Toggling service status:', serviceId, 'to', newStatus);
+    
+    Swal.fire({
+        title: newStatus ? 'Activate service?' : 'Deactivate service?',
+        html: `
+            <div class="tw-text-left tw-mb-4">
+                <p class="tw-mb-2">${newStatus 
+                    ? "This service will be visible to customers" 
+                    : "This service will be hidden from customers"}</p>
+            </div>
+            <input type="password" id="toggle-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: newStatus ? '#66FF8F' : '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: newStatus ? 'Yes, activate it!' : 'Yes, deactivate it!',
+        preConfirm: () => {
+            const password = document.getElementById('toggle-password').value;
+            if (!password) {
+                Swal.showValidationMessage('Please enter your admin password');
+                return false;
+            }
+            return password;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Send status update request
+            fetch("{{ route('admin.services.toggle-status', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    isActive: newStatus,
+                    admin_password: result.value
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Updated!',
-                            text: `Service has been ${newStatus ? 'activated' : 'deactivated'}.`,
-                            icon: 'success',
-                            confirmButtonColor: '#24CFF4'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: `Service has been ${newStatus ? 'activated' : 'deactivated'}.`,
+                        icon: 'success',
+                        confirmButtonColor: '#24CFF4'
                         }).then(() => {
                             location.reload();
                         });
@@ -304,22 +321,39 @@
 
     window.deleteService = function(serviceId) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'Delete Service',
+            html: `
+                <div class="tw-text-left tw-mb-4">
+                    <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
+                    <p class="tw-mb-2">This will permanently delete the service and all related data.</p>
+                </div>
+                <input type="password" id="delete-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+            `,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: 'Yes, delete it!',
+            preConfirm: () => {
+                const password = document.getElementById('delete-password').value;
+                if (!password) {
+                    Swal.showValidationMessage('Please enter your admin password');
+                    return false;
+                }
+                return password;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send delete request
-                fetch("{{ route('admin.services.destroy', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {                    
+                fetch("{{ route('admin.services.destroy', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        admin_password: result.value
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
