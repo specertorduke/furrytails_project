@@ -155,15 +155,16 @@
 <script>
 ['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
     document.addEventListener(eventName, function() {
-    // Initialize the cropper variables
+    // Move cropper variables to global scope within this event listener
     let cropper = null;
+    let croppedImageData = null; // Move this to the top level
+    
     const uploadArea = document.getElementById('pet-upload-area');
     const cropperArea = document.getElementById('pet-cropper-area');
     const previewArea = document.getElementById('pet-preview-area');
     const fileInput = document.getElementById('pet-image');
     const cropperImage = document.getElementById('pet-cropper-image');
     const previewImage = document.getElementById('pet-preview-image');
-    let croppedImageData = null;
 
     // Reset function
     function resetImageUpload() {
@@ -175,7 +176,7 @@
         uploadArea.classList.remove('tw-hidden');
         cropperArea.classList.add('tw-hidden');
         previewArea.classList.add('tw-hidden');
-        croppedImageData = null;
+        croppedImageData = null; // Reset the global variable
     }
 
     // Add change image functionality
@@ -231,6 +232,7 @@
     if (applyCropBtn) {
         applyCropBtn.addEventListener('click', function() {
             if (cropper) {
+                // Update the global croppedImageData variable
                 croppedImageData = cropper.getCroppedCanvas({
                     width: 300,
                     height: 300
@@ -239,6 +241,8 @@
                 previewImage.src = croppedImageData;
                 cropperArea.classList.add('tw-hidden');
                 previewArea.classList.remove('tw-hidden');
+                
+                console.log('Image cropped and saved:', croppedImageData ? 'Yes' : 'No'); // Debug log
             }
         });
     }
@@ -371,7 +375,8 @@
                 return;
             }
 
-            // Image validation
+            // Image validation - check the outer scope variable
+            console.log('Checking cropped image data:', croppedImageData ? 'Found' : 'Not found'); // Debug log
             if (!croppedImageData) {
                 this.showError('Please upload and crop a pet image');
                 return;

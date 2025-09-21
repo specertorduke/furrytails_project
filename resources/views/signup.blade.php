@@ -1,4 +1,3 @@
-<!-- filepath: /c:/xampp/htdocs/dashboard/furrytails_project/resources/views/signUp.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +39,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('signup.submit') }}" class="tw-space-y-4">
+                    <form method="POST" action="{{ route('signup.submit') }}" class="tw-space-y-4" id="signupForm">
                         @csrf
                         <div class="tw-flex tw-space-x-4">
                             <div class="tw-w-1/2">
@@ -105,7 +104,7 @@
                             By creating an account, you agree to our <a href="#" class="tw-text-indigo-600 hover:tw-underline">Terms of Use</a> and <a href="#" class="tw-text-indigo-600 hover:tw-underline">Privacy Policy</a>.
                         </div>
 
-                        <button type="submit" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] focus:tw-bg-[#24CFF4] tw-block tw-mx-auto">
+                        <button type="submit" id="createAccountBtn" class="tw-bg-gray-400 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-text-sm tw-rounded-full tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-[#24CFF4] focus:tw-bg-[#24CFF4] tw-block tw-mx-auto tw-cursor-not-allowed" disabled>
                             Create Account
                         </button>
                     </form>
@@ -134,66 +133,166 @@
             }
         }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const phoneInput = document.getElementById('phone');
-        if (phoneInput) {
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                
-                // Limit to 10 digits (excluding +63 prefix)
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-                
-                // Format with spaces
-                if (value.length > 3 && value.length <= 6) {
-                    value = value.slice(0, 3) + ' ' + value.slice(3);
-                } else if (value.length > 6) {
-                    value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
-                }
-                
-                e.target.value = value;
-                
-                // Validate format for visual feedback
-                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-                if (value.length > 0 && !phoneRegex.test(value)) {
-                    phoneInput.classList.add('tw-border-yellow-400');
-                    document.getElementById('phone-error').classList.add('tw-hidden');
-                } else if (value.length > 0) {
-                    phoneInput.classList.remove('tw-border-yellow-400');
-                    phoneInput.classList.add('tw-border-green-500');
-                    document.getElementById('phone-error').classList.add('tw-hidden');
-                } else {
-                    phoneInput.classList.remove('tw-border-yellow-400', 'tw-border-green-500');
-                }
-            });
+        function checkFormValidation() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const passwordConfirmation = document.getElementById('password_confirmation').value.trim();
+            const createAccountBtn = document.getElementById('createAccountBtn');
+            
+            // Check if phone is valid
+            const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+            const isPhoneValid = phoneRegex.test(phone);
+            
+            // Check if passwords match
+            const doPasswordsMatch = password === passwordConfirmation && password.length > 0;
+            
+            // Check if all fields are filled and valid
+            const allFieldsFilled = firstName && lastName && email && username && phone && password && passwordConfirmation;
+            const allValid = allFieldsFilled && isPhoneValid && doPasswordsMatch;
+            
+            if (allValid) {
+                createAccountBtn.disabled = false;
+                createAccountBtn.classList.remove('tw-bg-gray-400', 'tw-cursor-not-allowed');
+                createAccountBtn.classList.add('tw-bg-[#24CFF4]', 'tw-cursor-pointer');
+            } else {
+                createAccountBtn.disabled = true;
+                createAccountBtn.classList.remove('tw-bg-[#24CFF4]', 'tw-cursor-pointer');
+                createAccountBtn.classList.add('tw-bg-gray-400', 'tw-cursor-not-allowed');
+            }
         }
-        
-        // Validate form submission
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const phoneInput = document.getElementById('phone');
-                const phoneValue = phoneInput.value.trim();
-                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-                
-                if (!phoneRegex.test(phoneValue)) {
-                    e.preventDefault();
-                    phoneInput.classList.add('tw-border-red-500');
-                    document.getElementById('phone-error').classList.remove('tw-hidden');
-                    phoneInput.focus();
-                } else {
-                    // Before submitting, add the +63 prefix to the value
-                    // This can be done by creating a hidden input
-                    const hiddenPhoneInput = document.createElement('input');
-                    hiddenPhoneInput.type = 'hidden';
-                    hiddenPhoneInput.name = 'full_phone';
-                    hiddenPhoneInput.value = '+63' + phoneValue.replace(/\s/g, '');
-                    form.appendChild(hiddenPhoneInput);
-                }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('phone');
+            const allInputs = document.querySelectorAll('#signupForm input[required]');
+            
+            // Add event listeners to all required inputs for real-time validation
+            allInputs.forEach(input => {
+                input.addEventListener('input', checkFormValidation);
+                input.addEventListener('blur', checkFormValidation);
             });
-        }
-    });
+
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    
+                    // Limit to 10 digits (excluding +63 prefix)
+                    if (value.length > 10) {
+                        value = value.slice(0, 10);
+                    }
+                    
+                    // Format with spaces
+                    if (value.length > 3 && value.length <= 6) {
+                        value = value.slice(0, 3) + ' ' + value.slice(3);
+                    } else if (value.length > 6) {
+                        value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+                    }
+                    
+                    e.target.value = value;
+                    
+                    // Validate format for visual feedback
+                    const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+                    if (value.length > 0 && !phoneRegex.test(value)) {
+                        phoneInput.classList.add('tw-border-yellow-400');
+                        phoneInput.classList.remove('tw-border-green-500');
+                        document.getElementById('phone-error').classList.add('tw-hidden');
+                    } else if (value.length > 0) {
+                        phoneInput.classList.remove('tw-border-yellow-400');
+                        phoneInput.classList.add('tw-border-green-500');
+                        document.getElementById('phone-error').classList.add('tw-hidden');
+                    } else {
+                        phoneInput.classList.remove('tw-border-yellow-400', 'tw-border-green-500');
+                    }
+                    
+                    // Check form validation after phone input change
+                    checkFormValidation();
+                });
+            }
+            
+            // Validate form submission with confirmation
+            const form = document.getElementById('signupForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Always prevent default first
+                    
+                    const phoneInput = document.getElementById('phone');
+                    const phoneValue = phoneInput.value.trim();
+                    const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+                    
+                    if (!phoneRegex.test(phoneValue)) {
+                        phoneInput.classList.add('tw-border-red-500');
+                        document.getElementById('phone-error').classList.remove('tw-hidden');
+                        phoneInput.focus();
+                        return;
+                    }
+                    
+                    // Check if passwords match
+                    const password = document.getElementById('password').value;
+                    const passwordConfirmation = document.getElementById('password_confirmation').value;
+                    
+                    if (password !== passwordConfirmation) {
+                        Swal.fire({
+                            title: 'Password Mismatch',
+                            text: 'Passwords do not match. Please check and try again.',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4'
+                        });
+                        return;
+                    }
+                    
+                    // Show confirmation dialog
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const email = document.getElementById('email').value;
+                    const username = document.getElementById('username').value;
+                    
+                    Swal.fire({
+                        title: 'Confirm Account Creation',
+                        html: `
+                            <div class="tw-text-left tw-space-y-2">
+                                <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                                <p><strong>Username:</strong> ${username}</p>
+                                <p><strong>Phone:</strong> +63${phoneValue.replace(/\s/g, '')}</p>
+                            </div>
+                            <br>
+                            <p class="tw-text-sm tw-text-gray-600">Please verify your information is correct before proceeding.</p>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#24CFF4',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, create account!',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Show loading state
+                            const createBtn = document.getElementById('createAccountBtn');
+                            const originalText = createBtn.innerHTML;
+                            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i>Creating Account...';
+                            createBtn.disabled = true;
+                            
+                            // Add the +63 prefix to phone before submitting
+                            const hiddenPhoneInput = document.createElement('input');
+                            hiddenPhoneInput.type = 'hidden';
+                            hiddenPhoneInput.name = 'full_phone';
+                            hiddenPhoneInput.value = '+63' + phoneValue.replace(/\s/g, '');
+                            form.appendChild(hiddenPhoneInput);
+                            
+                            // Submit the form
+                            form.submit();
+                        }
+                    });
+                });
+            }
+            
+            // Initial validation check
+            checkFormValidation();
+        });
     </script>
 </body>
 </html>

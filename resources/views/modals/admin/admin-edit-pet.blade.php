@@ -338,104 +338,127 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle form submission
+    // Handle form submission
     const editPetForm = document.getElementById('editPetForm');
     if (editPetForm) {
         editPetForm.addEventListener('submit', function(event) {
             event.preventDefault();
             
-            // Show loading state
-            const saveButton = document.getElementById('savePetBtn');
-            const originalButtonHTML = saveButton.innerHTML;
-            saveButton.disabled = true;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
-            
-            // Create FormData object (handles file uploads)
-            const formData = new FormData(this);
-
-            // Only include the image if a file was selected
-            const imageInput = document.getElementById('petImageUpload');
-            if (imageInput.files.length === 0) {
-                // No new file selected, remove the empty file input from the form data
-                formData.delete('petImage');
-            }
-
-            // Make sure name and species are included
-            if (!formData.get('name')) {
-                formData.set('name', document.getElementById('name').value);
-            }
-
-            if (!formData.get('species')) {
-                formData.set('species', document.getElementById('species').value);
-            }
-
-            // Handle boolean fields properly
-            formData.set('isVaccinated', document.getElementById('isVaccinated').checked ? '1' : '0');
-
-            // Make sure method spoofing is set
-            formData.append('_method', 'PUT');
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            // Send update request
-            fetch("{{ route('admin.pets.update', ['id' => ':id']) }}".replace(':id', editingPetID), {
-                method: 'POST', // POST with _method=PUT for Laravel method spoofing
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    // Don't set Content-Type with FormData
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    console.error('Server responded with status:', response.status);
-                    // Try to parse error response if possible
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Server returned status ' + response.status);
-                        }
-                    });
+            // Show confirmation dialog first
+            Swal.fire({
+                title: 'Update Pet Information',
+                text: 'Are you sure you want to save these changes?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#24CFF4',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, save changes!',
+                cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with saving if confirmed
+                    savePetChanges();
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Pet updated successfully',
-                        icon: 'success',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
-                    }).then(() => {
-                        // Hide modal and refresh data
-                        document.getElementById('editPet-modal').classList.add('tw-hidden');
-                        // Reload the page or refresh the pet cards
-                        location.reload();
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to update pet');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating pet:', error);
+            });
+        });
+    }
+
+    // Separate function to handle the actual saving
+    function savePetChanges() {
+        // Show loading state
+        const saveButton = document.getElementById('savePetBtn');
+        const originalButtonHTML = saveButton.innerHTML;
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
+        
+        // Create FormData object (handles file uploads)
+        const formData = new FormData(editPetForm);
+
+        // Only include the image if a file was selected
+        const imageInput = document.getElementById('petImageUpload');
+        if (imageInput.files.length === 0) {
+            // No new file selected, remove the empty file input from the form data
+            formData.delete('petImage');
+        }
+
+        // Make sure name and species are included
+        if (!formData.get('name')) {
+            formData.set('name', document.getElementById('name').value);
+        }
+
+        if (!formData.get('species')) {
+            formData.set('species', document.getElementById('species').value);
+        }
+
+        // Handle boolean fields properly
+        formData.set('isVaccinated', document.getElementById('isVaccinated').checked ? '1' : '0');
+
+        // Make sure method spoofing is set
+        formData.append('_method', 'PUT');
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        // Send update request
+        fetch("{{ route('admin.pets.update', ['id' => ':id']) }}".replace(':id', editingPetID), {
+            method: 'POST', // POST with _method=PUT for Laravel method spoofing
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                // Don't set Content-Type with FormData
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Server responded with status:', response.status);
+                // Try to parse error response if possible
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Server returned status ' + response.status);
+                    }
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message
                 Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Failed to update pet',
-                    icon: 'error',
+                    title: 'Success!',
+                    text: 'Pet updated successfully',
+                    icon: 'success',
                     confirmButtonColor: '#24CFF4',
                     background: '#374151',
                     color: '#fff'
+                }).then(() => {
+                    // Hide modal and refresh data
+                    document.getElementById('editPet-modal').classList.add('tw-hidden');
+                    // Reload the page or refresh the pet cards
+                    location.reload();
                 });
-            })
-            .finally(() => {
-                // Restore button state
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalButtonHTML;
+            } else {
+                throw new Error(data.message || 'Failed to update pet');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating pet:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: error.message || 'Failed to update pet',
+                icon: 'error',
+                confirmButtonColor: '#24CFF4',
+                background: '#374151',
+                color: '#fff'
             });
+        })
+        .finally(() => {
+            // Restore button state
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalButtonHTML;
         });
     }
     

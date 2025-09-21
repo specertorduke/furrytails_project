@@ -169,8 +169,8 @@
                             <i class="fas fa-check tw-mr-2"></i> Confirm
                         </button>
                         
-                        <button id="activateBoardingBtn" class="tw-hidden tw-text-white tw-bg-[#66FF8F] hover:tw-bg-green-500 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
-                            <i class="fas fa-bed tw-mr-2"></i> Activate
+                        <button id="activateBoardingBtn" class="tw-hidden tw-text-white tw-bg-green-500 hover:tw-bg-green-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
+                            <i class="fas fa-bed tw-mr-2"></i> Mark as Active
                         </button>
                         
                         <button id="completeBoardingBtn" class="tw-hidden tw-text-white tw-bg-green-600 hover:tw-bg-green-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
