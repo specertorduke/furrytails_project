@@ -118,71 +118,151 @@
         },
 
         cancelAppointment: function(id) {
-            Swal.fire({
-                title: 'Cancel this appointment?',
-                html: `
-                    <div class="tw-text-left tw-mb-4">
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">This will permanently cancel your appointment.</p>
-                    </div>
-                    <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
-                `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!',
-                preConfirm: () => {
-                    const password = document.getElementById('cancel-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your password');
-                        return false;
-                    }
-                    return password;
+            // First, get the appointment details to check the date
+            fetch(`{{ route('user.appointments.show', '') }}/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Make AJAX call to cancel
-                    fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            user_password: result.value
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            this.appointmentsTable.ajax.reload();
-                            Swal.fire({
-                                title: 'Cancelled!',
-                                text: 'Your appointment has been cancelled.',
-                                icon: 'success',
-                                confirmButtonColor: '#24CFF4'
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message || 'Failed to cancel appointment.',
-                                icon: 'error',
-                                confirmButtonColor: '#24CFF4'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.appointment) {
+                    const appointment = data.appointment;
+                    const appointmentDate = new Date(appointment.date);
+                    const today = new Date();
+                    const timeDiff = appointmentDate.getTime() - today.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    let warningMessage = '';
+                    let canCancel = daysDiff >= 3;
+                    
+                    if (canCancel) {
+                        warningMessage = `
+                            <div class="tw-text-left tw-mb-4">
+                                <p class="tw-text-blue-400 tw-font-bold tw-mb-2">📅 Cancellation Policy</p>
+                                <p class="tw-mb-2">Appointments can be cancelled up to 3 days before the scheduled date.</p>
+                                <p class="tw-mb-2 tw-text-green-600 tw-font-medium">✓ You have ${daysDiff} day(s) remaining to cancel this appointment.</p>
+                                <p class="tw-mb-2">This will permanently cancel your appointment scheduled for ${appointmentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+                            </div>
+                        `;
+                    } else {
+                        warningMessage = `
+                            <div class="tw-text-left tw-mb-4">
+                                <p class="tw-text-red-400 tw-font-bold tw-mb-2">❌ Cannot Cancel</p>
+                                <p class="tw-mb-2">Appointments can only be cancelled up to 3 days before the scheduled date.</p>
+                                <p class="tw-mb-2 tw-text-red-600 tw-font-medium">Your appointment is in ${daysDiff} day(s), which is less than the required 3-day notice.</p>
+                                <p class="tw-mb-2">Please contact our office directly for assistance with cancellations within 3 days.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    if (!canCancel) {
+                        // Show info modal for appointments that can't be cancelled
+                        Swal.fire({
+                            title: 'Cancellation Not Allowed',
+                            html: warningMessage,
+                            icon: 'info',
+                            confirmButtonColor: '#24CFF4',
+                            confirmButtonText: 'I Understand',
+                            background: '#374151',
+                            color: '#fff'
+                        });
+                        return;
+                    }
+                    
+                    // Show cancellation confirmation for appointments that can be cancelled
+                    Swal.fire({
+                        title: 'Cancel this appointment?',
+                        html: `
+                            ${warningMessage}
+                            <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#24CFF4',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, cancel it!',
+                        preConfirm: () => {
+                            const password = document.getElementById('cancel-password').value;
+                            if (!password) {
+                                Swal.showValidationMessage('Please enter your password');
+                                return false;
+                            }
+                            return password;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Make AJAX call to cancel
+                            fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    user_password: result.value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    this.appointmentsTable.ajax.reload();
+                                    Swal.fire({
+                                        title: 'Cancelled!',
+                                        text: 'Your appointment has been cancelled.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#24CFF4',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: data.message || 'Failed to cancel appointment.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#24CFF4',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'An error occurred while cancelling the appointment.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#24CFF4',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
                             });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while cancelling the appointment.',
-                            icon: 'error',
-                            confirmButtonColor: '#24CFF4'
-                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Could not load appointment details.',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while loading appointment details.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
             });
         },
 
@@ -216,71 +296,151 @@
         },
 
         cancelBoarding: function(id) {
-            Swal.fire({
-                title: 'Cancel this boarding?',
-                html: `
-                    <div class="tw-text-left tw-mb-4">
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">This will permanently cancel your boarding reservation.</p>
-                    </div>
-                    <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
-                `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!',
-                preConfirm: () => {
-                    const password = document.getElementById('cancel-boarding-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your password');
-                        return false;
-                    }
-                    return password;
+            // First, get the boarding details to check the date
+            fetch(`{{ route('user.boardings.show', '') }}/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Make AJAX call to cancel
-                    fetch("{{ route('user.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            user_password: result.value
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            this.boardingsTable.ajax.reload();
-                            Swal.fire({
-                                title: 'Cancelled!',
-                                text: 'Your boarding has been cancelled.',
-                                icon: 'success',
-                                confirmButtonColor: '#24CFF4'
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message || 'Failed to cancel boarding.',
-                                icon: 'error',
-                                confirmButtonColor: '#24CFF4'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.boarding) {
+                    const boarding = data.boarding;
+                    const startDate = new Date(boarding.start_date);
+                    const today = new Date();
+                    const timeDiff = startDate.getTime() - today.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    let warningMessage = '';
+                    let canCancel = daysDiff >= 3;
+                    
+                    if (canCancel) {
+                        warningMessage = `
+                            <div class="tw-text-left tw-mb-4">
+                                <p class="tw-text-blue-400 tw-font-bold tw-mb-2">📅 Cancellation Policy</p>
+                                <p class="tw-mb-2">Boarding reservations can be cancelled up to 3 days before the start date.</p>
+                                <p class="tw-mb-2 tw-text-green-600 tw-font-medium">✓ You have ${daysDiff} day(s) remaining to cancel this boarding.</p>
+                                <p class="tw-mb-2">This will permanently cancel your boarding reservation starting ${startDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+                            </div>
+                        `;
+                    } else {
+                        warningMessage = `
+                            <div class="tw-text-left tw-mb-4">
+                                <p class="tw-text-red-400 tw-font-bold tw-mb-2">❌ Cannot Cancel</p>
+                                <p class="tw-mb-2">Boarding reservations can only be cancelled up to 3 days before the start date.</p>
+                                <p class="tw-mb-2 tw-text-red-600 tw-font-medium">Your boarding starts in ${daysDiff} day(s), which is less than the required 3-day notice.</p>
+                                <p class="tw-mb-2">Please contact our office directly for assistance with cancellations within 3 days.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    if (!canCancel) {
+                        // Show info modal for boardings that can't be cancelled
+                        Swal.fire({
+                            title: 'Cancellation Not Allowed',
+                            html: warningMessage,
+                            icon: 'info',
+                            confirmButtonColor: '#24CFF4',
+                            confirmButtonText: 'I Understand',
+                            background: '#374151',
+                            color: '#fff'
+                        });
+                        return;
+                    }
+                    
+                    // Show cancellation confirmation for boardings that can be cancelled
+                    Swal.fire({
+                        title: 'Cancel this boarding?',
+                        html: `
+                            ${warningMessage}
+                            <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your password" style="margin: 10px 0;">
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#24CFF4',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, cancel it!',
+                        preConfirm: () => {
+                            const password = document.getElementById('cancel-boarding-password').value;
+                            if (!password) {
+                                Swal.showValidationMessage('Please enter your password');
+                                return false;
+                            }
+                            return password;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Make AJAX call to cancel
+                            fetch("{{ route('user.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    user_password: result.value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    this.boardingsTable.ajax.reload();
+                                    Swal.fire({
+                                        title: 'Cancelled!',
+                                        text: 'Your boarding has been cancelled.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#24CFF4',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: data.message || 'Failed to cancel boarding.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#24CFF4',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'An error occurred while cancelling the boarding.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#24CFF4',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
                             });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while cancelling the boarding.',
-                            icon: 'error',
-                            confirmButtonColor: '#24CFF4'
-                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Could not load boarding details.',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while loading boarding details.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
             });
         },
 

@@ -188,78 +188,177 @@
         },
 
         cancelBoarding: function(id) {
-            Swal.fire({
-                title: 'Cancel this boarding?',
-                html: `
-                    <div class="tw-text-left tw-mb-4">
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">This will permanently cancel the boarding.</p>
-                    </div>
-                    <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
-                `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#66FF8F',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!',
-                preConfirm: () => {
-                    const password = document.getElementById('cancel-boarding-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your admin password');
-                        return false;
-                    }
-                    return password;
+            // First, get the boarding details to check the date and show details
+            fetch(`{{ route('admin.boardings.show', '') }}/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Make AJAX call to cancel
-                    fetch("{{ route('admin.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            admin_password: result.value
-                        }),
-                        credentials: 'same-origin'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            this.boardingsTable.ajax.reload();
-                            Swal.fire({
-                                title: 'Cancelled!',
-                                text: 'Boarding has been cancelled.',
-                                icon: 'success',
-                                confirmButtonColor: '#66FF8F',
-                                background: '#374151',
-                                color: '#fff'
-                            });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.boarding) {
+                    const boarding = data.boarding;
+                    const startDate = new Date(boarding.start_date);
+                    const endDate = new Date(boarding.end_date);
+                    const today = new Date();
+                    const timeDiff = startDate.getTime() - today.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    // Calculate duration
+                    const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                    
+                    // Format client name
+                    const clientName = boarding.pet?.user ? 
+                        `${boarding.pet.user.firstName} ${boarding.pet.user.lastName}` : 
+                        'Unknown Client';
+                    
+                    // Format dates
+                    const formattedStartDate = startDate.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    const formattedEndDate = endDate.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    
+                    let warningMessage = `
+                        <div class="tw-text-left tw-mb-4">
+                            <p class="tw-text-blue-400 tw-font-bold tw-mb-3">🏠 Boarding Details</p>
+                            <div class="tw-bg-gray-700 tw-p-3 tw-rounded-lg tw-mb-3">
+                                <p class="tw-mb-1"><strong>Client:</strong> ${clientName}</p>
+                                <p class="tw-mb-1"><strong>Pet:</strong> ${boarding.pet?.name || 'Unknown'} (${boarding.pet?.species || 'Unknown'})</p>
+                                <p class="tw-mb-1"><strong>Boarding Type:</strong> ${boarding.boardingType || 'Unknown'}</p>
+                                <p class="tw-mb-1"><strong>Start Date:</strong> ${formattedStartDate}</p>
+                                <p class="tw-mb-1"><strong>End Date:</strong> ${formattedEndDate}</p>
+                                <p class="tw-mb-1"><strong>Duration:</strong> ${duration} day${duration !== 1 ? 's' : ''}</p>
+                                <p><strong>Status:</strong> ${boarding.status}</p>
+                            </div>
+                            
+                            <p class="tw-text-yellow-400 tw-font-bold tw-mb-2">⚠️ Cancellation Policy</p>
+                            <p class="tw-mb-2">Standard policy: Boarding reservations should be cancelled at least 3 days before the start date.</p>
+                    `;
+                    
+                    if (daysDiff >= 3) {
+                        warningMessage += `<p class="tw-mb-2 tw-text-green-600 tw-font-medium">✓ This boarding starts in ${daysDiff} day(s) - within policy.</p>`;
+                    } else if (daysDiff >= 0) {
+                        warningMessage += `<p class="tw-mb-2 tw-text-yellow-600 tw-font-medium">⚠️ This boarding starts in ${daysDiff} day(s) - less than recommended 3 days notice.</p>`;
+                    } else {
+                        const currentDate = new Date();
+                        if (currentDate >= startDate && currentDate <= endDate) {
+                            warningMessage += `<p class="tw-mb-2 tw-text-orange-600 tw-font-medium">🏠 This boarding is currently active (started ${Math.abs(daysDiff)} day(s) ago).</p>`;
                         } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message || 'Failed to cancel boarding.',
-                                icon: 'error',
-                                confirmButtonColor: '#66FF8F',
-                                background: '#374151',
-                                color: '#fff'
+                            warningMessage += `<p class="tw-mb-2 tw-text-red-600 tw-font-medium">⚠️ This boarding started ${Math.abs(daysDiff)} day(s) ago.</p>`;
+                        }
+                    }
+                    
+                    warningMessage += `
+                            <p class="tw-mb-2">As an admin, you can cancel this boarding at any time, but please consider the client's situation and any pets currently in care.</p>
+                        </div>
+                    `;
+                    
+                    // Show cancellation confirmation
+                    Swal.fire({
+                        title: 'Cancel this boarding?',
+                        html: `
+                            ${warningMessage}
+                            <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#66FF8F',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, cancel it!',
+                        preConfirm: () => {
+                            const password = document.getElementById('cancel-boarding-password').value;
+                            if (!password) {
+                                Swal.showValidationMessage('Please enter your admin password');
+                                return false;
+                            }
+                            return password;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Make AJAX call to cancel
+                            fetch("{{ route('admin.boardings.cancel', ['id' => ':id']) }}".replace(':id', id), {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    admin_password: result.value
+                                }),
+                                credentials: 'same-origin'
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    this.boardingsTable.ajax.reload();
+                                    // Refresh the ongoing boardings display
+                                    if (typeof this.loadOngoingBoardings === 'function') {
+                                        this.loadOngoingBoardings();
+                                    }
+                                    Swal.fire({
+                                        title: 'Cancelled!',
+                                        text: 'Boarding has been cancelled.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#66FF8F',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: data.message || 'Failed to cancel boarding.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#66FF8F',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'An error occurred while cancelling the boarding.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#66FF8F',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
                             });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while cancelling the boarding.',
-                            icon: 'error',
-                            confirmButtonColor: '#66FF8F',
-                            background: '#374151',
-                            color: '#fff'
-                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Could not load boarding details.',
+                        icon: 'error',
+                        confirmButtonColor: '#66FF8F',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while loading boarding details.',
+                    icon: 'error',
+                    confirmButtonColor: '#66FF8F',
+                    background: '#374151',
+                    color: '#fff'
+                });
             });
         },
 

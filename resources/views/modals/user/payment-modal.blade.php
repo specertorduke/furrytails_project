@@ -8,7 +8,7 @@
                 <h3 class="tw-text-lg tw-font-semibold tw-text-white">Payment Details</h3>
                 <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="payment-modal">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
                     <span class="sr-only">Close modal</span>
                 </button>
@@ -53,9 +53,15 @@
                         
                         <hr class="tw-border-gray-600">
                         
-                        <!-- Total Amount -->
+                        <!-- Total Service Cost -->
                         <div class="tw-flex tw-justify-between tw-items-center">
-                            <span class="tw-text-sm tw-font-medium tw-text-white">Total Amount</span>
+                            <span class="tw-text-sm tw-text-gray-300">Total Service Cost</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-white" id="total-service-cost">₱0.00</span>
+                        </div>
+                        
+                        <!-- Payment Amount -->
+                        <div class="tw-flex tw-justify-between tw-items-center">
+                            <span class="tw-text-sm tw-font-medium tw-text-white">Payment Amount</span>
                             <span class="tw-text-lg tw-font-bold tw-text-[#24CFF4]" id="payment-amount">₱0.00</span>
                         </div>
                     </div>
@@ -63,10 +69,11 @@
                 
                 <!-- Payment Form -->
                 <form id="paymentForm">
-                    <!-- Hidden fields for appointment data -->
+                    <!-- Hidden fields for booking data -->
                     <input type="hidden" id="p.petID" name="petID" value="">
                     <input type="hidden" id="p.serviceID" name="serviceID" value="">
                     <input type="hidden" id="amount" name="amount" value="">
+                    <input type="hidden" id="total_cost" name="total_cost" value="">
                     <input type="hidden" id="p.date" name="date" value="">
                     <input type="hidden" id="p.time" name="time" value="">
                     <input type="hidden" id="booking-type" name="booking_type" value="">
@@ -75,6 +82,28 @@
                     <input type="hidden" id="start_date" name="start_date" value="">
                     <input type="hidden" id="end_date" name="end_date" value="">
                     <input type="hidden" id="boarding_type" name="boarding_type" value="">
+                    
+                    <!-- Payment Type Selection -->
+                    <div class="tw-mb-5">
+                        <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Payment Type</label>
+                        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-600 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-700 tw-transition-colors">
+                                <input type="radio" name="payment_type" value="deposit" id="payment-type-deposit" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-700 tw-border-gray-600 focus:tw-ring-[#24CFF4]" checked>
+                                <div class="tw-ml-3">
+                                    <div class="tw-text-sm tw-font-medium tw-text-white">Deposit</div>
+                                    <div class="tw-text-xs tw-text-gray-400">30% to secure booking</div>
+                                </div>
+                            </label>
+                            
+                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-600 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-700 tw-transition-colors">
+                                <input type="radio" name="payment_type" value="full" id="payment-type-full" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-700 tw-border-gray-600 focus:tw-ring-[#24CFF4]">
+                                <div class="tw-ml-3">
+                                    <div class="tw-text-sm tw-font-medium tw-text-white">Full Payment</div>
+                                    <div class="tw-text-xs tw-text-gray-400">Pay complete amount</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                     
                     <!-- Payment method -->
                     <div class="tw-mb-5">
@@ -139,6 +168,8 @@ const PaymentModal = {
         paymentMethod: null,
         referenceContainer: null,
         gCashQrContainer: null,
+        depositRadio: null,
+        fullRadio: null,
         
         // Summary elements
         serviceType: null,
@@ -147,7 +178,8 @@ const PaymentModal = {
         dateTime: null,
         dateRange: null,
         duration: null,
-        amount: null
+        amount: null,
+        totalCost: null
     },
     
     // Type of booking ('appointment' or 'boarding')
@@ -155,6 +187,7 @@ const PaymentModal = {
     
     // Store the original data
     originalData: null,
+    totalServiceCost: 0,
     
     // Submission state tracking
     isSubmitting: false,
@@ -167,6 +200,8 @@ const PaymentModal = {
         this.elements.paymentMethod = document.getElementById('payment_method');
         this.elements.referenceContainer = document.getElementById('reference-number-container');
         this.elements.gCashQrContainer = document.getElementById('gcash-qr-container');
+        this.elements.depositRadio = document.getElementById('payment-type-deposit');
+        this.elements.fullRadio = document.getElementById('payment-type-full');
         
         // Get summary display elements
         this.elements.serviceType = document.getElementById('payment-service-type');
@@ -176,6 +211,7 @@ const PaymentModal = {
         this.elements.dateRange = document.getElementById('payment-date-range');
         this.elements.duration = document.getElementById('payment-duration');
         this.elements.amount = document.getElementById('payment-amount');
+        this.elements.totalCost = document.getElementById('total-service-cost');
         
         // Set up event handlers
         this.setupEventHandlers();
@@ -190,6 +226,14 @@ const PaymentModal = {
         // Payment method change handler
         if (this.elements.paymentMethod) {
             this.elements.paymentMethod.addEventListener('change', this.handlePaymentMethodChange.bind(this));
+        }
+        
+        // Payment type change handlers
+        if (this.elements.depositRadio) {
+            this.elements.depositRadio.addEventListener('change', this.handlePaymentTypeChange.bind(this));
+        }
+        if (this.elements.fullRadio) {
+            this.elements.fullRadio.addEventListener('change', this.handlePaymentTypeChange.bind(this));
         }
         
         // Form submission
@@ -245,6 +289,29 @@ const PaymentModal = {
         }
     },
     
+    handlePaymentTypeChange: function() {
+        this.updatePaymentAmount();
+    },
+    
+    updatePaymentAmount: function() {
+        const isDeposit = this.elements.depositRadio.checked;
+        let paymentAmount;
+        
+        if (isDeposit) {
+            // Calculate 30% deposit, rounded to remove cents
+            paymentAmount = Math.round(this.totalServiceCost * 0.3);
+        } else {
+            // Full payment
+            paymentAmount = this.totalServiceCost;
+        }
+        
+        // Update display
+        this.elements.amount.textContent = `₱${paymentAmount.toFixed(2)}`;
+        
+        // Update hidden form field
+        document.getElementById('amount').value = paymentAmount;
+    },
+    
     showModal: function(event) {
         // Get data from the event
         const data = event.detail;
@@ -270,6 +337,10 @@ const PaymentModal = {
         this.elements.referenceContainer.classList.add('tw-hidden');
         this.elements.gCashQrContainer.classList.add('tw-hidden');
         
+        // Set deposit as default
+        this.elements.depositRadio.checked = true;
+        this.updatePaymentAmount();
+        
         // Show the modal
         this.elements.modal.classList.remove('tw-hidden');
     },
@@ -279,6 +350,9 @@ const PaymentModal = {
         const appointment = data.appointment;
         const pet = data.pet;
         const service = data.service;
+        
+        // Store total service cost
+        this.totalServiceCost = parseFloat(service.price);
         
         // Show appointment details and hide boarding details
         document.querySelectorAll('.appointment-detail').forEach(el => el.classList.remove('tw-hidden'));
@@ -302,14 +376,14 @@ const PaymentModal = {
         });
         this.elements.dateTime.textContent = `${formattedDate}, ${appointment.time}`;
         
-        // Set amount
-        this.elements.amount.textContent = `₱${service.price}`;
+        // Set total cost display
+        this.elements.totalCost.textContent = `₱${this.totalServiceCost.toFixed(2)}`;
         
         // Set hidden form values
         document.getElementById('booking-type').value = 'appointment';
         document.getElementById('p.petID').value = appointment.petID;
         document.getElementById('p.serviceID').value = appointment.serviceID;
-        document.getElementById('amount').value = service.price;
+        document.getElementById('total_cost').value = this.totalServiceCost;
         document.getElementById('p.date').value = appointment.date;
         document.getElementById('p.time').value = appointment.time;
     },
@@ -321,6 +395,9 @@ const PaymentModal = {
         const service = data.service || {};
         const boardingType = data.boardingType || { name: boarding.boardingType };
         const price = data.price;
+        
+        // Store total service cost
+        this.totalServiceCost = parseFloat(price);
         
         console.log('Payment modal received boarding data:', data);
         
@@ -358,29 +435,27 @@ const PaymentModal = {
         const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
         this.elements.duration.textContent = `${days} day${days !== 1 ? 's' : ''}`;
         
-        // Set amount
-        this.elements.amount.textContent = `₱${price}`;
+        // Set total cost display
+        this.elements.totalCost.textContent = `₱${this.totalServiceCost.toFixed(2)}`;
         
-        // Set hidden form values - CRITICAL FIX: Use correct field names matching controller
+        // Set hidden form values
         document.getElementById('booking-type').value = 'boarding';
         document.getElementById('p.petID').value = boarding.petID;
         document.getElementById('p.serviceID').value = boarding.serviceID || (service ? service.serviceID : '');
-        document.getElementById('amount').value = price;
+        document.getElementById('total_cost').value = this.totalServiceCost;
         document.getElementById('start_date').value = boarding.start_date;
         document.getElementById('end_date').value = boarding.end_date;
         
-        // THIS IS THE KEY FIX: Set boardingType not boarding_type to match controller validation
-        // And make sure we use the correct field name
+        // Set boarding type field
         const hiddenBoardingTypeField = document.getElementById('boarding_type');
         if (hiddenBoardingTypeField) {
-            hiddenBoardingTypeField.name = 'boardingType'; // Rename the field to match controller
+            hiddenBoardingTypeField.name = 'boardingType';
             hiddenBoardingTypeField.value = boarding.boardingType;
         } else {
-            // If the field doesn't exist, create it
             const input = document.createElement('input');
             input.type = 'hidden';
             input.id = 'boarding_type';
-            input.name = 'boardingType'; // Use the name the controller expects
+            input.name = 'boardingType';
             input.value = boarding.boardingType;
             this.elements.form.appendChild(input);
         }
@@ -389,10 +464,10 @@ const PaymentModal = {
             booking_type: document.getElementById('booking-type').value,
             petID: document.getElementById('p.petID').value,
             serviceID: document.getElementById('p.serviceID').value,
-            amount: document.getElementById('amount').value,
+            total_cost: document.getElementById('total_cost').value,
             start_date: document.getElementById('start_date').value,
             end_date: document.getElementById('end_date').value,
-            boardingType: boarding.boardingType // This should match controller validation
+            boardingType: boarding.boardingType
         });
     },
     
@@ -421,10 +496,18 @@ const PaymentModal = {
             return;
         }
         
-        // Show confirmation dialog
+        // Get payment type and amount
+        const paymentType = document.querySelector('input[name="payment_type"]:checked').value;
+        const paymentAmount = document.getElementById('amount').value;
+        
+        // Show confirmation dialog with payment details
+        const paymentText = paymentType === 'deposit' ? 
+            `deposit payment of ₱${parseFloat(paymentAmount).toFixed(2)} (30% of total)` : 
+            `full payment of ₱${parseFloat(paymentAmount).toFixed(2)}`;
+            
         Swal.fire({
             title: 'Confirm Payment',
-            text: `Proceed with ${this.elements.paymentMethod.value} payment for this ${this.bookingType}?`,
+            text: `Proceed with ${this.elements.paymentMethod.value} ${paymentText} for this ${this.bookingType}?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#24CFF4',

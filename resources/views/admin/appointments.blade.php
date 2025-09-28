@@ -138,78 +138,162 @@
         },
 
         cancelAppointment: function(id) {
-            Swal.fire({
-                title: 'Cancel this appointment?',
-                html: `
-                    <div class="tw-text-left tw-mb-4">
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">This will permanently cancel the appointment.</p>
-                    </div>
-                    <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
-                `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#FF9666',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!',
-                preConfirm: () => {
-                    const password = document.getElementById('cancel-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your admin password');
-                        return false;
-                    }
-                    return password;
+            // First, get the appointment details to check the date and show details
+            fetch(`{{ route('admin.appointments.show', '') }}/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Make AJAX call to cancel
-                    console.log("cancelling: " + id);
-                    fetch("{{ route('admin.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            admin_password: result.value
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            this.appointmentsTable.ajax.reload();
-                            Swal.fire({
-                                title: 'Cancelled!',
-                                text: 'Appointment has been cancelled.',
-                                icon: 'success',
-                                confirmButtonColor: '#FF9666',
-                                background: '#374151',
-                                color: '#fff'
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message || 'Failed to cancel appointment.',
-                                icon: 'error',
-                                confirmButtonColor: '#FF9666',
-                                background: '#374151',
-                                color: '#fff'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.appointment) {
+                    const appointment = data.appointment;
+                    const appointmentDate = new Date(appointment.date);
+                    const today = new Date();
+                    const timeDiff = appointmentDate.getTime() - today.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    // Format client name
+                    const clientName = appointment.pet?.user ? 
+                        `${appointment.pet.user.firstName} ${appointment.pet.user.lastName}` : 
+                        'Unknown Client';
+                    
+                    // Format date and time
+                    const formattedDate = appointmentDate.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    const formattedTime = new Date(`1970-01-01T${appointment.time}`).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    
+                    let warningMessage = `
+                        <div class="tw-text-left tw-mb-4">
+                            <p class="tw-text-blue-400 tw-font-bold tw-mb-3">📅 Appointment Details</p>
+                            <div class="tw-bg-gray-700 tw-text-white tw-p-3 tw-rounded-lg tw-mb-3">
+                                <p class="tw-mb-1"><strong>Client:</strong> ${clientName}</p>
+                                <p class="tw-mb-1"><strong>Pet:</strong> ${appointment.pet?.name || 'Unknown'} (${appointment.pet?.species || 'Unknown'})</p>
+                                <p class="tw-mb-1"><strong>Service:</strong> ${appointment.service?.name || 'Unknown Service'}</p>
+                                <p class="tw-mb-1"><strong>Date:</strong> ${formattedDate}</p>
+                                <p class="tw-mb-1"><strong>Time:</strong> ${formattedTime}</p>
+                                <p><strong>Status:</strong> ${appointment.status}</p>
+                            </div>
+                            
+                            <p class="tw-text-yellow-400 tw-font-bold tw-mb-2">⚠️ Cancellation Policy</p>
+                            <p class="tw-mb-2">Standard policy: Appointments should be cancelled at least 3 days in advance.</p>
+                    `;
+                    
+                    if (daysDiff >= 3) {
+                        warningMessage += `<p class="tw-mb-2 tw-text-green-600 tw-font-medium">✓ This appointment is ${daysDiff} day(s) away - within policy.</p>`;
+                    } else if (daysDiff >= 0) {
+                        warningMessage += `<p class="tw-mb-2 tw-text-yellow-600 tw-font-medium">⚠️ This appointment is ${daysDiff} day(s) away - less than recommended 3 days notice.</p>`;
+                    } else {
+                        warningMessage += `<p class="tw-mb-2 tw-text-red-600 tw-font-medium">⚠️ This appointment was ${Math.abs(daysDiff)} day(s) ago.</p>`;
+                    }
+                    
+                    warningMessage += `
+                            <p class="tw-mb-2">As an admin, you can cancel this appointment at any time, but please consider the client's situation.</p>
+                        </div>
+                    `;
+                    
+                    // Show cancellation confirmation
+                    Swal.fire({
+                        title: 'Cancel this appointment?',
+                        html: `
+                            ${warningMessage}
+                            <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#FF9666',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, cancel it!',
+                        preConfirm: () => {
+                            const password = document.getElementById('cancel-password').value;
+                            if (!password) {
+                                Swal.showValidationMessage('Please enter your admin password');
+                                return false;
+                            }
+                            return password;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Make AJAX call to cancel
+                            console.log("cancelling: " + id);
+                            fetch("{{ route('admin.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    admin_password: result.value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    this.appointmentsTable.ajax.reload();
+                                    Swal.fire({
+                                        title: 'Cancelled!',
+                                        text: 'Appointment has been cancelled.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#FF9666',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: data.message || 'Failed to cancel appointment.',
+                                        icon: 'error',
+                                        confirmButtonColor: '#FF9666',
+                                        background: '#374151',
+                                        color: '#fff'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'An error occurred while cancelling the appointment.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#FF9666',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
                             });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while cancelling the appointment.',
-                            icon: 'error',
-                            confirmButtonColor: '#FF9666',
-                            background: '#374151',
-                            color: '#fff'
-                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Could not load appointment details.',
+                        icon: 'error',
+                        confirmButtonColor: '#FF9666',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while loading appointment details.',
+                    icon: 'error',
+                    confirmButtonColor: '#FF9666',
+                    background: '#374151',
+                    color: '#fff'
+                });
             });
         },
 
