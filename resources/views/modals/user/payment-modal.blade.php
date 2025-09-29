@@ -2,11 +2,11 @@
 <div id="payment-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-50 tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/60">
     <div class="tw-relative tw-w-full tw-max-w-md tw-max-h-full tw-animate-modal-entry">
         <!-- Modal content -->
-        <div class="tw-relative tw-bg-gray-800 tw-rounded-lg tw-shadow-sm tw-transform tw-transition-all">
+        <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-sm tw-transform tw-transition-all">
             <!-- Modal header -->
-            <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-700">
-                <h3 class="tw-text-lg tw-font-semibold tw-text-white">Payment Details</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="payment-modal">
+            <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-200">
+                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900">Payment Details</h3>
+                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="payment-modal">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -17,51 +17,51 @@
             <!-- Modal body -->
             <div class="tw-p-4 md:tw-p-5">
                 <!-- Service Summary -->
-                <div class="tw-mb-6 tw-bg-gray-700 tw-rounded-lg tw-p-4">
-                    <h4 class="tw-text-md tw-font-medium tw-text-white tw-mb-2" id="payment-service-type">Booking Summary</h4>
+                <div class="tw-mb-6 tw-bg-gray-50 tw-rounded-lg tw-p-4 tw-border tw-border-gray-200">
+                    <h4 class="tw-text-md tw-font-medium tw-text-gray-900 tw-mb-2" id="payment-service-type">Booking Summary</h4>
                     
                     <div class="tw-space-y-2">
                         <!-- Service/Boarding Type -->
                         <div class="tw-flex tw-justify-between tw-items-center">
-                            <span class="tw-text-sm tw-text-gray-300">Service</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="payment-service-name">-</span>
+                            <span class="tw-text-sm tw-text-gray-700">Service</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="payment-service-name">-</span>
                         </div>
                         
                         <!-- Pet Information -->
                         <div class="tw-flex tw-justify-between tw-items-center">
-                            <span class="tw-text-sm tw-text-gray-300">Pet</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="payment-pet-info">-</span>
+                            <span class="tw-text-sm tw-text-gray-700">Pet</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="payment-pet-info">-</span>
                         </div>
                         
                         <!-- Date and Time - For appointments -->
                         <div class="tw-flex tw-justify-between tw-items-center appointment-detail">
-                            <span class="tw-text-sm tw-text-gray-300">Date & Time</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="payment-datetime">-</span>
+                            <span class="tw-text-sm tw-text-gray-700">Date & Time</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="payment-datetime">-</span>
                         </div>
                         
                         <!-- Date Range - For boarding -->
                         <div class="tw-flex tw-justify-between tw-items-center boarding-detail tw-hidden">
-                            <span class="tw-text-sm tw-text-gray-300">Stay Period</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="payment-date-range">-</span>
+                            <span class="tw-text-sm tw-text-gray-700">Stay Period</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="payment-date-range">-</span>
                         </div>
                         
                         <!-- Duration - For boarding -->
                         <div class="tw-flex tw-justify-between tw-items-center boarding-detail tw-hidden">
-                            <span class="tw-text-sm tw-text-gray-300">Duration</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="payment-duration">-</span>
+                            <span class="tw-text-sm tw-text-gray-700">Duration</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="payment-duration">-</span>
                         </div>
                         
-                        <hr class="tw-border-gray-600">
+                        <hr class="tw-border-gray-300">
                         
                         <!-- Total Service Cost -->
                         <div class="tw-flex tw-justify-between tw-items-center">
-                            <span class="tw-text-sm tw-text-gray-300">Total Service Cost</span>
-                            <span class="tw-text-sm tw-font-medium tw-text-white" id="total-service-cost">₱0.00</span>
+                            <span class="tw-text-sm tw-text-gray-700">Total Service Cost</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900" id="total-service-cost">₱0.00</span>
                         </div>
                         
                         <!-- Payment Amount -->
                         <div class="tw-flex tw-justify-between tw-items-center">
-                            <span class="tw-text-sm tw-font-medium tw-text-white">Payment Amount</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-900">Payment Amount</span>
                             <span class="tw-text-lg tw-font-bold tw-text-[#24CFF4]" id="payment-amount">₱0.00</span>
                         </div>
                     </div>
@@ -85,21 +85,21 @@
                     
                     <!-- Payment Type Selection -->
                     <div class="tw-mb-5">
-                        <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Payment Type</label>
+                        <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Payment Type</label>
                         <div class="tw-grid tw-grid-cols-2 tw-gap-3">
-                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-600 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-700 tw-transition-colors">
-                                <input type="radio" name="payment_type" value="deposit" id="payment-type-deposit" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-700 tw-border-gray-600 focus:tw-ring-[#24CFF4]" checked>
+                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-300 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-50 tw-transition-colors">
+                                <input type="radio" name="payment_type" value="deposit" id="payment-type-deposit" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-50 tw-border-gray-300 focus:tw-ring-[#24CFF4]" checked>
                                 <div class="tw-ml-3">
-                                    <div class="tw-text-sm tw-font-medium tw-text-white">Deposit</div>
-                                    <div class="tw-text-xs tw-text-gray-400">30% to secure booking</div>
+                                    <div class="tw-text-sm tw-font-medium tw-text-gray-900">Deposit</div>
+                                    <div class="tw-text-xs tw-text-gray-600">30% to secure booking</div>
                                 </div>
                             </label>
                             
-                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-600 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-700 tw-transition-colors">
-                                <input type="radio" name="payment_type" value="full" id="payment-type-full" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-700 tw-border-gray-600 focus:tw-ring-[#24CFF4]">
+                            <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-300 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-50 tw-transition-colors">
+                                <input type="radio" name="payment_type" value="full" id="payment-type-full" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-50 tw-border-gray-300 focus:tw-ring-[#24CFF4]">
                                 <div class="tw-ml-3">
-                                    <div class="tw-text-sm tw-font-medium tw-text-white">Full Payment</div>
-                                    <div class="tw-text-xs tw-text-gray-400">Pay complete amount</div>
+                                    <div class="tw-text-sm tw-font-medium tw-text-gray-900">Full Payment</div>
+                                    <div class="tw-text-xs tw-text-gray-600">Pay complete amount</div>
                                 </div>
                             </label>
                         </div>
@@ -107,8 +107,8 @@
                     
                     <!-- Payment method -->
                     <div class="tw-mb-5">
-                        <label for="payment_method" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Payment Method</label>
-                        <select id="payment_method" name="payment_method" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <label for="payment_method" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Payment Method</label>
+                        <select id="payment_method" name="payment_method" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                             <option value="">Select payment method</option>
                             <option value="Cash">Cash (Pay at Counter)</option>
                             <option value="GCash">GCash</option>
@@ -121,34 +121,34 @@
                     
                     <!-- Reference Number -->
                     <div id="reference-number-container" class="tw-mb-5 tw-hidden">
-                        <label for="reference_number" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Reference Number</label>
+                        <label for="reference_number" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Reference Number</label>
                         <div class="tw-flex tw-items-center">
-                            <input type="text" id="reference_number" name="reference_number" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Transaction ID or receipt number">
+                            <input type="text" id="reference_number" name="reference_number" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Transaction ID or receipt number">
                             <div class="tw-ml-2" id="reference-info">
-                                <span class="tw-cursor-pointer tw-text-gray-400 hover:tw-text-white">
+                                <span class="tw-cursor-pointer tw-text-gray-600 hover:tw-text-gray-900">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="tw-h-5 tw-w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </span>
                             </div>
                         </div>
-                        <p class="tw-mt-1 tw-text-xs tw-text-gray-400">Required for online payment methods</p>
+                        <p class="tw-mt-1 tw-text-xs tw-text-gray-600">Required for online payment methods</p>
                     </div>
                     
                     <!-- GCash QR Code container (hidden by default) -->
                     <div id="gcash-qr-container" class="tw-mb-5 tw-hidden tw-text-center">
-                        <p class="tw-mb-2 tw-text-sm tw-text-white">Scan the QR code to pay via GCash</p>
-                        <div class="tw-bg-white tw-p-3 tw-rounded-lg tw-inline-block">
+                        <p class="tw-mb-2 tw-text-sm tw-text-gray-900">Scan the QR code to pay via GCash</p>
+                        <div class="tw-bg-white tw-p-3 tw-rounded-lg tw-inline-block tw-border tw-border-gray-200">
                             <img src="{{ asset('assets/images/gcash-qr.png') }}" alt="GCash QR Code" class="tw-h-48 tw-w-48 tw-object-contain">
                         </div>
-                        <p class="tw-mt-2 tw-text-sm tw-text-gray-300">After payment, enter your reference number above</p>
+                        <p class="tw-mt-2 tw-text-sm tw-text-gray-700">After payment, enter your reference number above</p>
                     </div>
                 
                     <div class="tw-flex tw-justify-end tw-mt-4">
-                        <button type="button" id="cancel-payment" class="tw-text-white tw-bg-gray-600 hover:tw-bg-gray-500 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-mr-2">
+                        <button type="button" id="cancel-payment" class="tw-text-gray-700 tw-bg-gray-200 hover:tw-bg-gray-300 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-mr-2">
                             Cancel
                         </button>
-                        <button type="submit" id="confirm-payment" class="tw-text-black tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5">
+                        <button type="submit" id="confirm-payment" class="tw-text-black tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5">
                             Confirm Payment
                         </button>
                     </div>
@@ -514,8 +514,8 @@ const PaymentModal = {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, confirm',
             cancelButtonText: 'Cancel',
-            background: '#374151',
-            color: '#fff'
+            background: '#ffffff',
+            color: '#111827'
         }).then((result) => {
             if (result.isConfirmed) {
                 this.submitPayment();
@@ -591,8 +591,8 @@ const PaymentModal = {
                 text: data.message || `Your ${this.bookingType} has been booked successfully.`,
                 icon: 'success',
                 confirmButtonColor: '#24CFF4',
-                background: '#374151',
-                color: '#fff'
+                background: '#ffffff',
+                color: '#111827'
             }).then(() => {
                 // Refresh the page or relevant component
                 window.location.reload();
@@ -618,8 +618,8 @@ const PaymentModal = {
             text: message,
             icon: 'error',
             confirmButtonColor: '#24CFF4',
-            background: '#374151',
-            color: '#fff'
+            background: '#ffffff',
+            color: '#111827'
         });
     }
 };

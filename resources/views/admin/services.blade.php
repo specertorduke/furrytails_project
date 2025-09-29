@@ -248,7 +248,9 @@
                         title: data.service.name,
                         text: data.service.description || 'No description available',
                         icon: 'info',
-                        confirmButtonColor: '#24CFF4'
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
                     });
                 }
             });
@@ -262,17 +264,19 @@
         title: newStatus ? 'Activate service?' : 'Deactivate service?',
         html: `
             <div class="tw-text-left tw-mb-4">
-                <p class="tw-mb-2">${newStatus 
+                <p class="tw-mb-2 tw-text-white">${newStatus 
                     ? "This service will be visible to customers" 
                     : "This service will be hidden from customers"}</p>
             </div>
-            <input type="password" id="toggle-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+            <input type="password" id="toggle-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
         `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: newStatus ? '#66FF8F' : '#d33',
         cancelButtonColor: '#6c757d',
         confirmButtonText: newStatus ? 'Yes, activate it!' : 'Yes, deactivate it!',
+        background: '#374151',
+        color: '#fff',
         preConfirm: () => {
             const password = document.getElementById('toggle-password').value;
             if (!password) {
@@ -302,7 +306,9 @@
                         title: 'Updated!',
                         text: `Service has been ${newStatus ? 'activated' : 'deactivated'}.`,
                         icon: 'success',
-                        confirmButtonColor: '#24CFF4'
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
                         }).then(() => {
                             location.reload();
                         });
@@ -311,7 +317,9 @@
                             title: 'Error!',
                             text: data.message || 'Something went wrong.',
                             icon: 'error',
-                            confirmButtonColor: '#24CFF4'
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         });
                     }
                 });
@@ -325,15 +333,17 @@
             html: `
                 <div class="tw-text-left tw-mb-4">
                     <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                    <p class="tw-mb-2">This will permanently delete the service and all related data.</p>
+                    <p class="tw-mb-2 tw-text-white">This will permanently delete the service and all related data.</p>
                 </div>
-                <input type="password" id="delete-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                <input type="password" id="delete-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
             `,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Yes, delete it!',
+            background: '#374151',
+            color: '#fff',
             preConfirm: () => {
                 const password = document.getElementById('delete-password').value;
                 if (!password) {
@@ -362,7 +372,9 @@
                             title: 'Deleted!',
                             text: 'Service has been deleted.',
                             icon: 'success',
-                            confirmButtonColor: '#24CFF4'
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         }).then(() => {
                             location.reload();
                         });
@@ -371,7 +383,9 @@
                             title: 'Error!',
                             text: data.message || 'Something went wrong.',
                             icon: 'error',
-                            confirmButtonColor: '#24CFF4'
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         });
                     }
                 });

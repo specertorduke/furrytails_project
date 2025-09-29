@@ -146,15 +146,17 @@
                 html: `
                     <div class="tw-text-left tw-mb-4">
                         <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">This will mark the payment as refunded and update the status permanently.</p>
+                        <p class="tw-mb-2 tw-text-white">This will mark the payment as refunded and update the status permanently.</p>
                     </div>
-                    <input type="password" id="refund-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                    <input type="password" id="refund-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                 `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, mark as refunded!',
+                background: '#374151',
+                color: '#fff',
                 preConfirm: () => {
                     const password = document.getElementById('refund-password').value;
                     if (!password) {
@@ -181,14 +183,35 @@
                     .then(data => {
                         if(data.success) {
                             this.paymentsTable.ajax.reload();
-                            Swal.fire('Updated!', 'Payment has been marked as refunded.', 'success');
+                            Swal.fire({
+                                title: 'Updated!',
+                                text: 'Payment has been marked as refunded.',
+                                icon: 'success',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         } else {
-                            Swal.fire('Error!', data.message || 'Failed to update payment.', 'error');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to update payment.',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        Swal.fire('Error!', 'An error occurred while updating the payment.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while updating the payment.',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
+                        });
                     });
                 }
             });
@@ -198,7 +221,14 @@
             const editingPaymentId = window.currentPaymentId;
     
             if (!editingPaymentId) {
-                Swal.fire('Error', 'No payment selected for editing', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No payment selected for editing',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
                 return;
             }
             
@@ -209,7 +239,14 @@
             const password = document.getElementById('edit-admin-password').value;
             
             if (!password) {
-                Swal.fire('Error', 'Please enter your admin password to confirm changes', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter your admin password to confirm changes',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
                 return;
             }
             
@@ -253,14 +290,35 @@
                     PaymentsPage.paymentsTable.ajax.reload();
                     
                     // Show success
-                    Swal.fire('Success!', 'Payment updated successfully', 'success');
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Payment updated successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
                 } else {
-                    Swal.fire('Error!', data.message || 'Failed to update payment', 'error');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update payment',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error!', 'An error occurred while updating the payment', 'error');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while updating the payment',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
             });
         },   
 

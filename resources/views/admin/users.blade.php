@@ -97,11 +97,11 @@
                 html: `
                     <div class="tw-text-left tw-mb-4">
                         <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
-                        <p class="tw-mb-2">You are about to permanently delete:</p>
-                        <p class="tw-font-bold tw-bg-gray-100 tw-p-2 tw-rounded tw-text-gray-800">${userName || 'this user'}</p>
-                        <p class="tw-mt-2 tw-text-sm">This will remove all user data, appointments, pets, and boarding records.</p>
+                        <p class="tw-mb-2 tw-text-white">You are about to permanently delete:</p>
+                        <p class="tw-font-bold tw-bg-gray-700 tw-p-2 tw-rounded tw-text-yellow-300 tw-border tw-border-gray-600">${userName || 'Unknown User'}</p>
+                        <p class="tw-mt-2 tw-text-sm tw-text-gray-300">This will remove all user data, appointments, pets, and boarding records.</p>
                     </div>
-                    <input type="password" id="delete-user-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                    <input type="password" id="delete-user-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                 `,
                 icon: 'warning',
                 showCancelButton: true,
@@ -109,6 +109,8 @@
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, delete user!',
                 cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff',
                 preConfirm: () => {
                     const password = document.getElementById('delete-user-password').value;
                     if (!password) {
@@ -125,6 +127,8 @@
                         text: 'Please wait...',
                         allowOutsideClick: false,
                         showConfirmButton: false,
+                        background: '#374151',
+                        color: '#fff',
                         willOpen: () => {
                             Swal.showLoading();
                         }
@@ -270,7 +274,7 @@
                         width: '20%',
                         render: function(data) {
                             const deleteButton = data.role !== 'admin' ? 
-                                `<button onclick="UsersPage.deleteUser(${data.userID})" class="tw-text-red-500 hover:tw-text-red-300">
+                                `<button onclick="UsersPage.deleteUser(${data.userID}, '${data.firstName} ${data.lastName}')" class="tw-text-red-500 hover:tw-text-red-300">
                                     <i class="fas fa-trash"></i>
                                 </button>` : '';
                                 

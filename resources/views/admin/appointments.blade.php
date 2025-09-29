@@ -207,13 +207,15 @@
                         title: 'Cancel this appointment?',
                         html: `
                             ${warningMessage}
-                            <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                            <input type="password" id="cancel-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                         `,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#FF9666',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Yes, cancel it!',
+                        background: '#374151',
+                        color: '#fff',
                         preConfirm: () => {
                             const password = document.getElementById('cancel-password').value;
                             if (!password) {

@@ -147,8 +147,8 @@
 </div>
 
 <!-- View Log Details Modal -->
-<div id="viewLogModal" class="modal tw-hidden tw-fixed tw-inset-0 tw-z-50 tw-overflow-auto tw-bg-black tw-bg-opacity-50 tw-flex tw-justify-center tw-items-center">
-    <div class="modal-content tw-bg-gray-800 tw-rounded-xl tw-shadow-lg tw-max-w-4xl tw-w-full tw-mx-4 tw-p-6">
+<div id="viewLogModal" class="modal tw-hidden tw-fixed tw-inset-0 tw-z-50 tw-overflow-auto tw-bg-black tw-bg-opacity-50 tw-flex tw-justify-center tw-items-start tw-pt-8">
+    <div class="modal-content tw-bg-gray-800 tw-rounded-xl tw-shadow-lg tw-max-w-4xl tw-w-full tw-mx-4 tw-p-6 tw-my-8">
         <div class="tw-flex tw-justify-between tw-items-center tw-mb-4">
             <h3 class="tw-text-xl tw-font-bold tw-text-white">Log Details</h3>
             <button type="button" class="close-modal tw-text-gray-400 hover:tw-text-white">
@@ -287,7 +287,10 @@
                             Swal.fire({
                                 title: 'Error',
                                 text: 'Failed to load activity logs. Please try again.',
-                                icon: 'error'
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
                             });
                         }
                     },
@@ -657,12 +660,26 @@
                             // Show the modal
                             $('#viewLogModal').removeClass('tw-hidden');
                         } else {
-                            Swal.fire('Error', 'Failed to load log details', 'error');
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Failed to load log details',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        Swal.fire('Error', 'An error occurred while loading log details', 'error');
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while loading log details',
+                            icon: 'error',
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
+                        });
                     });
             },
             // Restore database to a point in time
@@ -674,6 +691,8 @@
                         html: 'This may take some time. Please wait...',
                         allowOutsideClick: false,
                         showConfirmButton: false,
+                        background: '#374151',
+                        color: '#fff',
                         willOpen: () => {
                             Swal.showLoading();
                         }
@@ -699,7 +718,10 @@
                                 title: 'Restored!',
                                 text: 'Database has been restored successfully.',
                                 icon: 'success',
-                                confirmButtonText: 'OK'
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
                             }).then(() => {
                                 // Reload the page to show restored data
                                 window.location.reload();
@@ -709,7 +731,9 @@
                                 title: 'Error',
                                 text: data.message || 'Failed to restore database.',
                                 icon: 'error',
-                                confirmButtonColor: '#24CFF4'
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
                             });
                         }
                     })
@@ -719,7 +743,9 @@
                             title: 'Error',
                             text: 'An error occurred during database restoration.',
                             icon: 'error',
-                            confirmButtonColor: '#24CFF4'
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         });
                     });
                 };
@@ -734,11 +760,11 @@
                         html: `
                             <div class="tw-text-left tw-mb-4">
                                 <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
-                                <p class="tw-mb-2">You are about to restore the database to:</p>
-                                <p class="tw-font-bold tw-bg-gray-100 tw-p-2 tw-rounded">${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
-                                <p class="tw-mt-2 tw-text-sm">All changes after this point will be lost.</p>
+                                <p class="tw-mb-2 tw-text-white">You are about to restore the database to:</p>
+                                <p class="tw-font-bold tw-bg-gray-700 tw-p-2 tw-rounded tw-text-yellow-300 tw-border tw-border-gray-600">${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
+                                <p class="tw-mt-2 tw-text-sm tw-text-gray-300">All changes after this point will be lost.</p>
                             </div>
-                            <input type="password" id="swal-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
+                            <input type="password" id="swal-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                         `,
                         icon: 'warning',
                         showCancelButton: true,
@@ -746,6 +772,8 @@
                         cancelButtonColor: '#3085d6',
                         confirmButtonText: 'Confirm Restore',
                         cancelButtonText: 'Cancel',
+                        background: '#374151',
+                        color: '#fff',
                         preConfirm: () => {
                             const password = document.getElementById('swal-password').value;
                             if (!password) {
@@ -809,7 +837,9 @@
                     title: 'Missing Information',
                     text: 'Please fill in all required fields and confirm the action.',
                     icon: 'warning',
-                    confirmButtonColor: '#24CFF4'
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
                 });
             }
         });
@@ -842,15 +872,17 @@
                     title: 'Are you sure?',
                     html: `
                         <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
-                        <p>You are about to restore the database to ${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
-                        <p>All changes after this point will be lost.</p>
+                        <p class="tw-text-white">You are about to restore the database to ${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
+                        <p class="tw-text-white">All changes after this point will be lost.</p>
                     `,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Yes, restore it!',
-                    cancelButtonText: 'Cancel'
+                    cancelButtonText: 'Cancel',
+                    background: '#374151',
+                    color: '#fff'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Show loading state
@@ -859,6 +891,8 @@
                             html: 'This may take some time. Please wait...',
                             allowOutsideClick: false,
                             showConfirmButton: false,
+                            background: '#374151',
+                            color: '#fff',
                             willOpen: () => {
                                 Swal.showLoading();
                             }
@@ -889,12 +923,26 @@
                                     window.location.reload();
                                 });
                             } else {
-                                Swal.fire('Error', data.message || 'Failed to restore database.', 'error');
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: data.message || 'Failed to restore database.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#24CFF4',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            Swal.fire('Error', 'An error occurred during database restoration.', 'error');
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred during database restoration.',
+                                icon: 'error',
+                                confirmButtonColor: '#24CFF4',
+                                background: '#374151',
+                                color: '#fff'
+                            });
                         });
                     }
                 });

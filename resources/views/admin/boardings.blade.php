@@ -275,6 +275,8 @@
                         confirmButtonColor: '#66FF8F',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Yes, cancel it!',
+                        background: '#374151',
+                        color: '#fff',
                         preConfirm: () => {
                             const password = document.getElementById('cancel-boarding-password').value;
                             if (!password) {

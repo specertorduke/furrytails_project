@@ -428,6 +428,8 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Yes, delete user!',
             cancelButtonText: 'Cancel',
+            background: '#374151',
+            color: '#fff',
             preConfirm: () => {
                 const password = document.getElementById('delete-user-password').value;
                 if (!password) {
@@ -444,6 +446,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     text: 'Please wait...',
                     allowOutsideClick: false,
                     showConfirmButton: false,
+                    background: '#374151',
+                    color: '#fff',
                     willOpen: () => {
                         Swal.showLoading();
                     }
