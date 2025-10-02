@@ -23,7 +23,7 @@
                 <!-- Service Name -->
                 <div class="tw-mb-4">
                     <label for="edit-service-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Service Name</label>
-                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required maxlength="100" placeholder="Enter service name">
+                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400" required maxlength="100" placeholder="Enter service name">
                 </div>
 
                 <!-- Service Category -->
@@ -43,14 +43,14 @@
                     <label for="edit-service-price" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Price (₱)</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-pointer-events-none tw-text-gray-400">₱</span>
-                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5" required min="0" step="0.01" placeholder="0.00">
+                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400" required min="0" step="0.01" placeholder="0.00">
                     </div>
                 </div>
 
                 <!-- Service Description -->
                 <div class="tw-mb-4">
                     <label for="edit-service-description" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Description</label>
-                    <textarea id="edit-service-description" name="description" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Enter service description"></textarea>
+                    <textarea id="edit-service-description" name="description" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400" placeholder="Enter service description"></textarea>
                 </div>
 
                 <!-- Service Image -->
@@ -71,10 +71,10 @@
                 </div>
 
                 <!-- Service Status -->
-                <div class="tw-flex tw-items-center tw-mb-5">
+                <div class="tw-flex tw-items-start tw-mb-5">
                     <input type="hidden" name="isActive" value="0"> <!-- Important: ensures a value is sent even if unchecked -->
-                    <input id="edit-service-active" name="isActive" type="checkbox" value="1" class="tw-w-4 tw-h-4 tw-text-blue-600 tw-bg-gray-700 tw-border-gray-600 tw-rounded">
-                    <label for="edit-service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white">Service is active and available to customers</label>
+                    <input id="edit-service-active" name="isActive" type="checkbox" value="1" class="tw-w-4 tw-h-4 tw-mt-0.5 tw-text-blue-600 tw-bg-gray-700 tw-border-gray-600 tw-rounded">
+                    <label for="edit-service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white tw-leading-tight">Service is active and available to customers</label>
                 </div>
 
                 <div class="tw-mb-4">
@@ -82,7 +82,7 @@
                         <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
                     </label>
                     <input type="password" id="admin-password-edit" name="admin-password" 
-                        class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" 
+                        class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400" 
                         placeholder="Enter your current password" required>
                     <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm service changes</p>
                 </div>                
@@ -183,8 +183,13 @@ const AdminEditServiceModal = {
         // Add loading state
         const form = this.elements.form;
         form.classList.add('tw-opacity-50');
-        form.querySelectorAll('input, select, textarea, button').forEach(elem => {
+        form.querySelectorAll('input:not([type="number"]), select, textarea, button').forEach(elem => {
             elem.disabled = true;
+        });
+        // Handle number inputs separately to preserve spinner button styling
+        form.querySelectorAll('input[type="number"]').forEach(elem => {
+            elem.style.pointerEvents = 'none';
+            elem.classList.add('tw-cursor-not-allowed');
         });
         
         fetch(`{{ route('admin.services.show', ['id' => ':id']) }}`.replace(':id', serviceId), {
@@ -214,8 +219,13 @@ const AdminEditServiceModal = {
         .finally(() => {
             // Remove loading state
             form.classList.remove('tw-opacity-50');
-            form.querySelectorAll('input, select, textarea, button').forEach(elem => {
+            form.querySelectorAll('input:not([type="number"]), select, textarea, button').forEach(elem => {
                 elem.disabled = false;
+            });
+            // Re-enable number inputs
+            form.querySelectorAll('input[type="number"]').forEach(elem => {
+                elem.style.pointerEvents = '';
+                elem.classList.remove('tw-cursor-not-allowed');
             });
         });
     },
