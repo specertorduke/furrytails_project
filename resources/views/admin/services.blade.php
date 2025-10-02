@@ -3,6 +3,23 @@
 @section('title', 'Services Management')
 
 @section('content')
+<style>
+    /* Prevent layout shift when adding font-weight */
+    .category-filter {
+        position: relative;
+    }
+    .category-filter::after {
+        content: attr(data-text);
+        content: attr(data-text) / "";
+        height: 0;
+        visibility: hidden;
+        overflow: hidden;
+        user-select: none;
+        pointer-events: none;
+        font-weight: 600;
+        display: block;
+    }
+</style>
 <div class="tw-p-6 tw-min-h-screen tw-bg-gray-900">
     <!-- Header Section -->
     <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between tw-items-start md:tw-items-center tw-mb-6">
@@ -11,7 +28,7 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Services Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
-            <button type="button" id="addServiceBtn" class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
+            <button type="button" id="addServiceBtn" class="tw-bg-[#27b5d4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
                 <i class="fas fa-plus tw-mr-2"></i> Add Service
             </button>
         </div>
@@ -19,14 +36,14 @@
 
     <!-- Service Stats Cards -->
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6 tw-mb-6">
-        <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-[#24CFF4] tw-transition-all tw-duration-300 hover:tw-shadow-md">
+        <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-[#27b5d4] tw-transition-all tw-duration-300 hover:tw-shadow-md">
             <div class="tw-flex tw-justify-between tw-items-center">
                 <div>
                     <p class="tw-text-gray-400 tw-text-sm">Total Services</p>
                     <h3 class="tw-text-2xl tw-font-bold tw-text-white">{{ $totalServices ?? 0 }}</h3>
                 </div>
                 <div class="tw-bg-gray-700 tw-p-3 tw-rounded-full">
-                    <i class="fas fa-concierge-bell tw-text-[#24CFF4] tw-text-xl"></i>
+                    <i class="fas fa-concierge-bell tw-text-[#27b5d4] tw-text-xl"></i>
                 </div>
             </div>
         </div>
@@ -65,11 +82,11 @@
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Category</label>
                 <div class="tw-flex tw-items-center tw-gap-2">
                     <div class="tw-flex tw-flex-wrap tw-gap-2 tw-flex-1" id="category-filters">
-                        <button class="category-filter active tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-[#24CFF4] tw-transition-all tw-duration-300" data-category="all">All</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Grooming">Grooming</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Boarding">Boarding</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Veterinary">Veterinary</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Training">Training</button>
+                        <button class="category-filter active tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-[#27b5d4] tw-font-semibold tw-transition-all tw-duration-300" data-category="all" data-text="All">All</button>
+                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Grooming" data-text="Grooming">Grooming</button>
+                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Boarding" data-text="Boarding">Boarding</button>
+                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Veterinary" data-text="Veterinary">Veterinary</button>
+                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Training" data-text="Training">Training</button>
                     </div>
                     <!-- Sort Button -->
                     <button id="sort-by-date" 
@@ -132,7 +149,7 @@
                 
                 <div class="tw-flex tw-justify-between tw-items-center">
                     <button onclick="viewService({{ $service->serviceID }})" 
-                            class="tw-text-[#24CFF4] tw-text-sm hover:tw-underline">
+                            class="tw-text-[#27b5d4] tw-text-sm hover:tw-underline">
                         View Details
                     </button>
                     <div class="tw-flex tw-gap-2">
@@ -157,7 +174,7 @@
             <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-gray-800 tw-rounded-xl tw-p-8 tw-shadow-sm">
                 <i class="fas fa-concierge-bell tw-text-5xl tw-text-gray-600 tw-mb-4"></i>
                 <p class="tw-text-gray-400 tw-mb-4">No services available</p>
-                <button type="button" id="noServicesAddBtn" class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90">
+                <button type="button" id="noServicesAddBtn" class="tw-bg-[#27b5d4] tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90">
                     <i class="fas fa-plus tw-mr-2"></i>Add Service
                 </button>
             </div>
@@ -194,11 +211,11 @@
             categoryButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     categoryButtons.forEach(btn => {
-                        btn.classList.remove('tw-bg-[#24CFF4]', 'active');
+                        btn.classList.remove('tw-bg-[#27b5d4]', 'active', 'tw-font-semibold');
                         btn.classList.add('tw-bg-gray-700', 'hover:tw-bg-gray-600');
                     });
                     button.classList.remove('tw-bg-gray-700', 'hover:tw-bg-gray-600');
-                    button.classList.add('tw-bg-[#24CFF4]', 'active');
+                    button.classList.add('tw-bg-[#27b5d4]', 'active', 'tw-font-semibold');
                     this.filterServices();
                 });
             });
@@ -215,7 +232,7 @@
                         sortButton.title = 'Sort: Newest First';
                         icon.className = 'fas fa-arrow-down-short-wide';
                         sortButton.classList.remove('tw-bg-gray-700', 'hover:tw-bg-gray-600');
-                        sortButton.classList.add('tw-bg-[#24CFF4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
+                        sortButton.classList.add('tw-bg-[#27b5d4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
                     } else if (currentOrder === 'newest') {
                         sortButton.dataset.sortOrder = 'oldest';
                         sortButton.title = 'Sort: Oldest First';
@@ -224,7 +241,7 @@
                         sortButton.dataset.sortOrder = 'none';
                         sortButton.title = 'Sort by date';
                         icon.className = 'fas fa-sort';
-                        sortButton.classList.remove('tw-bg-[#24CFF4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
+                        sortButton.classList.remove('tw-bg-[#27b5d4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
                         sortButton.classList.add('tw-bg-gray-700', 'hover:tw-bg-gray-600');
                     }
                     
@@ -313,7 +330,7 @@
                         title: data.service.name,
                         text: data.service.description || 'No description available',
                         icon: 'info',
-                        confirmButtonColor: '#24CFF4',
+                        confirmButtonColor: '#27b5d4',
                         background: '#374151',
                         color: '#fff'
                     });
@@ -337,7 +354,7 @@
         `,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: newStatus ? '#66FF8F' : '#d33',
+        confirmButtonColor: newStatus ? '#10b981' : '#d33',
         cancelButtonColor: '#6c757d',
         confirmButtonText: newStatus ? 'Yes, activate it!' : 'Yes, deactivate it!',
         background: '#374151',
@@ -371,7 +388,7 @@
                         title: 'Updated!',
                         text: `Service has been ${newStatus ? 'activated' : 'deactivated'}.`,
                         icon: 'success',
-                        confirmButtonColor: '#24CFF4',
+                        confirmButtonColor: '#27b5d4',
                         background: '#374151',
                         color: '#fff'
                         }).then(() => {
@@ -382,7 +399,7 @@
                             title: 'Error!',
                             text: data.message || 'Something went wrong.',
                             icon: 'error',
-                            confirmButtonColor: '#24CFF4',
+                            confirmButtonColor: '#27b5d4',
                             background: '#374151',
                             color: '#fff'
                         });
@@ -437,7 +454,7 @@
                             title: 'Deleted!',
                             text: 'Service has been deleted.',
                             icon: 'success',
-                            confirmButtonColor: '#24CFF4',
+                            confirmButtonColor: '#27b5d4',
                             background: '#374151',
                             color: '#fff'
                         }).then(() => {
@@ -448,7 +465,7 @@
                             title: 'Error!',
                             text: data.message || 'Something went wrong.',
                             icon: 'error',
-                            confirmButtonColor: '#24CFF4',
+                            confirmButtonColor: '#27b5d4',
                             background: '#374151',
                             color: '#fff'
                         });
