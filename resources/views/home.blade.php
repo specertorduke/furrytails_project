@@ -128,7 +128,7 @@
             <h2 class="tw-text-3xl tw-font-bold text-center mb-5">Our Services</h2>
             <div class="row g-4">
                 <!-- Pet Boarding -->
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-home tw-text-4xl tw-text-[#24CFF4]"></i>
@@ -138,7 +138,7 @@
                     </div>
                 </div>
                 <!-- Pet Grooming -->
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-cut tw-text-4xl tw-text-[#24CFF4]"></i>
@@ -148,13 +148,23 @@
                     </div>
                 </div>
                 <!-- Pet Training -->
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-paw tw-text-4xl tw-text-[#24CFF4]"></i>
                         </div>
                         <h3 class="tw-text-xl tw-font-semibold text-center mb-3">Pet Training</h3>
                         <p class="tw-text-gray-600 text-center mb-0">Expert training sessions to help your pets develop good behaviors.</p>
+                    </div>
+                </div>
+                <!-- Pet Veterinary -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
+                        <div class="tw-flex tw-justify-center mb-4">
+                            <i class="fas fa-stethoscope tw-text-4xl tw-text-[#24CFF4]"></i>
+                        </div>
+                        <h3 class="tw-text-xl tw-font-semibold text-center mb-3">Pet Veterinary</h3>
+                        <p class="tw-text-gray-600 text-center mb-0">Comprehensive veterinary care to keep your pets healthy and happy.</p>
                     </div>
                 </div>
             </div>
