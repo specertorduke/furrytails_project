@@ -223,107 +223,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Timeline Section -->
-            <div class="tw-bg-white tw-shadow-md tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="tw-text-xl tw-font-bold mb-0">Weekly Events Timeline</h2>
-                </div>
-
-                <!-- Timeline Container -->
-                <div class="tw-flex tw-flex-col tw-items-center">
-                    <!-- Circular Progress Container -->
-                    <div class="tw-relative tw-w-[280px] tw-h-[280px] tw-mb-4">
-                        <!-- SVG Progress Ring -->
-                        <svg class="tw-w-full tw-h-full tw-rotate-[-90deg]" viewBox="0 0 100 100">
-                            <circle 
-                                class="tw-fill-none tw-stroke-gray-100" 
-                                cx="50" cy="50" r="45" 
-                                stroke-width="10"
-                            />
-                            <circle 
-                                class="tw-fill-none tw-stroke-[#24CFF4] tw-transition-all tw-duration-1000"
-                                cx="50" cy="50" r="45" 
-                                stroke-width="10"
-                                stroke-dasharray="283"
-                                stroke-dashoffset="{{ 283 - (283 * (\Carbon\Carbon::now()->dayOfWeek + 1) / 7) }}"
-                                stroke-linecap="round"
-                            />
-                        </svg>
-
-                        <!-- Center Content -->
-                        <div class="tw-absolute tw-inset-0 tw-flex tw-flex-col tw-items-center tw-justify-center">
-                            <div class="tw-text-center">
-                                <h3 class="tw-text-3xl tw-font-bold tw-bg-gradient-to-r tw-from-[#24CFF4] tw-to-[#45E3FF] tw-text-transparent tw-bg-clip-text">
-                                    {{ \Carbon\Carbon::now()->setTimezone('Asia/Manila')->format('D') }}
-                                </h3>
-                                <p class="tw-text-sm tw-text-gray-500">{{ \Carbon\Carbon::now()->setTimezone('Asia/Manila')->format('M d') }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Event Markers -->
-                        @php
-                            $nextWeek = \Carbon\Carbon::now()->setTimezone('Asia/Manila')->addDays(7);
-                            $currentWeekEvents = $appointments->merge($boardings)
-                                ->filter(function($event) use ($nextWeek) {
-                                    $eventDate = isset($event->date) 
-                                        ? \Carbon\Carbon::parse($event->date)
-                                        : \Carbon\Carbon::parse($event->start_date);
-                                    return $eventDate->lte($nextWeek);
-                                })
-                                ->sortBy(function($event) {
-                                    return isset($event->date) 
-                                        ? $event->date 
-                                        : $event->start_date;
-                                })
-                                ->take(7);
-                        @endphp
-
-                        @foreach($currentWeekEvents as $index => $event)
-                            @php
-                                $eventDate = isset($event->date) 
-                                    ? \Carbon\Carbon::parse($event->date)
-                                    : \Carbon\Carbon::parse($event->start_date);
-                                $angle = ($eventDate->dayOfWeek * (360 / 7)) - 90;
-                                $radians = $angle * (pi() / 180);
-                                $x = 140 + cos($radians) * 120;
-                                $y = 140 + sin($radians) * 120;
-                                $isToday = $eventDate->isToday();
-                            @endphp
-                            <div class="tw-absolute tw-w-12 tw-h-12 tw-rounded-full tw-bg-white tw-shadow-md tw-flex tw-flex-col tw-items-center tw-justify-center tw-transition-all hover:tw-scale-110 hover:tw-shadow-lg {{ $isToday ? 'tw-ring-2 tw-ring-[#24CFF4]' : '' }}"
-                                style="left: {{ $x - 24 }}px; top: {{ $y - 24 }}px">
-                                <i class="fas {{ isset($event->appointmentID) ? 'fa-calendar' : 'fa-home' }} 
-                                        {{ isset($event->appointmentID) ? 'tw-text-[#FF9666]' : 'tw-text-[#66FF8F]' }}"></i>
-                                <span class="tw-text-[10px] tw-mt-1">{{ $eventDate->format('D') }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Legend -->
-                    <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-6 tw-mt-2">
-                        <div class="tw-flex tw-items-center tw-gap-2">
-                            <div class="tw-w-3 tw-h-3 tw-rounded-full tw-bg-[#FF9666]"></div>
-                            <span class="tw-text-sm tw-text-gray-600">Appointments</span>
-                        </div>
-                        <div class="tw-flex tw-items-center tw-gap-2">
-                            <div class="tw-w-3 tw-h-3 tw-rounded-full tw-bg-[#66FF8F]"></div>
-                            <span class="tw-text-sm tw-text-gray-600">Boardings</span>
-                        </div>
-                    </div>
-
-                    <!-- Summary -->
-                    <div class="tw-flex tw-justify-between tw-w-full tw-mt-4 tw-px-4">
-                        <div class="tw-text-center">
-                            <p class="tw-text-2xl tw-font-bold tw-text-[#FF9666]">{{ count($appointments) }}</p>
-                            <p class="tw-text-sm tw-text-gray-500">Appointments</p>
-                        </div>
-                        <div class="tw-text-center">
-                            <p class="tw-text-2xl tw-font-bold tw-text-[#66FF8F]">{{ count($boardings) }}</p>
-                            <p class="tw-text-sm tw-text-gray-500">Boardings</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Registered Pets Sidebar -->
@@ -376,6 +275,121 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- This Week's Schedule -->
+            <div class="tw-bg-white tw-shadow-md tw-rounded-2xl tw-p-6 tw-mt-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+                <h2 class="tw-text-xl tw-font-bold mb-4">This Week's Schedule 📅</h2>
+                
+                @php
+                    $today = \Carbon\Carbon::now()->setTimezone('Asia/Manila');
+                    $nextWeek = $today->copy()->addDays(7);
+                    
+                    // Get upcoming events for the next 7 days
+                    $upcomingAppointments = $appointments->filter(function($appointment) use ($today, $nextWeek) {
+                        $date = \Carbon\Carbon::parse($appointment->date);
+                        return $date->between($today->startOfDay(), $nextWeek->endOfDay());
+                    });
+                    
+                    $upcomingBoardings = $boardings->filter(function($boarding) use ($today, $nextWeek) {
+                        $date = \Carbon\Carbon::parse($boarding->start_date);
+                        return $date->between($today->startOfDay(), $nextWeek->endOfDay());
+                    });
+                    
+                    $hasEvents = $upcomingAppointments->count() > 0 || $upcomingBoardings->count() > 0;
+                @endphp
+
+                @if($hasEvents)
+                    <div class="tw-space-y-3">
+                        <!-- Summary Cards -->
+                        <div class="tw-grid tw-grid-cols-2 tw-gap-3 tw-mb-4">
+                            <div class="tw-bg-[#fff5f0] tw-rounded-xl tw-p-3 tw-text-center">
+                                <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
+                                    <i class="fas fa-calendar tw-text-[#FF9666]"></i>
+                                    <span class="tw-text-2xl tw-font-bold tw-text-[#FF9666]">{{ $upcomingAppointments->count() }}</span>
+                                </div>
+                                <p class="tw-text-xs tw-text-gray-600 tw-mt-1">Appointments</p>
+                            </div>
+                            <div class="tw-bg-[#f0fff5] tw-rounded-xl tw-p-3 tw-text-center">
+                                <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
+                                    <i class="fas fa-home tw-text-[#66FF8F]"></i>
+                                    <span class="tw-text-2xl tw-font-bold tw-text-[#66FF8F]">{{ $upcomingBoardings->count() }}</span>
+                                </div>
+                                <p class="tw-text-xs tw-text-gray-600 tw-mt-1">Boardings</p>
+                            </div>
+                        </div>
+
+                        <!-- Event List -->
+                        <div class="tw-space-y-2 tw-max-h-[300px] tw-overflow-y-auto">
+                            @foreach($upcomingAppointments->sortBy('date') as $appointment)
+                                @php
+                                    $date = \Carbon\Carbon::parse($appointment->date);
+                                    $isToday = $date->isToday();
+                                    $isTomorrow = $date->isTomorrow();
+                                @endphp
+                                <div class="tw-flex tw-items-start tw-gap-3 tw-p-3 tw-rounded-xl tw-bg-[#fff5f0] tw-border-l-4 tw-border-[#FF9666] tw-transition-all hover:tw-shadow-md {{ $isToday ? 'tw-ring-2 tw-ring-[#FF9666]' : '' }}">
+                                    <div class="tw-bg-[#FF9666] tw-rounded-full tw-p-2 tw-flex-shrink-0">
+                                        <i class="fas fa-calendar tw-text-white tw-text-sm"></i>
+                                    </div>
+                                    <div class="tw-flex-1">
+                                        <div class="tw-flex tw-items-start tw-justify-between">
+                                            <h3 class="tw-font-semibold tw-text-sm tw-text-gray-800">{{ $appointment->service->name }}</h3>
+                                            @if($isToday)
+                                                <span class="tw-px-2 tw-py-0.5 tw-bg-[#FF9666] tw-text-white tw-text-xs tw-rounded-full">Today</span>
+                                            @elseif($isTomorrow)
+                                                <span class="tw-px-2 tw-py-0.5 tw-bg-orange-400 tw-text-white tw-text-xs tw-rounded-full">Tomorrow</span>
+                                            @endif
+                                        </div>
+                                        <p class="tw-text-xs tw-text-gray-600 tw-mt-1">
+                                            <i class="far fa-clock tw-mr-1"></i>{{ $appointment->time }} • {{ $date->format('M d, D') }}
+                                        </p>
+                                        <p class="tw-text-xs tw-text-gray-500 tw-mt-1">
+                                            <i class="fas fa-paw tw-mr-1"></i>{{ $appointment->pet->name }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            @foreach($upcomingBoardings->sortBy('start_date') as $boarding)
+                                @php
+                                    $date = \Carbon\Carbon::parse($boarding->start_date);
+                                    $endDate = \Carbon\Carbon::parse($boarding->end_date);
+                                    $isToday = $date->isToday();
+                                    $isTomorrow = $date->isTomorrow();
+                                @endphp
+                                <div class="tw-flex tw-items-start tw-gap-3 tw-p-3 tw-rounded-xl tw-bg-[#f0fff5] tw-border-l-4 tw-border-[#66FF8F] tw-transition-all hover:tw-shadow-md {{ $isToday ? 'tw-ring-2 tw-ring-[#66FF8F]' : '' }}">
+                                    <div class="tw-bg-[#66FF8F] tw-rounded-full tw-p-2 tw-flex-shrink-0">
+                                        <i class="fas fa-home tw-text-white tw-text-sm"></i>
+                                    </div>
+                                    <div class="tw-flex-1">
+                                        <div class="tw-flex tw-items-start tw-justify-between">
+                                            <h3 class="tw-font-semibold tw-text-sm tw-text-gray-800">Boarding Stay</h3>
+                                            @if($isToday)
+                                                <span class="tw-px-2 tw-py-0.5 tw-bg-[#66FF8F] tw-text-white tw-text-xs tw-rounded-full">Starts Today</span>
+                                            @elseif($isTomorrow)
+                                                <span class="tw-px-2 tw-py-0.5 tw-bg-green-400 tw-text-white tw-text-xs tw-rounded-full">Tomorrow</span>
+                                            @endif
+                                        </div>
+                                        <p class="tw-text-xs tw-text-gray-600 tw-mt-1">
+                                            <i class="far fa-calendar tw-mr-1"></i>{{ $date->format('M d') }} - {{ $endDate->format('M d') }}
+                                        </p>
+                                        <p class="tw-text-xs tw-text-gray-500 tw-mt-1">
+                                            <i class="fas fa-paw tw-mr-1"></i>{{ $boarding->pet->name }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-8">
+                        <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-3">
+                            <i class="fas fa-calendar-check tw-text-4xl tw-text-[#24CFF4]"></i>
+                        </div>
+                        <p class="tw-text-gray-700 tw-font-semibold tw-text-sm">No events this week</p>
+                        <p class="tw-text-gray-500 tw-text-xs tw-mt-1">You're all clear!</p>
+                    </div>
+                @endif
             </div>
 
             <!-- Pet Care Tips Section -->
@@ -486,7 +500,23 @@ window.DashboardPage = window.DashboardPage || {
             language: {
                 lengthMenu: "_MENU_ per page",
                 search: "_INPUT_",
-                searchPlaceholder: "Search records..."
+                searchPlaceholder: "Search records...",
+                emptyTable: `
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12">
+                        <div class="tw-bg-gray-100 tw-rounded-full tw-p-6 tw-mb-4">
+                            <i class="fas fa-calendar-times tw-text-5xl tw-text-gray-400"></i>
+                        </div>
+                        <p class="tw-text-gray-500 tw-text-lg tw-font-medium">No data available</p>
+                    </div>
+                `,
+                zeroRecords: `
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12">
+                        <div class="tw-bg-gray-100 tw-rounded-full tw-p-6 tw-mb-4">
+                            <i class="fas fa-search tw-text-5xl tw-text-gray-400"></i>
+                        </div>
+                        <p class="tw-text-gray-500 tw-text-lg tw-font-medium">No matching records found</p>
+                    </div>
+                `
             }
         };
 
@@ -499,6 +529,22 @@ window.DashboardPage = window.DashboardPage || {
                 error: function (xhr, error, thrown) {
                     console.error('Appointments Ajax error:', xhr, error, thrown);
                 }
+            },
+            language: {
+                ...commonConfig.language,
+                emptyTable: `
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12">
+                        <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-4">
+                            <i class="fas fa-calendar-times tw-text-5xl tw-text-[#24CFF4]"></i>
+                        </div>
+                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No upcoming appointments</p>
+                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Schedule your first appointment to get started</p>
+                        <button data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
+                            class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-full tw-transition-all tw-duration-300 hover:tw-bg-[#1db8d9] hover:tw-shadow-md">
+                            <i class="fas fa-plus tw-mr-2"></i>Schedule Appointment
+                        </button>
+                    </div>
+                `
             },
             columns: [
                 { data: 'appointmentID', width: '5%' },
@@ -554,6 +600,22 @@ window.DashboardPage = window.DashboardPage || {
                     console.error('Boardings Ajax error:', { status: xhr.status, statusText: xhr.statusText, error: error });
                 }
             },
+            language: {
+                ...commonConfig.language,
+                emptyTable: `
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12">
+                        <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-4">
+                            <i class="fas fa-home tw-text-5xl tw-text-[#24CFF4]"></i>
+                        </div>
+                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No boarding reservations</p>
+                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Book a boarding stay for your pet</p>
+                        <button data-modal-target="addBoarding-modal" data-modal-toggle="addBoarding-modal" 
+                            class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-full tw-transition-all tw-duration-300 hover:tw-bg-[#1db8d9] hover:tw-shadow-md">
+                            <i class="fas fa-plus tw-mr-2"></i>Book Boarding
+                        </button>
+                    </div>
+                `
+            },
             columns: [
                 { data: 'boardingID', width: '5%' },
                 { data: 'start_date', width: '20%' },
@@ -608,6 +670,22 @@ window.DashboardPage = window.DashboardPage || {
                 error: function (xhr, error, thrown) {
                     console.error('Pets Ajax error:', xhr, error, thrown);
                 }
+            },
+            language: {
+                ...commonConfig.language,
+                emptyTable: `
+                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12">
+                        <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-4">
+                            <i class="fas fa-paw tw-text-5xl tw-text-[#24CFF4]"></i>
+                        </div>
+                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No registered pets</p>
+                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Add your first pet to get started</p>
+                        <button data-modal-target="addPet-modal" data-modal-toggle="addPet-modal" 
+                            class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-full tw-transition-all tw-duration-300 hover:tw-bg-[#1db8d9] hover:tw-shadow-md">
+                            <i class="fas fa-plus tw-mr-2"></i>Register Pet
+                        </button>
+                    </div>
+                `
             },
             columns: [
                 { 
