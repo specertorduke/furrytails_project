@@ -44,20 +44,20 @@
                     </select>
                 </div>
 
-                <!-- Date fields - displayed only for long-term boarding -->
-                <div id="boarding-date-fields" class="tw-hidden">
+                <!-- Date fields - always displayed -->
+                <div id="boarding-date-fields">
                     <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                         <div>
                             <label for="boarding-start" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Start Date</label>
                             <input type="date" name="boarding-start" id="boarding-start" 
                                 min="{{ date('Y-m-d') }}" 
-                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
+                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                         </div>
                         <div>
                             <label for="boarding-end" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">End Date</label>
                             <input type="date" name="boarding-end" id="boarding-end"
                                 min="{{ date('Y-m-d', strtotime('+1 day')) }}" 
-                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
+                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                         </div>
                     </div>
                 </div>
@@ -165,9 +165,9 @@ const AdminBoardingModal = {
             this.elements.petSelect.disabled = true;
         }
         
-        // Hide date fields
-        if (this.elements.dateFields) {
-            this.elements.dateFields.classList.add('tw-hidden');
+        // Re-enable end date field
+        if (this.elements.endDate) {
+            this.elements.endDate.disabled = false;
         }
     },
     
@@ -247,23 +247,27 @@ const AdminBoardingModal = {
     handleTypeChange: function() {
         const boardingType = this.elements.typeSelect.value;
         
-        // Show/hide date fields based on boarding type
-        if (boardingType === 'long-term') {
-            this.elements.dateFields.classList.remove('tw-hidden');
-            this.elements.startDate.required = true;
-            this.elements.endDate.required = true;
+        // Handle date field behavior based on boarding type
+        if (boardingType === 'daycare') {
+            // For daycare, end date should match start date (same day)
+            this.elements.endDate.disabled = true;
+            if (this.elements.startDate.value) {
+                this.elements.endDate.value = this.elements.startDate.value;
+            }
+        } else if (boardingType === 'overnight') {
+            // For overnight, end date should be next day after start date
+            this.elements.endDate.disabled = true;
+            if (this.elements.startDate.value) {
+                this.setOvernightEndDate();
+            }
         } else {
-            this.elements.dateFields.classList.add('tw-hidden');
-            this.elements.startDate.required = false;
-            this.elements.endDate.required = false;
-            this.elements.startDate.value = '';
-            this.elements.endDate.value = '';
+            // For long-term, user can select any end date
+            this.elements.endDate.disabled = false;
         }
     },
     
-    handleStartDateChange: function() {
+    setOvernightEndDate: function() {
         if (this.elements.startDate.value) {
-            // Set the minimum end date to be the day after start date
             const startDate = new Date(this.elements.startDate.value);
             startDate.setDate(startDate.getDate() + 1);
             
@@ -271,11 +275,35 @@ const AdminBoardingModal = {
             const month = String(startDate.getMonth() + 1).padStart(2, '0');
             const day = String(startDate.getDate()).padStart(2, '0');
             
-            this.elements.endDate.min = `${year}-${month}-${day}`;
-            
-            // Clear end date if it's before the new minimum
-            if (this.elements.endDate.value && new Date(this.elements.endDate.value) < startDate) {
-                this.elements.endDate.value = '';
+            this.elements.endDate.value = `${year}-${month}-${day}`;
+        }
+    },
+    
+    handleStartDateChange: function() {
+        const boardingType = this.elements.typeSelect.value;
+        
+        if (this.elements.startDate.value) {
+            if (boardingType === 'daycare') {
+                // For daycare, set end date to be the same as start date
+                this.elements.endDate.value = this.elements.startDate.value;
+            } else if (boardingType === 'overnight') {
+                // For overnight, set end date to be next day
+                this.setOvernightEndDate();
+            } else {
+                // For long-term, set minimum end date
+                const startDate = new Date(this.elements.startDate.value);
+                startDate.setDate(startDate.getDate() + 1);
+                
+                const year = startDate.getFullYear();
+                const month = String(startDate.getMonth() + 1).padStart(2, '0');
+                const day = String(startDate.getDate()).padStart(2, '0');
+                
+                this.elements.endDate.min = `${year}-${month}-${day}`;
+                
+                // Clear end date if it's before the new minimum
+                if (this.elements.endDate.value && new Date(this.elements.endDate.value) < startDate) {
+                    this.elements.endDate.value = '';
+                }
             }
         }
     },
@@ -304,23 +332,38 @@ const AdminBoardingModal = {
             return;
         }
         
-        // Validate dates for long-term boarding
-        if (this.elements.typeSelect.value === 'long-term') {
-            if (!this.elements.startDate.value) {
-                this.showError('Please select a start date');
+        // Validate dates (now required for all boarding types)
+        if (!this.elements.startDate.value) {
+            this.showError('Please select a start date');
+            return;
+        }
+        
+        if (!this.elements.endDate.value) {
+            this.showError('Please select an end date');
+            return;
+        }
+        
+        const startDate = new Date(this.elements.startDate.value);
+        const endDate = new Date(this.elements.endDate.value);
+        const boardingType = this.elements.typeSelect.value;
+        
+        // Validate based on boarding type
+        if (boardingType === 'daycare') {
+            if (endDate.getTime() !== startDate.getTime()) {
+                this.showError('For daycare, start date and end date must be the same day');
                 return;
             }
-            
-            if (!this.elements.endDate.value) {
-                this.showError('Please select an end date');
+        } else if (boardingType === 'overnight') {
+            const nextDay = new Date(startDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            if (endDate.getTime() !== nextDay.getTime()) {
+                this.showError('For overnight boarding, end date must be the next day after start date');
                 return;
             }
-            
-            const startDate = new Date(this.elements.startDate.value);
-            const endDate = new Date(this.elements.endDate.value);
-            
-            if (endDate <= startDate) {
-                this.showError('End date must be after start date');
+        } else {
+            // For long-term
+            if (endDate < startDate) {
+                this.showError('End date must be on or after start date');
                 return;
             }
         }
@@ -355,33 +398,12 @@ const AdminBoardingModal = {
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg> Processing...`;
 
-        // Prepare boarding data based on type
-        const boardingType = this.elements.typeSelect.value;
-        let startDate, endDate;
-        
-        if (boardingType === 'long-term') {
-            startDate = this.elements.startDate.value;
-            endDate = this.elements.endDate.value;
-        } else if (boardingType === 'overnight') {
-            // For overnight, use today and tomorrow
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            startDate = today.toISOString().split('T')[0];
-            endDate = tomorrow.toISOString().split('T')[0];
-        } else {
-            // For daycare, use today for both
-            const today = new Date().toISOString().split('T')[0];
-            startDate = today;
-            endDate = today;
-        }
-        
+        // Prepare boarding data - now always uses user-selected dates
         const formData = {
             petID: this.elements.petSelect.value,
-            boardingType: boardingType,
-            start_date: startDate,
-            end_date: endDate,
+            boardingType: this.elements.typeSelect.value,
+            start_date: this.elements.startDate.value,
+            end_date: this.elements.endDate.value,
             status: 'Confirmed' // Admin-created bookings are confirmed by default
         };
         

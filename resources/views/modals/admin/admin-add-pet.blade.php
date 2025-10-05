@@ -388,7 +388,7 @@
                 text: 'Are you sure you want to add this pet?',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#66FF8F',
+                confirmButtonColor: '#38D963',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, add pet',
                 cancelButtonText: 'Cancel',
@@ -473,7 +473,7 @@
                         title: 'Success!',
                         text: 'Pet has been added to the database',
                         icon: 'success',
-                        confirmButtonColor: '#66FF8F',
+                        confirmButtonColor: '#38D963',
                         background: '#374151',
                         color: '#fff'
                     }).then(() => {
@@ -506,7 +506,7 @@
                 title: 'Error',
                 text: message,
                 icon: 'error',
-                confirmButtonColor: '#66FF8F',
+                confirmButtonColor: '#38D963',
                 background: '#374151',
                 color: '#fff'
             });

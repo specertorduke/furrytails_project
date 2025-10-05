@@ -532,6 +532,18 @@
                         data: null,
                         width: '20%',
                         render: function(data) {
+                            // If appointment is completed, show only view button
+                            if (data.status === 'Completed') {
+                                return `
+                                    <div class="tw-flex tw-gap-2 tw-justify-center">
+                                        <button onclick="ManagePage.viewAppointment(${data.appointmentID})" 
+                                                class="tw-text-blue-500 hover:tw-text-blue-700">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                            // Otherwise, show all action buttons
                             return `
                                 <div class="tw-flex tw-gap-2 tw-justify-center">
                                     <button onclick="ManagePage.viewAppointment(${data.appointmentID})" 
@@ -589,6 +601,18 @@
                     {
                         data: null,
                         render: function(data) {
+                            // If boarding is completed, show only view button
+                            if (data.status === 'Completed') {
+                                return `
+                                    <div class="tw-flex tw-gap-2 tw-justify-center">
+                                        <button onclick="ManagePage.viewBoarding(${data.boardingID})" 
+                                                class="tw-text-blue-500 hover:tw-text-blue-700">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                            // Otherwise, show all action buttons
                             return `
                                 <div class="tw-flex tw-gap-2 tw-justify-center">
                                     <button onclick="ManagePage.viewBoarding(${data.boardingID})" 
