@@ -9,6 +9,7 @@ use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AdminServicesController extends Controller
 {
@@ -100,7 +101,7 @@ class AdminServicesController extends Controller
     {
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:services,name',
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -109,6 +110,7 @@ class AdminServicesController extends Controller
             'admin_password' => 'required|string', // Add admin password requirement
         ], [
             'admin_password.required' => 'Admin password is required to create services.',
+            'name.unique' => 'A service with this name already exists. Please choose a different name.',
         ]);
 
         if ($validator->fails()) {
@@ -185,7 +187,12 @@ class AdminServicesController extends Controller
     {
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100',
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('services', 'name')->ignore($id, 'serviceID'),
+            ],
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -194,6 +201,7 @@ class AdminServicesController extends Controller
             'admin_password' => 'required|string', // Add admin password requirement
         ], [
             'admin_password.required' => 'Admin password is required to update services.',
+            'name.unique' => 'A service with this name already exists. Please choose a different name.',
         ]);
     
         if ($validator->fails()) {
