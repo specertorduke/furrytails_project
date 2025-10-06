@@ -81,8 +81,20 @@
     </div>
 </div>
 
+@include('modals.user.edit-boarding')
+@include('modals.user.edit-appointment')
+@include('modals.user.add-boarding')
+@include('modals.user.add-appointment')
+@include('modals.user.add-pet')
+@include('modals.user.view-boarding')
+@include('modals.user.view-appointment')
+@include('modals.user.payment-modal')
+
 @push('scripts')
 <script>
+    // Trigger contentChanged event to ensure modal scripts are loaded
+    document.dispatchEvent(new Event('contentChanged'));
+    
     // Create a namespace for our manage page functionality
     window.ManagePage = window.ManagePage || {
         appointmentsTable: null,
@@ -695,14 +707,5 @@
     // Cleanup when content will change
     
 </script>
-@include('modals.user.edit-boarding')
-@include('modals.user.edit-appointment')
-@include('modals.user.add-boarding')
-@include('modals.user.add-appointment')
-@include('modals.user.add-pet')
-@include('modals.user.view-boarding')
-@include('modals.user.view-appointment')
-@include('modals.user.payment-modal')
-
 @endpush
 @endsection
