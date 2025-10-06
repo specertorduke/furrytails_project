@@ -177,9 +177,7 @@
                             html: warningMessage,
                             icon: 'info',
                             confirmButtonColor: '#24CFF4',
-                            confirmButtonText: 'I Understand',
-                            background: '#374151',
-                            color: '#fff'
+                            confirmButtonText: 'I Understand'
                         });
                         return;
                     }
@@ -226,18 +224,14 @@
                                         title: 'Cancelled!',
                                         text: 'Your appointment has been cancelled.',
                                         icon: 'success',
-                                        confirmButtonColor: '#24CFF4',
-                                        background: '#374151',
-                                        color: '#fff'
+                                        confirmButtonColor: '#24CFF4'
                                     });
                                 } else {
                                     Swal.fire({
                                         title: 'Error!',
                                         text: data.message || 'Failed to cancel appointment.',
                                         icon: 'error',
-                                        confirmButtonColor: '#24CFF4',
-                                        background: '#374151',
-                                        color: '#fff'
+                                        confirmButtonColor: '#24CFF4'
                                     });
                                 }
                             })
@@ -247,9 +241,7 @@
                                     title: 'Error!',
                                     text: 'An error occurred while cancelling the appointment.',
                                     icon: 'error',
-                                    confirmButtonColor: '#24CFF4',
-                                    background: '#374151',
-                                    color: '#fff'
+                                    confirmButtonColor: '#24CFF4'
                                 });
                             });
                         }
@@ -259,9 +251,7 @@
                         title: 'Error!',
                         text: 'Could not load appointment details.',
                         icon: 'error',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
+                        confirmButtonColor: '#24CFF4'
                     });
                 }
             })
@@ -271,9 +261,7 @@
                     title: 'Error!',
                     text: 'An error occurred while loading appointment details.',
                     icon: 'error',
-                    confirmButtonColor: '#24CFF4',
-                    background: '#374151',
-                    color: '#fff'
+                    confirmButtonColor: '#24CFF4'
                 });
             });
         },
@@ -355,9 +343,7 @@
                             html: warningMessage,
                             icon: 'info',
                             confirmButtonColor: '#24CFF4',
-                            confirmButtonText: 'I Understand',
-                            background: '#374151',
-                            color: '#fff'
+                            confirmButtonText: 'I Understand'
                         });
                         return;
                     }
@@ -404,18 +390,14 @@
                                         title: 'Cancelled!',
                                         text: 'Your boarding has been cancelled.',
                                         icon: 'success',
-                                        confirmButtonColor: '#24CFF4',
-                                        background: '#374151',
-                                        color: '#fff'
+                                        confirmButtonColor: '#24CFF4'
                                     });
                                 } else {
                                     Swal.fire({
                                         title: 'Error!',
                                         text: data.message || 'Failed to cancel boarding.',
                                         icon: 'error',
-                                        confirmButtonColor: '#24CFF4',
-                                        background: '#374151',
-                                        color: '#fff'
+                                        confirmButtonColor: '#24CFF4'
                                     });
                                 }
                             })
@@ -425,9 +407,7 @@
                                     title: 'Error!',
                                     text: 'An error occurred while cancelling the boarding.',
                                     icon: 'error',
-                                    confirmButtonColor: '#24CFF4',
-                                    background: '#374151',
-                                    color: '#fff'
+                                    confirmButtonColor: '#24CFF4'
                                 });
                             });
                         }
@@ -437,9 +417,7 @@
                         title: 'Error!',
                         text: 'Could not load boarding details.',
                         icon: 'error',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
+                        confirmButtonColor: '#24CFF4'
                     });
                 }
             })
@@ -449,9 +427,7 @@
                     title: 'Error!',
                     text: 'An error occurred while loading boarding details.',
                     icon: 'error',
-                    confirmButtonColor: '#24CFF4',
-                    background: '#374151',
-                    color: '#fff'
+                    confirmButtonColor: '#24CFF4'
                 });
             });
         },

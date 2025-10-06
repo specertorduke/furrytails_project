@@ -142,6 +142,8 @@ public function store(Request $request)
                 
             // Add service price info to the boarding data
             $boarding->baseRate = $service ? $service->price : 0;
+            // Add the service object to the boarding data
+            $boarding->service = $service;
                 
             // Get boarding history for this pet
             $boardingHistory = Boarding::where('petID', $boarding->petID)

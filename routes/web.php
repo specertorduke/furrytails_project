@@ -84,7 +84,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
     Route::post('/boardings/store', [BoardingsController::class, 'store'])->name('boardings.store');
     Route::get('/services/boarding', [BoardingsController::class, 'getBoardingServices'])->name('services.boarding');
-    Route::post('/boardings/{id}/cancel', [BoardingsController::class, 'cancelBoarding'])->name('user.boardings.cancel');
+    Route::post('/boardings/{id}/cancel', [BoardingsController::class, 'cancel'])->name('user.boardings.cancel');
     Route::get('/services', [BoardingsController::class, 'getBServices'])->name('user.boardings.services');
 
     // Payments
@@ -127,7 +127,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('admin.ongoing-boardings.data');
     Route::get('boardings/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('boardings.ongoing-boardings.data');
     Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
-    Route::post('/boardings/{id}/cancel', [AdminBoardingsController::class, 'cancelBoarding'])->name('admin.boardings.cancel');
+    Route::post('/boardings/{id}/cancel', [AdminBoardingsController::class, 'cancel'])->name('admin.boardings.cancel');
     Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
     Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
     Route::get('/boardings/{id}', [AdminBoardingsController::class, 'show'])->name('admin.boardings.show');

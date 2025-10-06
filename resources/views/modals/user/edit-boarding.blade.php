@@ -19,68 +19,91 @@
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" id="edit-boarding-id" name="boardingID">
+                <input type="hidden" id="edit-boarding-pet" name="petID">
+                <input type="hidden" id="edit-boarding-type" name="serviceID">
+                <input type="hidden" id="edit-boarding-boardingType" name="boardingType">
                 
-                <!-- Pet selection field -->
-                <div class="tw-mb-4">
-                    <label for="edit-boarding-pet" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Pet</label>
-                    <select id="edit-boarding-pet" name="petID" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
-                        <!-- Will be populated with user's pets via JavaScript -->
-                    </select>
-                </div>
-
-                <!-- Boarding Type -->
-                <div class="tw-mb-4">
-                    <label for="edit-boarding-type" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Service Type</label>
-                    <select id="edit-boarding-type" name="boardingType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
-                        <!-- Will be populated with service types via JavaScript -->
-                    </select>
-                </div>
-
-                <!-- Date Range fields -->
-                <div id="edit-date-range-container" class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
-                    <div>
-                        <label for="edit-start-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Start Date</label>
-                        <input type="date" name="start_date" id="edit-start-date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
-                    </div>
-                    <div>
-                        <label for="edit-end-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">End Date</label>
-                        <input type="date" name="end_date" id="edit-end-date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                <!-- Edit Time Restriction Warning -->
+                <div id="edit-restriction-warning" class="tw-mb-4 tw-hidden">
+                    <div class="tw-bg-amber-50 tw-border tw-border-amber-200 tw-rounded-lg tw-p-3">
+                        <div class="tw-flex tw-items-center">
+                            <svg class="tw-w-5 tw-h-5 tw-text-amber-400 tw-mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="tw-text-amber-800 tw-text-sm tw-font-medium" id="edit-restriction-message">
+                                <!-- Message will be populated via JavaScript -->
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Single Date field (for daycare) -->
-                <div id="edit-single-date-container" class="tw-mb-4 tw-hidden">
-                    <label for="edit-daycare-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Date</label>
-                    <input type="date" name="daycare_date" id="edit-daycare-date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
-                </div>
-
-                <!-- Status Selection -->
-                <div class="tw-mb-4">
-                    <label for="edit-boarding-status" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Status</label>
-                    <select id="edit-boarding-status" name="status" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Active">Active</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                </div>
-
-                <!-- Price calculation -->
-                <div class="tw-mb-4 tw-p-3 tw-bg-gray-50 tw-rounded-lg tw-border tw-border-gray-200">
-                    <div class="tw-flex tw-justify-between tw-items-center">
-                        <span class="tw-text-sm tw-font-medium tw-text-gray-700">Total Price:</span>
-                        <span id="edit-boarding-price" class="tw-text-lg tw-font-bold tw-text-[#24CFF4]">₱0.00</span>
+                <!-- Edit Disabled Warning -->
+                <div id="edit-disabled-warning" class="tw-mb-4 tw-hidden">
+                    <div class="tw-bg-red-50 tw-border tw-border-red-200 tw-rounded-lg tw-p-3">
+                        <div class="tw-flex tw-items-center">
+                            <svg class="tw-w-5 tw-h-5 tw-text-red-400 tw-mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="tw-text-red-800 tw-text-sm tw-font-medium">
+                                Editing is no longer allowed. You can only edit boardings at least 3 days before the start date.
+                            </span>
+                        </div>
                     </div>
-                    <p class="tw-text-xs tw-text-gray-500 tw-mt-1">Price calculation: <span id="edit-price-calculation">Select service and dates</span></p>
+                </div>
+                
+                <!-- Current Boarding Details Section (Read-only) -->
+                <div class="tw-mb-4">
+                    <h4 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-3">Current Boarding Details</h4>
+                    
+                    <div class="tw-bg-gray-50 tw-rounded-lg tw-p-4 tw-space-y-3">
+                        <!-- Pet Information (Read-only) -->
+                        <div class="tw-flex tw-justify-between tw-items-center">
+                            <span class="tw-text-sm tw-text-gray-600">Pet:</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-800" id="current-pet-info">-</span>
+                        </div>
+                        
+                        <!-- Service Information (Read-only) -->
+                        <div class="tw-flex tw-justify-between tw-items-center">
+                            <span class="tw-text-sm tw-text-gray-600">Service:</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-800" id="current-service-info">-</span>
+                        </div>
+                        
+                        <!-- Boarding Type (Read-only) -->
+                        <div class="tw-flex tw-justify-between tw-items-center">
+                            <span class="tw-text-sm tw-text-gray-600">Type:</span>
+                            <span class="tw-text-sm tw-font-medium tw-text-gray-800" id="current-type-info">-</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Date validation warning -->
-                <div id="edit-date-warning" class="tw-mt-2 tw-hidden tw-mb-4">
-                    <p class="tw-text-red-500 tw-text-sm tw-flex tw-items-center">
-                        <i class="fas fa-exclamation-triangle tw-mr-2"></i>
-                        <span id="edit-date-warning-text">End date must be after start date.</span>
-                    </p>
+                <!-- Editable Date Range Section -->
+                <div class="tw-mb-4" id="edit-editable-section">
+                    <h4 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-3">Reschedule Boarding</h4>
+                    
+                    <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+                        <div>
+                            <label for="edit-start-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">New Start Date</label>
+                            <input type="date" name="start_date" id="edit-start-date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        </div>
+                        <div>
+                            <label for="edit-end-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">New End Date</label>
+                            <input type="date" name="end_date" id="edit-end-date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Date validation warning -->
+                    <div id="edit-date-warning" class="tw-mt-2 tw-hidden">
+                        <p class="tw-text-red-500 tw-text-sm tw-flex tw-items-center">
+                            <svg class="tw-w-4 tw-h-4 tw-mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="edit-date-warning-text">End date must be after start date.</span>
+                        </p>
+                    </div>
                 </div>
+                
+                <!-- Status (Hidden, for system use) -->
+                <input type="hidden" id="edit-boarding-status" name="status" value="Confirmed">
                 
                 <div class="tw-flex tw-gap-3">
                     <button type="button" data-modal-toggle="editBoarding-modal" class="tw-text-gray-700 tw-bg-gray-200 hover:tw-bg-gray-300 tw-font-medium tw-rounded-lg tw-text-sm tw-px-4 tw-py-2.5 tw-text-center tw-flex-1">
@@ -101,70 +124,49 @@
 const EditBoardingModal = {
     // Store elements references
     elements: {
-        petSelect: null,
-        boardingTypeSelect: null,
+        petIDInput: null,
+        serviceIDInput: null,
+        boardingTypeInput: null,
         startDateInput: null,
         endDateInput: null,
-        daycareDate: null,
-        dateRangeContainer: null,
-        singleDateContainer: null,
-        boardingStatusSelect: null,
-        priceDisplay: null,
-        priceCalculation: null,
+        boardingStatusInput: null,
         form: null,
+        boardingIDInput: null,
     },
     
     // Store boarding data temporarily
     boardingID: null,
     boardingData: null,
-    petData: null,
-    serviceData: null,
-    price: 0,
-    services: [],
-    selectedService: null,
-    isDaycare: false,
-    isOvernight: false,
-    isExtended: false,
-    allPets: [],
-    boundOvernightListener: null,
+    canEdit: true,
     
     // Initialize the modal functionality
     init: function() {
         // Get elements
-        this.elements.petSelect = document.getElementById('edit-boarding-pet');
-        this.elements.boardingTypeSelect = document.getElementById('edit-boarding-type');
+        this.elements.petIDInput = document.getElementById('edit-boarding-pet');
+        this.elements.serviceIDInput = document.getElementById('edit-boarding-type');
+        this.elements.boardingTypeInput = document.getElementById('edit-boarding-boardingType');
         this.elements.startDateInput = document.getElementById('edit-start-date');
         this.elements.endDateInput = document.getElementById('edit-end-date');
-        this.elements.daycareDate = document.getElementById('edit-daycare-date');
-        this.elements.dateRangeContainer = document.getElementById('edit-date-range-container');
-        this.elements.singleDateContainer = document.getElementById('edit-single-date-container');
-        this.elements.boardingStatusSelect = document.getElementById('edit-boarding-status');
-        this.elements.priceDisplay = document.getElementById('edit-boarding-price');
-        this.elements.priceCalculation = document.getElementById('edit-price-calculation');
+        this.elements.boardingStatusInput = document.getElementById('edit-boarding-status');
         this.elements.form = document.getElementById('editBoardingForm');
         this.elements.boardingIDInput = document.getElementById('edit-boarding-id');
         
-        this.boundOvernightListener = this.updateOvernightEndDate.bind(this);
-        
         // Set up event handlers
         this.setupEventHandlers();
+        
+        // Set minimum dates to today
+        this.setMinimumDates();
     },
     
     setupEventHandlers: function() {
-        // Setup input change handlers for price calculation
+        // Setup date validation
         this.elements.startDateInput.addEventListener('change', () => {
             this.validateDates();
-            this.calculatePrice();
         });
         
         this.elements.endDateInput.addEventListener('change', () => {
             this.validateDates();
-            this.calculatePrice();
         });
-        
-        this.elements.daycareDate.addEventListener('change', this.calculatePrice.bind(this));
-        this.elements.boardingTypeSelect.addEventListener('change', this.handleServiceChange.bind(this));
-        this.elements.petSelect.addEventListener('change', this.handlePetChange.bind(this));
                 
         // Setup form submission
         if (this.elements.form) {
@@ -182,320 +184,87 @@ const EditBoardingModal = {
         }
     },
     
+    setMinimumDates: function() {
+        // Set minimum date to today for both date inputs
+        const today = new Date().toISOString().split('T')[0];
+        this.elements.startDateInput.setAttribute('min', today);
+        this.elements.endDateInput.setAttribute('min', today);
+    },
+    
     resetForm: function() {
         this.elements.form.reset();
         this.elements.startDateInput.value = '';
         this.elements.endDateInput.value = '';
-        this.elements.daycareDate.value = '';
-        this.elements.priceDisplay.textContent = '₱0.00';
-        this.elements.priceCalculation.textContent = 'Select service and dates';
-        this.selectedService = null;
-        this.isDaycare = false;
-        this.isOvernight = false;
-        this.isExtended = false;
+        this.canEdit = true;
         
-        // Reset visibility of date fields
-        this.elements.dateRangeContainer.classList.remove('tw-hidden');
-        this.elements.singleDateContainer.classList.add('tw-hidden');
-        
-        // Remove overnight listener if it was added
-        this.elements.startDateInput.removeEventListener('change', this.boundOvernightListener);
-        
-        // Hide error message if shown
+        // Hide warning messages
         document.getElementById('edit-date-warning').classList.add('tw-hidden');
+        document.getElementById('edit-restriction-warning').classList.add('tw-hidden');
+        document.getElementById('edit-disabled-warning').classList.add('tw-hidden');
+        
+        // Re-enable date inputs
+        this.elements.startDateInput.disabled = false;
+        this.elements.endDateInput.disabled = false;
     },
     
-    loadPets: function() {
-        // Set loading state
-        this.elements.petSelect.innerHTML = '<option value="">Loading pets...</option>';
-        
-        // Fetch user's pets from the database with better debugging
-        fetch(`{{ route('user.pets.list') }}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Pet data received:', data); // Debug response
-            this.elements.petSelect.innerHTML = '<option value="">Select your pet</option>';
-            
-            // Handle different response formats
-            let pets = [];
-            if (Array.isArray(data)) {
-                // If response is a direct array of pets
-                pets = data;
-            } else if (data.pets && Array.isArray(data.pets)) {
-                // If response has a "pets" key with array
-                pets = data.pets;
-            } else if (data.data && Array.isArray(data.data)) {
-                // If response follows Laravel API resource format
-                pets = data.data;
-            } else {
-                console.error('Unexpected pet data format:', data);
-            }
-            
-            this.allPets = pets;
-            
-            if (this.allPets.length === 0) {
-                this.elements.petSelect.innerHTML += '<option value="" disabled>No pets found. Please add a pet first.</option>';
-            } else {
-                this.allPets.forEach(pet => {
-                    const option = document.createElement('option');
-                    option.value = pet.petID;
-                    option.textContent = `${pet.name} (${pet.species || 'Unknown'})`;
-                    
-                    // Select the pet if it matches the boarding pet
-                    if (this.petData && pet.petID == this.petData.petID) {
-                        option.selected = true;
-                    }
-                    
-                    this.elements.petSelect.appendChild(option);
-                });
-            }
-        })
-        .catch(err => {
-            console.error('Error loading pets:', err);
-            this.elements.petSelect.innerHTML = '<option value="">Error loading pets</option>';
-            
-            // More detailed error in console
-            console.error('Fetch details:', {
-                url: `{{ route('user.pets.list') }}`,
-                error: err.message
-            });
-        });
-    },
-
-    handlePetChange: function() {
-        const petID = this.elements.petSelect.value;
-        if (!petID || !this.allPets) {
-            this.petData = null;
-            return;
+    displayCurrentBoardingDetails: function(boarding) {
+        // Display current pet
+        const petNameSpan = document.getElementById('current-pet-info');
+        if (petNameSpan && boarding.pet) {
+            petNameSpan.textContent = `${boarding.pet.name} (${boarding.pet.species || 'Unknown'})`;
         }
         
-        // Find the selected pet in our stored pets array
-        this.petData = this.allPets.find(pet => pet.petID == petID);
-        console.log('Selected pet:', this.petData);
-    },
-    
-    loadBoardingServices: function() {
-        // Set loading state
-        this.elements.boardingTypeSelect.innerHTML = '<option value="">Loading services...</option>';
-        
-        // Fetch boarding services from the database
-        fetch(`{{ route('services.boarding') }}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            this.services = data;
-            this.elements.boardingTypeSelect.innerHTML = '<option value="">Select service type</option>';
-            
-            if (data.length === 0) {
-                this.elements.boardingTypeSelect.innerHTML += '<option value="" disabled>No boarding services available</option>';
-            } else {
-                data.forEach(service => {
-                    const option = document.createElement('option');
-                    option.value = service.serviceID;
-                    option.textContent = `${service.name} - ₱${service.price}`;
-                    
-                    // Select the service if it matches the boarding service
-                    if (this.serviceData && service.serviceID == this.serviceData.serviceID) {
-                        option.selected = true;
-                    }
-                    
-                    this.elements.boardingTypeSelect.appendChild(option);
-                });
-            }
-            
-            // If we have a boarding type already, handle the service change
-            if (this.elements.boardingTypeSelect.value) {
-                this.handleServiceChange();
-            }
-        })
-        .catch(err => {
-            console.error('Error loading boarding services:', err);
-            this.elements.boardingTypeSelect.innerHTML = '<option value="">Error loading services</option>';
-        });
-    },
-    
-    handleServiceChange: function() {
-        const serviceID = this.elements.boardingTypeSelect.value;
-        if (!serviceID) {
-            // Reset UI elements if no service selected
-            this.elements.dateRangeContainer.classList.add('tw-hidden');
-            this.elements.singleDateContainer.classList.add('tw-hidden');
-            this.elements.priceDisplay.textContent = '₱0.00';
-            this.elements.priceCalculation.textContent = 'Select service and dates';
-            return;
+        // Display current service
+        const serviceNameSpan = document.getElementById('current-service-info');
+        if (serviceNameSpan && boarding.service) {
+            serviceNameSpan.textContent = `${boarding.service.name} - ₱${parseFloat(boarding.service.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
         }
         
-        // Find the selected service data
-        this.selectedService = this.services.find(service => service.serviceID == serviceID);
-        if (!this.selectedService) return;
+        // Display current boarding type
+        const typeSpan = document.getElementById('current-type-info');
+        if (typeSpan) {
+            typeSpan.textContent = boarding.boardingType;
+        }
+    },
+    
+    checkEditingRestrictions: function(boarding) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        const serviceName = this.selectedService.name.toLowerCase();
+        const startDate = new Date(boarding.start_date);
+        startDate.setHours(0, 0, 0, 0);
         
-        // Check service type
-        this.isDaycare = serviceName.includes('daycare');
-        this.isOvernight = serviceName.includes('overnight');
-        this.isExtended = serviceName.includes('extended');
+        // Calculate days until start
+        const daysUntilStart = Math.floor((startDate - today) / (1000 * 60 * 60 * 24));
         
-        // Show/hide appropriate date fields
-        if (this.isDaycare) {
-            // For daycares, hide date range and show single date
-            this.elements.dateRangeContainer.classList.add('tw-hidden');
-            this.elements.singleDateContainer.classList.remove('tw-hidden');
-            this.elements.startDateInput.removeAttribute('required');
-            this.elements.endDateInput.removeAttribute('required');
-            this.elements.daycareDate.setAttribute('required', 'required');
+        // Check if editing should be disabled
+        if (daysUntilStart < 3) {
+            this.canEdit = false;
             
-            // Copy start date to daycare date if set
-            if (this.elements.startDateInput.value && !this.elements.daycareDate.value) {
-                this.elements.daycareDate.value = this.elements.startDateInput.value;
-            }
+            // Disable date inputs
+            this.elements.startDateInput.disabled = true;
+            this.elements.endDateInput.disabled = true;
             
+            // Show disabled warning
+            const disabledWarning = document.getElementById('edit-disabled-warning');
+            disabledWarning.classList.remove('tw-hidden');
+            
+            // Hide the regular restriction warning
+            document.getElementById('edit-restriction-warning').classList.add('tw-hidden');
         } else {
-            // For any boarding service, show appropriate fields
-            this.elements.dateRangeContainer.classList.remove('tw-hidden');
-            this.elements.singleDateContainer.classList.add('tw-hidden');
-            this.elements.startDateInput.setAttribute('required', 'required');
-            this.elements.daycareDate.removeAttribute('required');
+            this.canEdit = true;
             
-            // Handle overnight boarding - show only start date
-            if (this.isOvernight) {
-                // Hide end date input as it will be auto-calculated
-                document.querySelector('label[for="edit-end-date"]').parentElement.classList.add('tw-hidden');
-                this.elements.endDateInput.removeAttribute('required');
-                
-                // Add the event listener for overnight - using our stored bound function
-                this.elements.startDateInput.addEventListener('change', this.boundOvernightListener);
-                
-                // If start date already has a value, update end date now
-                if (this.elements.startDateInput.value) {
-                    this.updateOvernightEndDate();
-                }
-            } else {
-                // For extended boarding, show both date inputs
-                document.querySelector('label[for="edit-end-date"]').parentElement.classList.remove('tw-hidden');
-                this.elements.endDateInput.setAttribute('required', 'required');
-                
-                // Remove overnight listener if it was added
-                this.elements.startDateInput.removeEventListener('change', this.boundOvernightListener);
-            }
-        }
-        
-        // Recalculate price
-        this.calculatePrice();
-    },
-
-    // Add new method to handle overnight end date calculation
-    updateOvernightEndDate: function() {
-        const startDate = this.elements.startDateInput.value;
-        if (!startDate) return;
-        
-        // Get the next day
-        const nextDay = new Date(startDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        
-        // Format next day as YYYY-MM-DD for input
-        const year = nextDay.getFullYear();
-        const month = String(nextDay.getMonth() + 1).padStart(2, '0');
-        const day = String(nextDay.getDate()).padStart(2, '0');
-        const formattedNextDay = `${year}-${month}-${day}`;
-        
-        // Set end date to next day
-        this.elements.endDateInput.value = formattedNextDay;
-        
-        // Recalculate price
-        this.calculatePrice();
-    },
-    
-    calculatePrice: function() {
-        if (!this.selectedService) {
-            this.price = 0;
-            this.elements.priceDisplay.textContent = '₱0.00';
-            this.elements.priceCalculation.textContent = 'Select service and dates';
-            return;
-        }
-        
-        if (this.isDaycare) {
-            // For daycare, price is fixed regardless of date
-            const dayDate = this.elements.daycareDate.value;
-            if (!dayDate) {
-                this.price = 0;
-                this.elements.priceDisplay.textContent = '₱0.00';
-                this.elements.priceCalculation.textContent = 'Select date';
-                return;
+            // Show the regular restriction warning (3 days notice)
+            const restrictionWarning = document.getElementById('edit-restriction-warning');
+            const restrictionMessage = document.getElementById('edit-restriction-message');
+            restrictionWarning.classList.remove('tw-hidden');
+            
+            if (restrictionMessage) {
+                restrictionMessage.textContent = 'Reminder: Boardings can only be edited at least 3 days before the start date.';
             }
             
-            // Price is just the service price (fixed price)
-            this.price = parseFloat(this.selectedService.price);
-            this.elements.priceDisplay.textContent = `₱${this.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            this.elements.priceCalculation.textContent = `Daycare - ${this.selectedService.name}`;
-            
-        } else if (this.isOvernight) {
-            // For overnight boarding, price is fixed regardless of date
-            const startDate = this.elements.startDateInput.value;
-            if (!startDate) {
-                this.price = 0;
-                this.elements.priceDisplay.textContent = '₱0.00';
-                this.elements.priceCalculation.textContent = 'Select start date';
-                return;
-            }
-            
-            // Price is just the service price (fixed price)
-            this.price = parseFloat(this.selectedService.price);
-            this.elements.priceDisplay.textContent = `₱${this.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            this.elements.priceCalculation.textContent = `Overnight Stay - ${this.selectedService.name}`;
-            
-        } else {
-            // For extended boarding, calculate based on number of days
-            const startDate = this.elements.startDateInput.value;
-            const endDate = this.elements.endDateInput.value;
-            
-            if (!startDate || !endDate) {
-                this.price = 0;
-                this.elements.priceDisplay.textContent = '₱0.00';
-                this.elements.priceCalculation.textContent = 'Select start and end dates';
-                return;
-            }
-            
-            // Calculate number of days
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            
-            // Include both start and end days in the calculation
-            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-            
-            if (days <= 0) {
-                this.price = 0;
-                this.elements.priceDisplay.textContent = '₱0.00';
-                this.elements.priceCalculation.textContent = 'End date must be after start date';
-                return;
-            }
-            
-            // Calculate price (service price is daily rate)
-            const pricePerDay = parseFloat(this.selectedService.price);
-            const totalPrice = pricePerDay * days;
-            this.price = totalPrice;
-            
-            this.elements.priceDisplay.textContent = `₱${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            this.elements.priceCalculation.textContent = `${days} day(s) × ₱${pricePerDay} = ₱${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            // Hide disabled warning
+            document.getElementById('edit-disabled-warning').classList.add('tw-hidden');
         }
     },
     
@@ -528,9 +297,6 @@ const EditBoardingModal = {
         this.boardingID = boardingId;
         this.elements.boardingIDInput.value = boardingId;
         
-        // Show loading state
-        this.elements.priceCalculation.textContent = 'Loading boarding data...';
-        
         // Fetch boarding data from the server
         fetch(`{{ route('user.boardings.show', ['id' => ':id']) }}`.replace(':id', boardingId), {
             headers: {
@@ -551,19 +317,9 @@ const EditBoardingModal = {
             
             // Store boarding data
             this.boardingData = data.boarding;
-            this.petData = data.boarding.pet;
-            
-            // Set service data if we have it
-            if (data.boarding.service) {
-                this.serviceData = data.boarding.service;
-            }
             
             // Fill the form with boarding data
             this.populateForm(data);
-            
-            // Load pets and services dropdowns
-            this.loadPets();
-            this.loadBoardingServices();
         })
         .catch(err => {
             console.error('Error loading boarding data:', err);
@@ -579,91 +335,59 @@ const EditBoardingModal = {
     populateForm: function(data) {
         const boarding = data.boarding;
         
-        // Set status
-        this.elements.boardingStatusSelect.value = boarding.status;
+        // Set hidden inputs (these won't be editable)
+        this.elements.petIDInput.value = boarding.petID;
+        this.elements.serviceIDInput.value = boarding.serviceID;
+        this.elements.boardingTypeInput.value = boarding.boardingType;
+        this.elements.boardingStatusInput.value = boarding.status;
         
-        // Set dates
+        // Display current boarding details (read-only)
+        this.displayCurrentBoardingDetails(boarding);
+        
+        // Check editing restrictions (3-day rule)
+        this.checkEditingRestrictions(boarding);
+        
+        // Set dates (editable if canEdit is true)
         this.elements.startDateInput.value = boarding.start_date;
         this.elements.endDateInput.value = boarding.end_date;
-        
-        // For daycare, also set the daycare date
-        if (boarding.boardingType.toLowerCase() === 'daycare') {
-            this.elements.daycareDate.value = boarding.start_date;
-        }
-        
     },
     
     handleFormSubmit: function(e) {
         e.preventDefault();
 
-        // Validate form
-        if (!this.elements.petSelect.value) {
-            this.showError('Please select a pet');
+        // Check if editing is allowed
+        if (!this.canEdit) {
+            this.showError('Cannot edit boarding less than 3 days before the start date.');
+            return;
+        }
+
+        // Validate dates
+        if (!this.elements.startDateInput.value) {
+            this.showError('Please select a start date');
             return;
         }
         
-        if (!this.elements.boardingTypeSelect.value) {
-            this.showError('Please select a service type');
+        if (!this.elements.endDateInput.value) {
+            this.showError('Please select an end date');
             return;
         }
         
-        if (this.isDaycare) {
-            // Daycare validation
-            if (!this.elements.daycareDate.value) {
-                this.showError('Please select a date for daycare');
-                return;
-            }
-            
-        } else {
-            // Boarding validation
-            if (!this.elements.startDateInput.value) {
-                this.showError('Please select a start date');
-                return;
-            }
-            
-            if (!this.elements.endDateInput.value) {
-                this.showError('Please select an end date');
-                return;
-            }
-            
-            // Validate dates
-            if (!this.validateDates()) {
-                this.showError('End date must be after start date');
-                return;
-            }
+        // Validate dates
+        if (!this.validateDates()) {
+            this.showError('End date must be after start date');
+            return;
         }
+        
         // Prepare form data
         const formData = new FormData();
         formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
         formData.append('_method', 'PUT');
-        formData.append('petID', this.elements.petSelect.value);
-        
-        // Determine boarding type from service name
-        const selectedService = this.services.find(s => s.serviceID == this.elements.boardingTypeSelect.value);
-        let boardingType = 'Extended';
-        if (selectedService) {
-            const serviceName = selectedService.name.toLowerCase();
-            if (serviceName.includes('daycare')) {
-                boardingType = 'Daycare';
-            } else if (serviceName.includes('overnight')) {
-                boardingType = 'Overnight';
-            }
-        }
-        formData.append('boardingType', boardingType);
-        formData.append('serviceID', this.elements.boardingTypeSelect.value);
-        
-        // Dates - use daycare date for both start and end if it's a daycare
-        if (this.isDaycare) {
-            formData.append('start_date', this.elements.daycareDate.value);
-            formData.append('end_date', this.elements.daycareDate.value);
-        } else {
-            formData.append('start_date', this.elements.startDateInput.value);
-            formData.append('end_date', this.elements.endDateInput.value);
-        }
-        
-        // Status
-        formData.append('status', this.elements.boardingStatusSelect.value);
-        
+        formData.append('petID', this.elements.petIDInput.value);
+        formData.append('boardingType', this.elements.boardingTypeInput.value);
+        formData.append('serviceID', this.elements.serviceIDInput.value);
+        formData.append('start_date', this.elements.startDateInput.value);
+        formData.append('end_date', this.elements.endDateInput.value);
+        formData.append('status', this.elements.boardingStatusInput.value);
         
         // Show loading state
         const submitButton = this.elements.form.querySelector('button[type="submit"]');
