@@ -521,9 +521,10 @@
                         data: 'status',
                         width: '15%',
                         render: function(data) {
-                            let colorClass = data === 'Confirmed' ? 'tw-bg-blue-100 tw-text-blue-800' :
-                                        data === 'Completed' ? 'tw-bg-green-100 tw-text-green-800' :
+                            let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
+                                        data === 'Completed' ? 'tw-bg-gray-100 tw-text-gray-800' :
                                         data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
+                                        data === 'Active' ? 'tw-bg-orange-100 tw-text-orange-800' :
                                         'tw-bg-red-100 tw-text-red-800';
                             return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                         }
@@ -532,8 +533,8 @@
                         data: null,
                         width: '20%',
                         render: function(data) {
-                            // If appointment is completed, show only view button
-                            if (data.status === 'Completed') {
+                            // If appointment is completed or cancelled, show only view button
+                            if (data.status === 'Completed' || data.status === 'Cancelled') {
                                 return `
                                     <div class="tw-flex tw-gap-2 tw-justify-center">
                                         <button onclick="ManagePage.viewAppointment(${data.appointmentID})" 
@@ -563,7 +564,20 @@
                         }
                     }
                 ],
-        
+                createdRow: function(row, data, dataIndex) {
+                    // Highlight upcoming appointments (within 3 days from now)
+                    if (data.status === 'Confirmed') {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const appointmentDate = new Date(data.date);
+                        const daysUntilAppointment = Math.ceil((appointmentDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysUntilAppointment >= 0 && daysUntilAppointment <= 3) {
+                            // Upcoming appointments (within 3 days) - light blue background
+                            $(row).addClass('tw-bg-blue-50');
+                        }
+                    }
+                }
             });
 
             // Initialize boardings table
@@ -593,16 +607,18 @@
                         width: '15%',
                         render: function(data) {
                             let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
-                                        data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
-                                        'tw-bg-red-100 tw-text-red-800';
+                                        data === 'Active' ? 'tw-bg-orange-100 tw-text-orange-800' :
+                                        data === 'Completed' ? 'tw-bg-gray-100 tw-text-gray-800' :
+                                        data === 'Cancelled' ? 'tw-bg-red-100 tw-text-red-800' :
+                                        'tw-bg-yellow-100 tw-text-yellow-800';
                             return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                         }
                     },
                     {
                         data: null,
                         render: function(data) {
-                            // If boarding is completed, show only view button
-                            if (data.status === 'Completed') {
+                            // If boarding is completed or cancelled, show only view button
+                            if (data.status === 'Completed' || data.status === 'Cancelled') {
                                 return `
                                     <div class="tw-flex tw-gap-2 tw-justify-center">
                                         <button onclick="ManagePage.viewBoarding(${data.boardingID})" 
@@ -631,7 +647,25 @@
                             `;
                         }
                     }
-                ]
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    // Highlight upcoming bookings (within 7 days from now) and active bookings
+                    if (data.status === 'Active') {
+                        // Active bookings - bright green background
+                        $(row).addClass('tw-bg-green-50');
+                    } else if (data.status === 'Confirmed') {
+                        // Check if boarding starts within the next 7 days
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const startDate = new Date(data.start_date);
+                        const daysUntilStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysUntilStart >= 0 && daysUntilStart <= 7) {
+                            // Upcoming bookings (within 7 days) - light blue background
+                            $(row).addClass('tw-bg-blue-50');
+                        }
+                    }
+                }
             });
         },
 
