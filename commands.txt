@@ -33,3 +33,7 @@ php artisan migrate:fresh --seed
 <?php
 // In any blade view:
 <x-appointment-status-badge :status="$appointment->status" />
+
+for both tabs
+completed is gray, confirmed is green
+pending is yellow, active is orange

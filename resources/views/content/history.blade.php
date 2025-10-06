@@ -48,7 +48,7 @@
                     <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all type-filter tw-text-gray-500 hover:tw-bg-gray-100"
                             data-type="Completed">Completed</button>
                     <button class="tw-px-4 tw-py-2 tw-rounded-xl tw-text-sm tw-font-medium tw-transition-all type-filter tw-text-gray-500 hover:tw-bg-gray-100"
-                            data-type="Voided">Voided</button>
+                            data-type="Cancelled">Cancelled</button>
                 </div>
             </div>
         </div>

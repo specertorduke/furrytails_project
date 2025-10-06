@@ -183,9 +183,7 @@
                             title: 'Deleted!',
                             text: 'Pet has been deleted successfully',
                             icon: 'success',
-                            confirmButtonColor: '#24CFF4',
-                            background: '#374151',
-                            color: '#fff'
+                            confirmButtonColor: '#24CFF4'
                         }).then(() => {
                             // Close any open modals
                             const viewPetModal = document.getElementById('viewPet-modal');
@@ -206,9 +204,7 @@
                         title: 'Error!',
                         text: error.message || 'Failed to delete pet',
                         icon: 'error',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
+                        confirmButtonColor: '#24CFF4'
                     });
                 });
             }

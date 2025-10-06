@@ -232,10 +232,13 @@
                 statusElement.classList.add('tw-bg-yellow-100', 'tw-text-yellow-800');
                 break;
             case 'confirmed':
-                statusElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800'); // Changed to blue
+                statusElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
+                break;
+            case 'active':
+                statusElement.classList.add('tw-bg-orange-100', 'tw-text-orange-800');
                 break;
             case 'completed':
-                statusElement.classList.add('tw-bg-green-100', 'tw-text-green-800'); // Changed to green
+                statusElement.classList.add('tw-bg-gray-100', 'tw-text-gray-800');
                 break;
             case 'cancelled':
                 statusElement.classList.add('tw-bg-red-100', 'tw-text-red-800');
