@@ -133,8 +133,8 @@
                             
                             <!-- Pet Image -->
                             <div class="tw-flex tw-justify-center tw-mb-4">
-                                <div class="tw-w-32 tw-h-32 tw-rounded-full tw-overflow-hidden tw-border-4 tw-border-[#24CFF4]/30">
-                                    <img id="boarding.pet-image" src="" alt="Pet" class="tw-w-full tw-h-full tw-object-cover">
+                                <div id="boarding-pet-image" class="tw-w-32 tw-h-32 tw-rounded-full tw-overflow-hidden tw-border-4 tw-border-[#24CFF4]/30 tw-bg-gray-200 tw-flex tw-items-center tw-justify-center">
+                                    <!-- Image will be populated by JavaScript -->
                                 </div>
                             </div>
                             
@@ -240,17 +240,19 @@
                 throw new Error(data.message || 'Failed to load boarding data');
             }
             
+            console.log("Boarding data received:", data);
+            
             // Populate boarding details
             populateBoardingDetails(data.boarding);
             
-            // Populate pet information
-            populatePetDetails(data.pet);
+            // Populate pet information - pet is nested in boarding object
+            populatePetDetails(data.boarding.pet);
             
-            // Populate payment information
-            populatePaymentDetails(data.payment, data.boarding);
+            // Populate payment information - payments array is in boarding object
+            populatePaymentDetails(data.boarding.payments, data.boarding);
             
             // Populate boarding history
-            populateBoardingHistory(data.history);
+            populateBoardingHistory(data.boardingHistory);
             
             // Show/hide cancel button based on status
             toggleCancelButton(data.boarding);
@@ -282,14 +284,14 @@
         
         // Add appropriate status color class
         switch(boarding.status) {
-            case 'Pending':
-                statusElement.classList.add('tw-bg-yellow-100', 'tw-text-yellow-800');
+            case 'Confirmed':
+                statusElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
                 break;
             case 'Active':
                 statusElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
                 break;
             case 'Completed':
-                statusElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
+                statusElement.classList.add('tw-bg-gray-100', 'tw-text-gray-800');
                 break;
             case 'Cancelled':
                 statusElement.classList.add('tw-bg-red-100', 'tw-text-red-800');
@@ -299,7 +301,7 @@
         }
         
         // Set boarding type
-        document.getElementById('view-boarding-type').textContent = boarding.boarding_type || 'Regular Boarding';
+        document.getElementById('view-boarding-type').textContent = boarding.boardingType || 'Regular Boarding';
         
         // Format dates
         const startDate = new Date(boarding.start_date);
@@ -319,30 +321,29 @@
     // Function to populate pet details
     function populatePetDetails(pet) {
     console.log("Pet data received:", pet);
-    if (!pet) return;
-    
-    // Extract pet from nested structure if needed
-    if (pet["App\\Models\\Pet"]) {
-        pet = pet["App\\Models\\Pet"];
-        console.log("Extracted pet from nested structure:", pet);
+    if (!pet) {
+        console.error("No pet data provided");
+        return;
     }
     
     // Set pet name
-    document.getElementById('view-pet-name').textContent = pet.name;
+    document.getElementById('view-pet-name').textContent = pet.name || 'Unknown';
     
     // Set pet image or use default
-    const petImage = document.getElementById('boarding.pet-image');
+    const petImage = document.getElementById('boarding-pet-image');
     if (pet.petImage) {
-        let imageUrl = "{{ asset('storage/') }}/" + pet.petImage.replace(/^storage\//i, '');
-        petImage.src = imageUrl;
+        let imageUrl = "{{ asset('') }}" + (pet.petImage.startsWith('storage/') 
+            ? pet.petImage 
+            : 'storage/' + pet.petImage);
+        petImage.innerHTML = `<img src="${imageUrl}" alt="${pet.name}" class="tw-w-full tw-h-full tw-object-cover">`;
     } else {
         // Default icon based on species
-        let speciesIcon = '<i class="fas fa-paw tw-text-lg tw-text-gray-500"></i>';
+        let speciesIcon = '<i class="fas fa-paw tw-text-4xl tw-text-gray-400"></i>';
         
         if (pet.species && pet.species.toLowerCase() === 'dog') {
-            speciesIcon = '<i class="fas fa-dog tw-text-lg tw-text-gray-500"></i>';
+            speciesIcon = '<i class="fas fa-dog tw-text-4xl tw-text-gray-400"></i>';
         } else if (pet.species && pet.species.toLowerCase() === 'cat') {
-            speciesIcon = '<i class="fas fa-cat tw-text-lg tw-text-gray-500"></i>';
+            speciesIcon = '<i class="fas fa-cat tw-text-4xl tw-text-gray-400"></i>';
         }
         
         petImage.innerHTML = speciesIcon;
@@ -400,8 +401,16 @@
 }
     
     // Function to populate payment details
-    function populatePaymentDetails(payment, boarding) {
+    function populatePaymentDetails(payments, boarding) {
         try {
+            // Get the first payment if payments is an array
+            let payment = null;
+            if (Array.isArray(payments) && payments.length > 0) {
+                payment = payments[0];
+            } else if (payments && !Array.isArray(payments)) {
+                payment = payments;
+            }
+            
             // Safely calculate the rate with fallbacks
             let rate = 0;
             let total_days = 1;
@@ -411,7 +420,7 @@
                 const startDate = new Date(boarding.start_date);
                 const endDate = new Date(boarding.end_date);
                 const diffTime = Math.abs(endDate - startDate);
-                total_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // Ensure minimum 1 day
+                total_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
             } else if (boarding.total_days) {
                 total_days = boarding.total_days;
             }
@@ -419,6 +428,8 @@
             // Calculate daily rate based on available data
             if (payment && payment.amount && total_days > 0) {
                 rate = payment.amount / total_days;
+            } else if (boarding.baseRate) {
+                rate = parseFloat(boarding.baseRate);
             } else if (boarding.price_per_day) {
                 rate = parseFloat(boarding.price_per_day);
             } else if (boarding.total_price && total_days > 0) {
@@ -435,8 +446,8 @@
                 totalAmount = parseFloat(payment.amount);
             } else if (boarding.total_price) {
                 totalAmount = parseFloat(boarding.total_price);
-            } else if (boarding.price_per_day && total_days) {
-                totalAmount = parseFloat(boarding.price_per_day) * total_days;
+            } else if (rate && total_days) {
+                totalAmount = rate * total_days;
             }
             
             // Display total with safeguard against NaN
@@ -457,7 +468,7 @@
             
             // Add appropriate status color class
             switch(paymentStatus) {
-                case 'Paid':
+                case 'Completed':
                     paymentStatusElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
                     break;
                 case 'Pending':
@@ -475,9 +486,9 @@
             
             // Show/hide payment reference section
             const referenceSection = document.getElementById('payment-reference-section');
-            if (payment && payment.payment_reference) {
+            if (payment && payment.reference_number) {
                 referenceSection.classList.remove('tw-hidden');
-                document.getElementById('view-payment-reference').textContent = payment.payment_reference;
+                document.getElementById('view-payment-reference').textContent = payment.reference_number;
             } else {
                 referenceSection.classList.add('tw-hidden');
             }

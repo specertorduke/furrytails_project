@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class Boarding extends Model
 {
