@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use App\Models\ActivityLog;
+use Carbon\Carbon;
 
 class AdminAppointmentsController extends Controller
 {
@@ -340,16 +341,29 @@ class AdminAppointmentsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validate request including admin password
+        try {
+            $appointment = Appointment::findOrFail($id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment not found.'
+            ], 404);
+        }
+
+        $dateRules = ['required', 'date'];
+        if ($request->filled('date') && $request->input('date') !== $appointment->date) {
+            $dateRules[] = 'after_or_equal:today';
+        }
+
         $validator = Validator::make($request->all(), [
             'petID' => 'required|exists:pets,petID',
             'serviceID' => 'required|exists:services,serviceID', 
-            'date' => 'required|date|after_or_equal:today',
+            'date' => $dateRules,
             'time' => 'required',
             'status' => 'required|in:Pending,Confirmed,Completed,Cancelled',
             'before_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'after_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'admin_password' => 'required|string', // Add admin password requirement
+            'admin_password' => 'required|string',
         ], [
             'admin_password.required' => 'Admin password is required to update appointments.',
         ]);
@@ -361,9 +375,15 @@ class AdminAppointmentsController extends Controller
             ], 422);
         }
 
-        // Verify admin password
+        if ($request->input('date') !== $appointment->date && Carbon::parse($request->input('date'))->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The new appointment date must be today or later.'
+            ], 422);
+        }
+
         $admin = auth()->user();
-        if (!Hash::check($request->input('admin_password'), $admin->password)) {
+        if (!$admin || !Hash::check($request->input('admin_password'), $admin->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
@@ -371,8 +391,6 @@ class AdminAppointmentsController extends Controller
         }
 
         try {
-            $appointment = Appointment::findOrFail($id);
-            
             // Store original values for logging
             $originalValues = $appointment->toArray();
             

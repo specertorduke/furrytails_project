@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Pet;
 use App\Models\Appointment;
 use App\Models\Boarding;
+use App\Models\ActivityLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Storage;

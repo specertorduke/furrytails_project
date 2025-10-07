@@ -147,7 +147,7 @@
                         <label for="admin-password-edit-appointment" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">
                             <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
                         </label>
-                        <input type="password" id="admin-password-edit-appointment" name="admin-password" 
+               <input type="password" id="admin-password-edit-appointment" name="admin_password" 
                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#FF9666] tw-focus:tw-border-[#FF9666] tw-block tw-w-full tw-p-2.5" 
                                placeholder="Enter your current password" required>
                         <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm appointment changes</p>
@@ -450,11 +450,30 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    // Try to parse error response if possible
-                    return response.json().then(data => {
-                        throw new Error(data.message || `HTTP error! Status: ${response.status}`);
-                    }).catch(parseError => {
-                        throw new Error(`Server returned status ${response.status}`);
+                    return response.text().then(text => {
+                        let message = `Server returned status ${response.status}`;
+                        if (text) {
+                            try {
+                                const data = JSON.parse(text);
+                                if (data) {
+                                    if (data.errors) {
+                                        const firstError = Object.values(data.errors)[0];
+                                        if (Array.isArray(firstError) && firstError.length > 0) {
+                                            message = firstError[0];
+                                        } else if (typeof firstError === 'string') {
+                                            message = firstError;
+                                        }
+                                    } else if (typeof data.message === 'string' && data.message.trim() !== '') {
+                                        message = data.message;
+                                    }
+                                }
+                            } catch (e) {
+                                if (text.trim() !== '') {
+                                    message = text.trim();
+                                }
+                            }
+                        }
+                        throw new Error(message);
                     });
                 }
                 return response.json();

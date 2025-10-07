@@ -114,7 +114,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
     Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])->name('admin.upcoming-appointments.data');
     Route::get('/appointments/data', [AdminAppointmentsController::class, 'getAppointmentsData'])->name('admin.appointments.data');
-    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancelAppointment'])->name('admin.appointments.cancel');
+    Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancel'])->name('admin.appointments.cancel');
     Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
     Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
     Route::get('/appointments/{id}', [AdminAppointmentsController::class, 'show'])->name('admin.appointments.show');
