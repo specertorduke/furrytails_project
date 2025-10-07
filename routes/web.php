@@ -74,7 +74,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])->name('user.appointments.show');
     Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])->name('user.appointments.edit');
     Route::post('/appointments/store', [AppointmentsController::class, 'store'])->name('appointments.store');
-    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancelAppointment'])->name('user.appointments.cancel');
+    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancel'])->name('user.appointments.cancel');
     Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])->name('user.appointments.update');
     Route::delete('/appointments/{id}', [ManageController::class, 'deleteAppointment']);
 
