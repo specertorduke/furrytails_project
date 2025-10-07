@@ -373,84 +373,91 @@
                 return;
             }
             
-            // Show loading state
             const saveButton = document.getElementById('saveBoardingBtn');
             const originalButtonHTML = saveButton.innerHTML;
-            saveButton.disabled = true;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
-            
-            // Collect form data
-            const formData = new FormData(this);
-            
-            // Ensure method spoofing is set
-            formData.append('_method', 'PUT');
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            // Send update request
-            fetch("{{ route('admin.boardings.update', ['id' => ':id']) }}".replace(':id', editingBoardingID), {
-                method: 'POST', // POST with _method=PUT for Laravel method spoofing
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    // Don't set Content-Type with FormData
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    // Try to parse error response if possible
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Server returned status ' + response.status);
-                        }
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show success message
+
+            const submitUpdate = () => {
+                // Show loading state
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
+
+                const formData = new FormData(editBoardingForm);
+                formData.append('_method', 'PUT');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch("{{ route('admin.boardings.update', ['id' => ':id']) }}".replace(':id', editingBoardingID), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                throw new Error('Server returned status ' + response.status);
+                            }
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Boarding updated successfully',
+                            icon: 'success',
+                            confirmButtonColor: '#66FF8F',
+                            background: '#374151',
+                            color: '#fff'
+                        }).then(() => {
+                            document.getElementById('editBoarding-modal').classList.add('tw-hidden');
+                            if (window.BoardingsPage && window.BoardingsPage.boardingsTable) {
+                                window.BoardingsPage.boardingsTable.ajax.reload();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to update boarding');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating boarding:', error);
                     Swal.fire({
-                        title: 'Success!',
-                        text: 'Boarding updated successfully',
-                        icon: 'success',
+                        title: 'Error!',
+                        text: error.message || 'Failed to update boarding',
+                        icon: 'error',
                         confirmButtonColor: '#66FF8F',
                         background: '#374151',
                         color: '#fff'
-                    }).then(() => {
-                        // Hide modal and refresh data
-                        document.getElementById('editBoarding-modal').classList.add('tw-hidden');
-                        
-                        // Refresh the boardings table
-                        if (window.BoardingsPage && window.BoardingsPage.boardingsTable) {
-                            window.BoardingsPage.boardingsTable.ajax.reload();
-                        } else {
-                            // If we can't refresh the table, reload the page
-                            location.reload();
-                        }
                     });
-                } else {
-                    throw new Error(data.message || 'Failed to update boarding');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating boarding:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Failed to update boarding',
-                    icon: 'error',
-                    confirmButtonColor: '#66FF8F',
-                    background: '#374151',
-                    color: '#fff'
+                })
+                .finally(() => {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalButtonHTML;
                 });
-            })
-            .finally(() => {
-                // Restore button state
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalButtonHTML;
+            };
+
+            Swal.fire({
+                title: 'Save changes?',
+                text: 'Confirm updating this boarding reservation.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#66FF8F',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Yes, save it',
+                cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    submitUpdate();
+                }
             });
         });
     }

@@ -137,12 +137,6 @@
         <div id="boarding-pets-container" class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
             <!-- Pet cards will be populated by JavaScript -->
         </div>
-
-        <div class="tw-mt-4 tw-text-center">
-            <a href="{{ route('admin.boardings') }}" class="tw-text-[#66FF8F] tw-text-sm tw-font-medium hover:tw-underline">
-                View All Boardings
-            </a>
-        </div>
     </div>
 </div>
 

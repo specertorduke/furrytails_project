@@ -423,102 +423,110 @@
                 });
                 return;
             }
-            
-            // Show loading state
+
             const saveButton = document.getElementById('saveAppointmentBtn');
             const originalButtonHTML = saveButton.innerHTML;
-            saveButton.disabled = true;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
-            
-            // Collect form data
-            const formData = new FormData(this);
-            
-            // Ensure method spoofing is set
-            formData.append('_method', 'PUT');
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            // Send update request
-            fetch("{{ route('admin.appointments.update', ['id' => ':id']) }}".replace(':id', editingAppointmentID), {
-                method: 'POST', // POST with _method=PUT for Laravel method spoofing
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    // Don't set Content-Type with FormData
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        let message = `Server returned status ${response.status}`;
-                        if (text) {
-                            try {
-                                const data = JSON.parse(text);
-                                if (data) {
-                                    if (data.errors) {
-                                        const firstError = Object.values(data.errors)[0];
-                                        if (Array.isArray(firstError) && firstError.length > 0) {
-                                            message = firstError[0];
-                                        } else if (typeof firstError === 'string') {
-                                            message = firstError;
+
+            const submitUpdate = () => {
+                // Show loading state
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i> Saving...';
+
+                const formData = new FormData(editAppointmentForm);
+                formData.append('_method', 'PUT');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch("{{ route('admin.appointments.update', ['id' => ':id']) }}".replace(':id', editingAppointmentID), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            let message = `Server returned status ${response.status}`;
+                            if (text) {
+                                try {
+                                    const data = JSON.parse(text);
+                                    if (data) {
+                                        if (data.errors) {
+                                            const firstError = Object.values(data.errors)[0];
+                                            if (Array.isArray(firstError) && firstError.length > 0) {
+                                                message = firstError[0];
+                                            } else if (typeof firstError === 'string') {
+                                                message = firstError;
+                                            }
+                                        } else if (typeof data.message === 'string' && data.message.trim() !== '') {
+                                            message = data.message;
                                         }
-                                    } else if (typeof data.message === 'string' && data.message.trim() !== '') {
-                                        message = data.message;
+                                    }
+                                } catch (e) {
+                                    if (text.trim() !== '') {
+                                        message = text.trim();
                                     }
                                 }
-                            } catch (e) {
-                                if (text.trim() !== '') {
-                                    message = text.trim();
-                                }
                             }
-                        }
-                        throw new Error(message);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show success message
+                            throw new Error(message);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Appointment updated successfully',
+                            icon: 'success',
+                            confirmButtonColor: '#FF9666',
+                            background: '#374151',
+                            color: '#fff'
+                        }).then(() => {
+                            document.getElementById('editAppointment-modal').classList.add('tw-hidden');
+                            if (window.AppointmentsPage && window.AppointmentsPage.appointmentsTable) {
+                                window.AppointmentsPage.appointmentsTable.ajax.reload();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to update appointment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating appointment:', error);
                     Swal.fire({
-                        title: 'Success!',
-                        text: 'Appointment updated successfully',
-                        icon: 'success',
+                        title: 'Error!',
+                        text: error.message || 'Failed to update appointment',
+                        icon: 'error',
                         confirmButtonColor: '#FF9666',
                         background: '#374151',
                         color: '#fff'
-                    }).then(() => {
-                        // Hide modal and refresh data
-                        document.getElementById('editAppointment-modal').classList.add('tw-hidden');
-                        
-                        // Refresh the appointments table
-                        if (window.AppointmentsPage && window.AppointmentsPage.appointmentsTable) {
-                            window.AppointmentsPage.appointmentsTable.ajax.reload();
-                        } else {
-                            // If we can't refresh the table, reload the page
-                            location.reload();
-                        }
                     });
-                } else {
-                    throw new Error(data.message || 'Failed to update appointment');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating appointment:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Failed to update appointment',
-                    icon: 'error',
-                    confirmButtonColor: '#FF9666',
-                    background: '#374151',
-                    color: '#fff'
+                })
+                .finally(() => {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalButtonHTML;
                 });
-            })
-            .finally(() => {
-                // Restore button state
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalButtonHTML;
+            };
+
+            Swal.fire({
+                title: 'Save changes?',
+                text: 'Confirm updating this appointment with the new details.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#FF9666',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Yes, save it',
+                cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    submitUpdate();
+                }
             });
         });
     }
