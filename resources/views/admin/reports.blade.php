@@ -200,8 +200,30 @@
         
         <form id="restoreDatabaseForm" class="tw-space-y-4">
             <div>
+                <span class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-2">Restore Using</span>
+                <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-2">
+                    <label class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2 tw-cursor-pointer hover:tw-border-gray-400">
+                        <input type="radio" name="restore_method" value="datetime" class="tw-form-radio" checked>
+                        <span class="tw-text-sm tw-text-gray-200">Restore Point (Date & Time)</span>
+                    </label>
+                    <label class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-700 tw-border tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2 tw-cursor-pointer hover:tw-border-gray-400">
+                        <input type="radio" name="restore_method" value="log" class="tw-form-radio">
+                        <span class="tw-text-sm tw-text-gray-200">Activity Log ID</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="restore-datetime-wrapper">
                 <label for="restore-datetime" class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Restore Point (Date & Time)</label>
-                <input type="datetime-local" id="restore-datetime" name="restore_datetime" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" required>
+                <input type="datetime-local" id="restore-datetime" name="restore_datetime" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
+                <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Choose the exact moment to roll the database back to.</p>
+            </div>
+
+            <div id="restore-log-wrapper" class="tw-hidden">
+                <label for="restore-log-id" class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Activity Log ID</label>
+                <input type="number" id="restore-log-id" name="restore_log_id" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" min="1" placeholder="Enter the log ID to restore up to">
+                <p id="restore-log-feedback" class="tw-text-xs tw-text-gray-400 tw-mt-1">We'll restore the database to the moment this log entry was recorded.</p>
+                <input type="hidden" id="restore-log-timestamp" name="restore_log_timestamp">
             </div>
             
             <div>
@@ -232,6 +254,17 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        const logRouteTemplate = "{{ route('admin.reports.show', ':id') }}";
+        const $restoreModal = $('#restoreDatabaseModal');
+        const $restoreForm = $('#restoreDatabaseForm');
+        const $restoreDatetime = $('#restore-datetime');
+    const $restoreLogWrapper = $('#restore-log-wrapper');
+        const $restoreLogInput = $('#restore-log-id');
+        const $restoreLogFeedback = $('#restore-log-feedback');
+        const $restoreLogTimestamp = $('#restore-log-timestamp');
+    const defaultLogFeedback = "We'll restore the database to the moment this log entry was recorded.";
+        let logLookupTimeout = null;
+        let lastFetchedLogId = null;
 
         $(document).on('click', '.buttons-collection', function() {
             // Ensure dropdown is visible and properly positioned
@@ -442,7 +475,7 @@
             
             // View log details handler
             viewLogDetails: function(id) {
-                fetch(`{{ route('admin.reports.show', ':id') }}`.replace(':id', id))
+                fetch(logRouteTemplate.replace(':id', id))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -683,7 +716,7 @@
                     });
             },
             // Restore database to a point in time
-            restoreDatabase: function(timestamp, password = null) {
+            restoreDatabase: function(timestamp, password = null, logId = null) {
                 const performRestore = (adminPassword) => {
                     // Show loading state
                     Swal.fire({
@@ -697,7 +730,20 @@
                             Swal.showLoading();
                         }
                     });
-                    
+
+                    const payload = {
+                        confirm: true,
+                        password: adminPassword
+                    };
+
+                    if (timestamp) {
+                        payload.timestamp = timestamp;
+                    }
+
+                    if (logId) {
+                        payload.log_id = logId;
+                    }
+
                     fetch("{{ route('admin.reports.restore') }}", {
                         method: 'POST',
                         headers: {
@@ -705,11 +751,7 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            timestamp: timestamp,
-                            password: adminPassword,
-                            confirm: true
-                        })
+                        body: JSON.stringify(payload)
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -760,7 +802,7 @@
                         html: `
                             <div class="tw-text-left tw-mb-4">
                                 <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
-                                <p class="tw-mb-2 tw-text-white">You are about to restore the database to:</p>
+                                <p class="tw-mb-2 tw-text-white">${logId ? `You are about to restore the database up to activity log <span class="tw-font-semibold">#${logId}</span> recorded on:` : 'You are about to restore the database to:'}</p>
                                 <p class="tw-font-bold tw-bg-gray-700 tw-p-2 tw-rounded tw-text-yellow-300 tw-border tw-border-gray-600">${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
                                 <p class="tw-mt-2 tw-text-sm tw-text-gray-300">All changes after this point will be lost.</p>
                             </div>
@@ -801,163 +843,281 @@
             ReportsPage.viewLogDetails(logId);
         });
         
+        // Quick restore buttons in the table trigger password prompt workflow
         $(document).on('click', '.restore-point-btn', function() {
             const timestamp = $(this).data('time');
             ReportsPage.restoreDatabase(timestamp);
         });
-        
+
         // Modal close buttons
         $('.close-modal').on('click', function() {
             $('.modal').addClass('tw-hidden');
         });
-        
-        // Restore database from modal button
+
+        // Restore directly from the log details modal
         $('#restoreToPointBtn').on('click', function() {
             const timestamp = $(this).data('time');
             $('.modal').addClass('tw-hidden');
             ReportsPage.restoreDatabase(timestamp);
         });
-        
-        // Restore database form
-        $('#restoreDatabaseForm').on('submit', function(e) {
-            e.preventDefault();
-            
-            const timestamp = $('#restore-datetime').val();
+
+        const setLogFeedback = (text, variant = 'default') => {
+            $restoreLogFeedback
+                .removeClass('tw-text-gray-400 tw-text-gray-300 tw-text-green-400 tw-text-red-400');
+
+            if (variant === 'loading') {
+                $restoreLogFeedback.addClass('tw-text-gray-300');
+            } else if (variant === 'success') {
+                $restoreLogFeedback.addClass('tw-text-green-400');
+            } else if (variant === 'error') {
+                $restoreLogFeedback.addClass('tw-text-red-400');
+            } else {
+                $restoreLogFeedback.addClass('tw-text-gray-400');
+            }
+
+            $restoreLogFeedback.text(text);
+        };
+
+        const resetLogLookupState = (clearInput = false) => {
+            if (logLookupTimeout) {
+                clearTimeout(logLookupTimeout);
+                logLookupTimeout = null;
+            }
+
+            lastFetchedLogId = null;
+
+            if (clearInput) {
+                $restoreLogInput.val('');
+            }
+
+            $restoreLogTimestamp.val('');
+            setLogFeedback(defaultLogFeedback, 'default');
+        };
+
+        const lookupLogTimestamp = (rawLogId) => {
+            if (logLookupTimeout) {
+                clearTimeout(logLookupTimeout);
+                logLookupTimeout = null;
+            }
+
+            if (!rawLogId) {
+                resetLogLookupState(false);
+                return;
+            }
+
+            const logId = parseInt(rawLogId, 10);
+
+            if (Number.isNaN(logId) || logId <= 0) {
+                lastFetchedLogId = null;
+                $restoreLogTimestamp.val('');
+                setLogFeedback('Please enter a valid positive log ID.', 'error');
+                return;
+            }
+
+            if (logId === lastFetchedLogId && $restoreLogTimestamp.val()) {
+                return;
+            }
+
+            setLogFeedback('Looking up activity log…', 'loading');
+
+            logLookupTimeout = setTimeout(() => {
+                fetch(logRouteTemplate.replace(':id', logId))
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('not_found');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const createdAt = data.data.created_at;
+                            lastFetchedLogId = logId;
+                            $restoreLogTimestamp.val(createdAt);
+                            const formatted = moment(createdAt).format('MMM DD, YYYY h:mm:ss A');
+                            setLogFeedback(`Log #${logId} recorded on ${formatted}. We'll use this timestamp.`, 'success');
+                        } else {
+                            throw new Error('invalid_response');
+                        }
+                    })
+                    .catch(() => {
+                        lastFetchedLogId = null;
+                        $restoreLogTimestamp.val('');
+                        setLogFeedback('Unable to find that log ID. Double-check the value and try again.', 'error');
+                    })
+                    .finally(() => {
+                        logLookupTimeout = null;
+                    });
+            }, 400);
+        };
+
+        const toggleRestoreInputs = (method) => {
+            if (method === 'datetime') {
+                $('#restore-datetime-wrapper').removeClass('tw-hidden');
+                $restoreLogWrapper.addClass('tw-hidden');
+                $restoreDatetime.prop('required', true);
+                $restoreLogInput.prop('required', false);
+                resetLogLookupState(false);
+            } else {
+                $('#restore-datetime-wrapper').addClass('tw-hidden');
+                $restoreLogWrapper.removeClass('tw-hidden');
+                $restoreDatetime.prop('required', false);
+                $restoreLogInput.prop('required', true);
+
+                if ($restoreLogInput.val()) {
+                    lookupLogTimestamp($restoreLogInput.val());
+                } else {
+                    setLogFeedback(defaultLogFeedback, 'default');
+                }
+            }
+        };
+
+        $('input[name="restore_method"]').on('change', function() {
+            toggleRestoreInputs($(this).val());
+        });
+
+        $restoreLogInput.on('input', function() {
+            lookupLogTimestamp($(this).val());
+        });
+
+        const handleRestoreSubmission = ({ method, timestamp, logId }) => {
             const password = $('#admin-password').val();
             const confirmed = $('#restore-confirm').is(':checked');
-            
-            if (confirmed && timestamp && password) {
-                // Hide the modal
-                $('#restoreDatabaseModal').addClass('tw-hidden');
-                
-                // Call restore function with password
-                ReportsPage.restoreDatabase(timestamp, password);
-            } else {
+
+            if (!confirmed) {
                 Swal.fire({
-                    title: 'Missing Information',
-                    text: 'Please fill in all required fields and confirm the action.',
+                    title: 'Confirmation Needed',
+                    text: 'Please confirm you understand this will revert data.',
                     icon: 'warning',
                     confirmButtonColor: '#24CFF4',
                     background: '#374151',
                     color: '#fff'
                 });
+                return;
             }
-        });
 
-        // Update the quick restore buttons to use the password dialog:
-        $(document).on('click', '.restore-point-btn', function() {
-            const timestamp = $(this).data('time');
-            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
-        });
-
-        $('#restoreToPointBtn').on('click', function() {
-            const timestamp = $(this).data('time');
-            $('.modal').addClass('tw-hidden');
-            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
-        });
-        
-        // Handle form submission for database restoration
-        $('#restoreDatabaseForm').on('submit', function(e) {
-            e.preventDefault();
-            
-            const timestamp = $('#restore-datetime').val();
-            const confirmed = $('#restore-confirm').is(':checked');
-            
-            if (confirmed && timestamp) {
-                // Hide the modal
-                $('#restoreDatabaseModal').addClass('tw-hidden');
-                
-                // Show confirmation dialog
+            if (!password) {
                 Swal.fire({
-                    title: 'Are you sure?',
-                    html: `
-                        <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This is a destructive operation</p>
-                        <p class="tw-text-white">You are about to restore the database to ${moment(timestamp).format('MMM DD, YYYY h:mm:ss A')}</p>
-                        <p class="tw-text-white">All changes after this point will be lost.</p>
-                    `,
+                    title: 'Missing Password',
+                    text: 'Your admin password is required to proceed.',
                     icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, restore it!',
-                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#24CFF4',
                     background: '#374151',
                     color: '#fff'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Show loading state
-                        Swal.fire({
-                            title: 'Restoring Database',
-                            html: 'This may take some time. Please wait...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            background: '#374151',
-                            color: '#fff',
-                            willOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                        
-                        fetch("{{ route('admin.reports.restore') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                timestamp: timestamp,
-                                confirm: true
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Restored!',
-                                    text: 'Database has been restored successfully.',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    // Reload the page to show restored data
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: data.message || 'Failed to restore database.',
-                                    icon: 'error',
-                                    confirmButtonColor: '#24CFF4',
-                                    background: '#374151',
-                                    color: '#fff'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'An error occurred during database restoration.',
-                                icon: 'error',
-                                confirmButtonColor: '#24CFF4',
-                                background: '#374151',
-                                color: '#fff'
-                            });
-                        });
-                    }
                 });
+                return;
             }
+
+            if (method === 'datetime') {
+                if (!timestamp) {
+                    Swal.fire({
+                        title: 'Missing Restore Point',
+                        text: 'Please select a date and time to restore.',
+                        icon: 'warning',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                    return;
+                }
+            } else {
+                const parsedLogId = parseInt(logId, 10);
+
+                if (Number.isNaN(parsedLogId) || parsedLogId <= 0) {
+                    Swal.fire({
+                        title: 'Invalid Log ID',
+                        text: 'Enter a valid log ID before restoring.',
+                        icon: 'warning',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                    return;
+                }
+
+                if (!$restoreLogTimestamp.val()) {
+                    Swal.fire({
+                        title: 'Log ID Not Verified',
+                        text: 'Please wait for the system to validate the log ID before restoring.',
+                        icon: 'warning',
+                        confirmButtonColor: '#24CFF4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
+                    return;
+                }
+            }
+
+            const parsedMoment = moment(timestamp);
+
+            if (!parsedMoment.isValid()) {
+                Swal.fire({
+                    title: 'Invalid Restore Point',
+                    text: 'The selected restore point could not be parsed. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4',
+                    background: '#374151',
+                    color: '#fff'
+                });
+                return;
+            }
+
+            const parsedLogId = method === 'log' ? parseInt(logId, 10) : null;
+
+            const restoreContextHtml = method === 'log'
+                ? `<p class="tw-text-white tw-mb-2">You are about to restore the database up to activity log <span class="tw-font-semibold">#${parsedLogId}</span> recorded on <span class="tw-font-semibold">${parsedMoment.format('MMM DD, YYYY h:mm:ss A')}</span>.</p>`
+                : `<p class="tw-text-white tw-mb-2">You are about to restore the database to <span class="tw-font-semibold">${parsedMoment.format('MMM DD, YYYY h:mm:ss A')}</span>.</p>`;
+
+            Swal.fire({
+                title: 'Confirm Restore',
+                html: `
+                    <p class="tw-text-red-400 tw-font-bold tw-mb-3">⚠️ WARNING: This is a destructive operation</p>
+                    ${restoreContextHtml}
+                    <p class="tw-text-sm tw-text-gray-300">All changes after this point will be lost.</p>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, restore it!',
+                cancelButtonText: 'Cancel',
+                background: '#374151',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $restoreModal.addClass('tw-hidden');
+                    ReportsPage.restoreDatabase(timestamp, password, parsedLogId);
+                }
+            });
+        };
+
+        $restoreForm.on('submit', function(e) {
+            e.preventDefault();
+
+            const method = $('input[name="restore_method"]:checked').val() || 'datetime';
+            const logIdValue = method === 'log' ? $restoreLogInput.val() : null;
+            const timestampValue = method === 'log' ? $restoreLogTimestamp.val() : $restoreDatetime.val();
+
+            handleRestoreSubmission({
+                method,
+                timestamp: timestampValue,
+                logId: logIdValue
+            });
         });
 
-        $(document).on('click', '.restore-point-btn', function() {
-            const timestamp = $(this).data('time');
-            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
-        });
+        $(document).on('click', '#restoreDatabaseBtn', function() {
+            if ($restoreForm.length) {
+                $restoreForm[0].reset();
+            }
 
-        $('#restoreToPointBtn').on('click', function() {
-            const timestamp = $(this).data('time');
-            $('.modal').addClass('tw-hidden');
-            ReportsPage.restoreDatabase(timestamp); // This will trigger the password dialog
+            if ($restoreDatetime.length) {
+                $restoreDatetime.attr('max', moment().format('YYYY-MM-DDTHH:mm'));
+            }
+
+            resetLogLookupState(true);
+            $('input[name="restore_method"][value="datetime"]').prop('checked', true);
+            toggleRestoreInputs('datetime');
+
+            $restoreModal.removeClass('tw-hidden');
         });
     });
 </script>

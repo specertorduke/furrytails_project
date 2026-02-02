@@ -18,32 +18,6 @@
         </div>
     </div>
 
-    <!-- Filter Section -->
-    <div class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-mb-6 tw-shadow-sm">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
-            <div>
-                <input type="text" id="searchPet" placeholder="Search pets..." 
-                    class="tw-w-full tw-px-4 tw-py-2 tw-rounded-lg tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white focus:tw-border-[#24CFF4] focus:tw-ring-1 focus:tw-ring-[#24CFF4]">
-            </div>
-            <div>
-                <select id="filterUser" class="tw-w-full tw-px-4 tw-py-2 tw-rounded-lg tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white focus:tw-border-[#24CFF4] focus:tw-ring-1 focus:tw-ring-[#24CFF4]">
-                    <option value="">All Users</option>
-                    @foreach($users as $user)
-                        <option value="{{ $user->userID }}">{{ $user->firstName }} {{ $user->lastName }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <div class="tw-flex tw-flex-wrap tw-gap-2">
-                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-blue-500 tw-text-white species-filter active" data-species="all">All</button>
-                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Dog">Dogs</button>
-                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Cat">Cats</button>
-                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Other">Others</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Stats Row -->
     <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-4 tw-mb-6">
         <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-blue-500 tw-transition-all tw-duration-300 hover:tw-shadow-md">
@@ -92,6 +66,32 @@
         </div>
     </div>
 
+    <!-- Filter Section -->
+    <div class="tw-bg-gray-800 tw-rounded-xl tw-p-4 tw-mb-6 tw-shadow-sm">
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
+            <div>
+                <input type="text" id="searchPet" placeholder="Search pets..." 
+                    class="tw-w-full tw-px-4 tw-py-2 tw-rounded-lg tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white focus:tw-border-[#24CFF4] focus:tw-ring-1 focus:tw-ring-[#24CFF4]">
+            </div>
+            <div>
+                <select id="filterUser" class="tw-w-full tw-px-4 tw-py-2 tw-rounded-lg tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white focus:tw-border-[#24CFF4] focus:tw-ring-1 focus:tw-ring-[#24CFF4]">
+                    <option value="">All Users</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->userID }}">{{ $user->firstName }} {{ $user->lastName }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <div class="tw-flex tw-flex-wrap tw-gap-2">
+                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-[#66FF8F] tw-text-white species-filter active" data-species="all">All</button>
+                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Dog">Dogs</button>
+                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Cat">Cats</button>
+                    <button class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-sm tw-font-medium tw-transition-all tw-bg-gray-700 tw-text-white species-filter" data-species="Other">Others</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Pet Cards Grid -->
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-6">
         @forelse($pets as $pet)
@@ -100,7 +100,7 @@
                 <!-- Admin Actions -->
                 <div class="tw-absolute tw-top-2 tw-right-2 tw-z-20 tw-flex tw-gap-2 tw-opacity-0 tw-invisible group-hover:tw-opacity-100 group-hover:tw-visible tw-transition-all tw-duration-300">
                     <button onclick="editPet({{ $pet->petID }})" 
-                        class="tw-bg-blue-500 tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-blue-600 tw-shadow-md tw-transform hover:tw-scale-110 tw-transition-all">
+                        class="tw-bg-[#66FF8F] tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-blue-600 tw-shadow-md tw-transform hover:tw-scale-110 tw-transition-all">
                         <i class="fas fa-edit tw-text-sm"></i>
                     </button>
                     <button onclick="deletePet({{ $pet->petID }})" 

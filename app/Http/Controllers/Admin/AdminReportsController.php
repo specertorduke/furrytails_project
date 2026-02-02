@@ -91,7 +91,8 @@ class AdminReportsController extends Controller
     {
         // Validate input
         $validated = $request->validate([
-            'timestamp' => 'required|date',
+            'timestamp' => 'nullable|date',
+            'log_id' => 'nullable|integer|min:1',
             'password' => 'required|string',
             'confirm' => 'required|boolean'
         ]);
@@ -112,13 +113,40 @@ class AdminReportsController extends Controller
             ], 401);
         }
 
+        if (empty($validated['timestamp']) && empty($validated['log_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A restore timestamp or log ID is required.'
+            ], 422);
+        }
+
         try {
-            // Parse the timestamp
-            $timestamp = Carbon::parse($validated['timestamp']);
+            $restorePoint = null;
+            $method = 'timestamp';
+            $sourceLogId = null;
+
+            if (!empty($validated['log_id'])) {
+                $log = ActivityLog::find($validated['log_id']);
+
+                if (!$log) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'The specified activity log could not be found.'
+                    ], 404);
+                }
+
+                $restorePoint = Carbon::parse($log->created_at);
+                $method = 'log_id';
+                $sourceLogId = $log->logID;
+            }
+
+            if ($restorePoint === null) {
+                $restorePoint = Carbon::parse($validated['timestamp']);
+            }
             
             // Call the Artisan command to restore the database
             Artisan::call('db:restore', [
-                '--time' => $timestamp->toDateTimeString(),
+                '--time' => $restorePoint->toDateTimeString(),
                 '--confirm' => true
             ]);
             
@@ -131,7 +159,10 @@ class AdminReportsController extends Controller
                 'record_id' => 0,
                 'action' => 'restore',
                 'new_values' => json_encode([
-                    'timestamp' => $timestamp->toDateTimeString(),
+                    'timestamp' => $restorePoint->toDateTimeString(),
+                    'method' => $method,
+                    'source_log_id' => $sourceLogId,
+                    'requested_timestamp' => $validated['timestamp'] ?? null,
                     'admin_id' => $admin->userID,
                     'admin_name' => $admin->firstName . ' ' . $admin->lastName
                 ]),

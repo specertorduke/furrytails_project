@@ -487,7 +487,7 @@
                             let colorClass = data === 'Confirmed' ? 'tw-bg-blue-900 tw-text-blue-300' :
                                         data === 'Completed' ? 'tw-bg-green-900 tw-text-green-300' :
                                         data === 'Pending' ? 'tw-bg-yellow-900 tw-text-yellow-300' :
-                                        data === 'Active' ? 'tw-bg-blue-900 tw-text-blue-300' :
+                                        data === 'Active' ? 'tw-bg-orange-900 tw-text-orange-300' :
                                         'tw-bg-red-900 tw-text-red-300';
                             return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                         }
@@ -563,7 +563,7 @@
             
             $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
                 const rowData = this.boardingsTable.row(dataIndex).data();
-                
+                  
                 // Status filter
                 if (statusFilter && rowData.status !== statusFilter) {
                     return false;

@@ -24,30 +24,49 @@ style="left: var(--sidebar-width, 16rem);">
 </div>
 
 <script>
-// Add this script to update the loading screen position
-function updateLoadingScreenPosition() {
-    const sidebar = document.getElementById('sidebar');
-    const loadingScreen = document.getElementById('loading-screen');
-    
-    if (sidebar.classList.contains('collapsed')) {
-        loadingScreen.style.setProperty('--sidebar-width', '4rem'); // 64px
-    } else if (sidebar.classList.contains('show')) {
-        loadingScreen.style.setProperty('--sidebar-width', '16rem'); // 256px
-    } else if (window.innerWidth < 769) {
-        loadingScreen.style.setProperty('--sidebar-width', '0');
-    } else {
-        loadingScreen.style.setProperty('--sidebar-width', '16rem'); // Default width
+(function() {
+    if (typeof window.updateLoadingScreenPosition !== 'function') {
+        window.updateLoadingScreenPosition = function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (!loadingScreen) {
+                return;
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) {
+                loadingScreen.style.setProperty('--sidebar-width', window.innerWidth < 769 ? '0' : '16rem');
+                return;
+            }
+
+            if (sidebar.classList.contains('collapsed')) {
+                loadingScreen.style.setProperty('--sidebar-width', '4rem');
+            } else if (sidebar.classList.contains('show')) {
+                loadingScreen.style.setProperty('--sidebar-width', '16rem');
+            } else if (window.innerWidth < 769) {
+                loadingScreen.style.setProperty('--sidebar-width', '0');
+            } else {
+                loadingScreen.style.setProperty('--sidebar-width', '16rem');
+            }
+        };
     }
-}
 
-// Add event listeners
-document.addEventListener('DOMContentLoaded', updateLoadingScreenPosition);
-window.addEventListener('resize', updateLoadingScreenPosition);
+    if (!window.__loadingScreenListenersBound) {
+        document.addEventListener('DOMContentLoaded', window.updateLoadingScreenPosition);
+        window.addEventListener('resize', window.updateLoadingScreenPosition);
+        document.addEventListener('contentChanged', window.updateLoadingScreenPosition);
+        document.addEventListener('sidebarStateChanged', window.updateLoadingScreenPosition);
+        window.__loadingScreenListenersBound = true;
+    }
 
-// Update loading screen position when sidebar state changes
-const observer = new MutationObserver(updateLoadingScreenPosition);
-observer.observe(document.getElementById('sidebar'), {
-    attributes: true,
-    attributeFilter: ['class']
-});
+    const sidebarElement = document.getElementById('sidebar');
+    if (sidebarElement && !window.sidebarObserver) {
+        window.sidebarObserver = new MutationObserver(window.updateLoadingScreenPosition);
+        window.sidebarObserver.observe(sidebarElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    window.updateLoadingScreenPosition();
+})();
 </script>

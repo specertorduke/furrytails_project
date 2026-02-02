@@ -96,26 +96,42 @@ class AdminPaymentsController extends Controller
     public function update(Request $request, $id)
     {
         $payment = Payment::findOrFail($id);
-        
+
         $validated = $request->validate([
-            'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
+            'payment_method' => 'sometimes|required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
             'reference_number' => 'nullable|string',
             'status' => 'required|in:Pending,Completed,Failed,Refunded',
-            'amount' => 'required|numeric|min:0',
-            'password' => 'required|string'
+            'amount' => 'sometimes|required|numeric|min:0',
+            'admin_password' => 'required|string'
+        ], [
+            'admin_password.required' => 'Admin password is required to update payments.'
         ]);
-        
-        // Verify admin password
+
         $admin = auth()->user();
-        if (!Hash::check($validated['password'], $admin->password)) {
+        if (!$admin || !Hash::check($validated['admin_password'], $admin->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid password. Please enter your current password to confirm this action.'
             ], 401);
         }
 
-        // Remove password from validated data before updating
-        unset($validated['password']);
+        unset($validated['admin_password']);
+
+        $updateData = [];
+        if (array_key_exists('payment_method', $validated)) {
+            $updateData['payment_method'] = $validated['payment_method'];
+        }
+        if (array_key_exists('reference_number', $validated)) {
+            $updateData['reference_number'] = $validated['reference_number'];
+        }
+        if (array_key_exists('amount', $validated)) {
+            $updateData['amount'] = $validated['amount'];
+        }
+        $updateData['status'] = $validated['status'];
+
+        if ($request->filled('admin_notes') && $payment->isFillable('admin_notes')) {
+            $updateData['admin_notes'] = $request->input('admin_notes');
+        }
 
         // Log the original state before update
         ActivityLog::create([
@@ -123,7 +139,7 @@ class AdminPaymentsController extends Controller
             'record_id' => $payment->paymentID,
             'action' => 'update',
             'old_values' => json_encode($payment->toArray()),
-            'new_values' => json_encode(array_merge($validated, [
+            'new_values' => json_encode(array_merge($updateData, [
                 'admin_id' => $admin->userID,
                 'admin_name' => $admin->firstName . ' ' . $admin->lastName
             ])),
@@ -131,8 +147,8 @@ class AdminPaymentsController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
-        
-        $payment->update($validated);
+
+        $payment->update($updateData);
         
         return response()->json([
             'success' => true,

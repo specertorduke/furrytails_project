@@ -22,8 +22,8 @@
                 <p class="tw-text-justify font-poppins">Easily spoil your dogs! FurryTails is your one-stop shop for scheduling your pets' comfortable boarding and expert grooming services. We've got them covered whether it's a spa day or a secure stay. Enroll right away to provide your pet with the affection and attention they merit!.</p>
             </div>
 
-            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center tw-bg-white">
-                <div class="tw-w-3/5 tw-p-6 tw-shadow-lg tw-rounded-lg">
+            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center tw-bg-gray-50">
+                <div class="tw-w-3/5 tw-p-6 tw-shadow-xl tw-rounded-lg">
                     <div class="tw-flex tw-flex-col tw-items-center">
                         <img src="{{ asset('images/icons/signIn.png') }}" alt="User Avatar" class="tw-w-[4rem] tw-h-[4rem] tw-mb-4 tw-rounded-full">
                         <h2 class="tw-text-center tw-w-full tw-text-lg tw-font-semibold tw-mb-4 tw-text-[1.3rem]">Sign in</h2>
