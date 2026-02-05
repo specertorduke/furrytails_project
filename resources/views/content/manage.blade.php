@@ -6,7 +6,7 @@
 <div class="tw-p-6 tw-h-screen tw-bg-[#f4fbfd]">
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>
-            <p class="tw-text-sm tw-text-gray-500">Pages / Manage</p>
+            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Manage</p> -->
             <h1 class="tw-text-2xl tw-font-bold">Manage</h1>
         </div>
         <div class="tw-flex tw-gap-2">

@@ -7,7 +7,7 @@
     <!-- Header with Profile -->
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>
-            <p class="tw-text-sm tw-text-gray-500">Pages / Pets</p>
+            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Pets</p> -->
             <h1 class="tw-text-2xl tw-font-bold">Registered Pets</h1>
         </div>
         <div class="tw-flex tw-items-center tw-gap-4">

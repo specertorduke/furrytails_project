@@ -8,7 +8,7 @@
     <div class="container-fluid mb-4">
         <div class="row">
             <div class="col-12">
-                <p class="tw-text-sm tw-text-gray-500">Pages / About Us</p>
+                <!-- <p class="tw-text-sm tw-text-gray-500">Pages / About Us</p> -->
                 <h1 class="tw-text-2xl tw-font-bold">About Us</h1>
             </div>
         </div>

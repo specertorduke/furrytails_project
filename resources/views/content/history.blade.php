@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>
-            <p class="tw-text-sm tw-text-gray-500">Pages / History</p>
+            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / History</p> -->
             <h1 class="tw-text-2xl tw-font-bold">History</h1>
         </div>
         <div class="tw-flex tw-items-center tw-gap-4">

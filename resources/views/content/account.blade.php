@@ -7,7 +7,7 @@
     <div class="container-fluid">
         <div class="row mb-4">
             <div class="col">
-                <p class="tw-text-sm tw-text-gray-500">Pages / Account Settings</p>
+                <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Account Settings</p> -->
                 <h1 class="tw-text-2xl tw-font-bold">Account Settings</h1>
             </div>
         </div>

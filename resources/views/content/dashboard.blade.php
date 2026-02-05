@@ -11,7 +11,7 @@
 <div class="container-fluid tw-min-h-screen tw-p-6 tw-overflow-y-auto tw-bg-[#f4fbfd] font-poppins">    <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12 col-md-6">
-            <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p>
+            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p> -->
             <h1 class="tw-text-2xl tw-font-bold">Dashboard</h1>
         </div>
         <div class="col-12 col-md-6 d-flex justify-content-md-end tw-justify-end align-items-center mt-3 mt-md-0">
