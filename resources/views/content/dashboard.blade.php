@@ -549,8 +549,30 @@ window.DashboardPage = window.DashboardPage || {
             columns: [
                 { data: 'appointmentID', width: '5%' },
                 { data: 'pet.name', width: '15%' },
-                { data: 'date', width: '15%' },
-                { data: 'time', width: '10%' },
+                { 
+                    data: 'date', 
+                    width: '15%',
+                    render: function(data) {
+                        const date = new Date(data);
+                        return date.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        });
+                    }
+                },
+                { 
+                    data: 'time', 
+                    width: '10%',
+                    render: function(data) {
+                        // Convert 24-hour time to 12-hour format
+                        const [hours, minutes] = data.split(':');
+                        const hour = parseInt(hours);
+                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        const hour12 = hour % 12 || 12;
+                        return `${hour12}:${minutes} ${ampm}`;
+                    }
+                },
                 { data: 'service.name', width: '20%' },
                 { 
                     data: 'status',
@@ -618,8 +640,30 @@ window.DashboardPage = window.DashboardPage || {
             },
             columns: [
                 { data: 'boardingID', width: '5%' },
-                { data: 'start_date', width: '20%' },
-                { data: 'end_date', width: '20%' },
+                { 
+                    data: 'start_date', 
+                    width: '20%',
+                    render: function(data) {
+                        const date = new Date(data);
+                        return date.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        });
+                    }
+                },
+                { 
+                    data: 'end_date', 
+                    width: '20%',
+                    render: function(data) {
+                        const date = new Date(data);
+                        return date.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        });
+                    }
+                },
                 { data: 'pet.name', width: '20%' },
                 { 
                     data: 'status',

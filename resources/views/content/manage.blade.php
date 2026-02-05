@@ -3,7 +3,7 @@
 @section('title', 'Manage')
 
 @section('content')
-<div class="tw-p-6 tw-h-screen tw-bg-[#f4fbfd]">
+<div class="tw-p-6 tw-min-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd]">
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>
             <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Manage</p> -->
@@ -22,13 +22,13 @@
     </div>
 
     <ul class="nav nav-tabs" id="manageTabs" role="tablist">
-        <li class="nav-item">
+        <li class="nav-item shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1),0_-4px_6px_-4px_rgba(0,0,0,0.1)]">
             <a class="manage-tab active" id="appointments-tab" data-toggle="tab" href="#appointments" role="tab" 
             aria-controls="appointments" aria-selected="true">
                 Appointments
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1),0_-4px_6px_-4px_rgba(0,0,0,0.1)]">
             <a class="manage-tab" id="boardings-tab" data-toggle="tab" href="#boardings" role="tab" 
             aria-controls="boardings" aria-selected="false">
                 Boardings
@@ -36,7 +36,7 @@
         </li>
     </ul>
     
-    <div class="tab-content" id="manageTabsContent">
+    <div class="tab-content tw-shadow-lg" id="manageTabsContent">
         <!-- Appointments Tab -->
         <div class="tab-pane fade show active" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
             <div class="tw-bg-white tw-shadow-sm tw-rounded-b-2xl tw-rounded-tr-2xl  tw-p-6 tw-mt-[0.6rem]">
