@@ -1,7 +1,8 @@
-*
+
 !.gitignore
 !default_user.png
 !default_pet.png
+!seed/
 !seed/buddy.png
 !seed/luna.png
 !seed/max.jpg

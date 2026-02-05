@@ -26,6 +26,10 @@ use App\Http\Controllers\Admin\AdminSettingsController;
 Route::get('/login', function () { return view('login'); })->name('login');
 Route::post('/login', [LoginController::class, 'login' ])->name('login.submit');
 
+// Google OAuth routes
+Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->name('google.callback');
+
 Route::get('/signup', function () { return view('signup'); })->name('signup');
 Route::post('/signup', [RegisterController::class, 'register'])->name('signup.submit');
 
