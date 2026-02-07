@@ -55,12 +55,12 @@
     </div>
 
     <!-- History Timeline -->
-    <div class="tw-space-y-4">
+    <div class="tw-space-y-4" id="historyTimeline">
         @php
             $currentMonth = '';
         @endphp
 
-        @forelse($history as $item)
+        @forelse($history as $index => $item)
             @php
                 $itemDate = $item->type === 'appointment' ? 
                     Carbon\Carbon::parse($item->date) : 
@@ -69,7 +69,7 @@
             @endphp
 
             @if($currentMonth !== $monthYear)
-                <div class="tw-flex tw-items-center tw-gap-4 tw-my-6">
+                <div class="month-header tw-flex tw-items-center tw-gap-4 tw-my-6" data-month="{{ $monthYear }}" data-index="{{ $index }}">
                     <span class="tw-text-lg tw-font-semibold tw-text-gray-700">{{ $monthYear }}</span>
                     <div class="tw-flex-1 tw-h-px tw-bg-gray-200"></div>
                 </div>
@@ -78,7 +78,10 @@
                 @endphp
             @endif
             <div class="history-item tw-bg-white tw-rounded-2xl tw-p-4 tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-md hover:tw-scale-[1.01]" 
-            data-type="{{ $item->type }}">
+            data-type="{{ $item->type }}" 
+            data-status="{{ $item->status }}" 
+            data-month="{{ $monthYear }}" 
+            data-index="{{ $index }}">
                 <div class="tw-flex tw-items-start tw-gap-4">
                     <!-- Left side: Icon -->
                     <div class="tw-rounded-full tw-p-3 {{ $item->type === 'appointment' ? 'tw-bg-blue-100' : 'tw-bg-green-100' }}">
@@ -137,15 +140,34 @@
             </div>
         </div>
         @empty
-        <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-white tw-rounded-2xl tw-p-8 tw-shadow-sm">
+        <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-white tw-rounded-2xl tw-p-8 tw-shadow-sm" id="emptyState">
             <i class="fas fa-history tw-text-5xl tw-text-gray-300 tw-mb-4"></i>
             <p class="tw-text-gray-500 tw-mb-4">No history available</p>
         </div>
         @endforelse
     </div>
+
+    <!-- Pagination Controls -->
+    @if(count($history) > 0)
+    <div class="tw-mt-6 tw-flex tw-justify-center tw-items-center tw-gap-2" id="paginationControls">
+        <button id="prevPage" class="tw-px-4 tw-py-2 tw-rounded-xl tw-bg-white tw-text-gray-700 tw-border tw-border-gray-200 hover:tw-bg-gray-50 tw-transition-all disabled:tw-opacity-50 disabled:tw-cursor-not-allowed">
+            <i class="fas fa-chevron-left tw-mr-2"></i>Previous
+        </button>
+        <div id="pageNumbers" class="tw-flex tw-gap-2"></div>
+        <button id="nextPage" class="tw-px-4 tw-py-2 tw-rounded-xl tw-bg-white tw-text-gray-700 tw-border tw-border-gray-200 hover:tw-bg-gray-50 tw-transition-all disabled:tw-opacity-50 disabled:tw-cursor-not-allowed">
+            Next<i class="fas fa-chevron-right tw-ml-2"></i>
+        </button>
+    </div>
+    <div class="tw-mt-2 tw-text-center tw-text-sm tw-text-gray-500" id="paginationInfo"></div>
+    @endif
 </div>
 
 <script>
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredItems = [];
+    let allItems = [];
+
     function jumpToDate(date) {
         const [year, month] = date.split('-');
         const monthYear = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -163,6 +185,13 @@
         const searchHistory = document.getElementById('searchHistory');
         const typeFilters = document.querySelectorAll('.type-filter');
         const historyItems = document.querySelectorAll('.history-item');
+        
+        // Initialize all items array
+        allItems = Array.from(historyItems);
+        filteredItems = [...allItems];
+        
+        // Initialize pagination
+        updatePagination();
 
         if (searchHistory) {
             searchHistory.addEventListener('input', filterHistory);
@@ -182,24 +211,195 @@
                 button.classList.add('tw-text-white');
                 button.classList.remove('tw-text-gray-500');
                 button.classList.remove('hover:tw-bg-gray-100');
+                currentPage = 1; // Reset to first page when filtering
                 filterHistory();
             });
         });
 
-        function filterHistory() {
-            const searchTerm = searchHistory.value.toLowerCase();
-            const activeType = document.querySelector('.type-filter.active').dataset.type;
+        // Pagination event listeners
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePagination();
+                    scrollToTop();
+                }
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePagination();
+                    scrollToTop();
+                }
+            });
+        }
 
-            historyItems.forEach(item => {
-                const serviceName = item.querySelector('h3').textContent.toLowerCase();
-                const petName = item.querySelector('p:first-of-type').textContent.toLowerCase();
+        function scrollToTop() {
+            const timeline = document.getElementById('historyTimeline');
+            if (timeline) {
+                timeline.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function filterHistory() {
+            const searchTerm = searchHistory ? searchHistory.value.toLowerCase() : '';
+            const activeType = document.querySelector('.type-filter.active')?.dataset.type || 'all';
+
+            // Filter items based on search and type
+            filteredItems = allItems.filter(item => {
+                const serviceName = item.querySelector('h3')?.textContent.toLowerCase() || '';
+                const petName = item.querySelector('p:first-of-type')?.textContent.toLowerCase() || '';
                 const type = item.dataset.type;
+                const status = item.dataset.status;
                 
                 const matchesSearch = serviceName.includes(searchTerm) || petName.includes(searchTerm);
-                const matchesType = activeType === 'all' || type === activeType;
+                let matchesType = activeType === 'all' || type === activeType;
                 
-                item.style.display = matchesSearch && matchesType ? 'block' : 'none';
+                // Handle status filters (Completed, Cancelled)
+                if (activeType === 'Completed' || activeType === 'Cancelled') {
+                    matchesType = status === activeType;
+                }
+                
+                return matchesSearch && matchesType;
             });
+
+            currentPage = 1; // Reset to first page
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            // Hide all items and month headers first
+            allItems.forEach(item => item.style.display = 'none');
+            document.querySelectorAll('.month-header').forEach(header => header.style.display = 'none');
+            
+            // Show empty state if no filtered items
+            const emptyState = document.getElementById('emptyState');
+            const paginationControls = document.getElementById('paginationControls');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            if (filteredItems.length === 0) {
+                if (emptyState) emptyState.style.display = 'flex';
+                if (paginationControls) paginationControls.style.display = 'none';
+                if (paginationInfo) paginationInfo.style.display = 'none';
+                return;
+            } else {
+                if (emptyState) emptyState.style.display = 'none';
+                if (paginationControls) paginationControls.style.display = 'flex';
+                if (paginationInfo) paginationInfo.style.display = 'block';
+            }
+
+            // Show only filtered items for current page
+            const pageItems = filteredItems.slice(startIndex, endIndex);
+            pageItems.forEach(item => {
+                item.style.display = 'block';
+            });
+
+            // Show month headers ONLY when there are visible items for that month
+            document.querySelectorAll('.month-header').forEach(header => {
+                const headerMonth = header.dataset.month;
+                if (!headerMonth) {
+                    return;
+                }
+
+                const hasVisibleItem = Array.from(document.querySelectorAll(`.history-item[data-month="${headerMonth}"]`))
+                    .some(item => item.style.display !== 'none');
+
+                if (hasVisibleItem) {
+                    header.style.display = 'flex';
+                } else {
+                    header.style.display = 'none';
+                }
+            });
+
+            // Update pagination buttons
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentPage === 1;
+            }
+            if (nextBtn) {
+                nextBtn.disabled = currentPage === totalPages;
+            }
+
+            // Update page numbers
+            updatePageNumbers(totalPages);
+            
+            // Update pagination info
+            if (paginationInfo) {
+                const showing = Math.min(endIndex, filteredItems.length);
+                paginationInfo.textContent = `Showing ${startIndex + 1}-${showing} of ${filteredItems.length} items`;
+            }
+        }
+
+        function updatePageNumbers(totalPages) {
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            if (!pageNumbersContainer) return;
+            
+            pageNumbersContainer.innerHTML = '';
+            
+            // Show max 5 page numbers
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            // Adjust if we're near the end
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            // Add first page and ellipsis if needed
+            if (startPage > 1) {
+                addPageButton(1, pageNumbersContainer);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'tw-px-2 tw-py-2 tw-text-gray-500';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+            
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                addPageButton(i, pageNumbersContainer);
+            }
+            
+            // Add ellipsis and last page if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'tw-px-2 tw-py-2 tw-text-gray-500';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                addPageButton(totalPages, pageNumbersContainer);
+            }
+        }
+
+        function addPageButton(pageNum, container) {
+            const button = document.createElement('button');
+            button.textContent = pageNum;
+            button.className = `tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all ${
+                pageNum === currentPage 
+                    ? 'tw-bg-[#24CFF4] tw-text-white' 
+                    : 'tw-bg-white tw-text-gray-700 tw-border tw-border-gray-200 hover:tw-bg-gray-50'
+            }`;
+            button.addEventListener('click', () => {
+                currentPage = pageNum;
+                updatePagination();
+                scrollToTop();
+            });
+            container.appendChild(button);
         }
     }
 
