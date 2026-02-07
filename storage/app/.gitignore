@@ -2,12 +2,13 @@
 !private/
 !public/
 !.gitignore
-!public/default_user.png
-!public/default_pet.png
 !public/seed/
 !public/seed/buddy.png
 !public/seed/luna.png
 !public/seed/max.jpg
+!public/serviceImages/
 !public/serviceImages/default.png
+!public/userImages/
 !public/userImages/default.png
+!public/petImages/
 !public/petImages/default.png
