@@ -187,7 +187,7 @@ class DatabaseSeeder extends Seeder
                 'allergies' => 'Chicken',
                 'medicalHistory' => 'Minor skin allergy treatment in 2023',
                 'petNotes' => 'Energetic and loves to explore',
-                'petImage' => 'seed/max.png',
+                'petImage' => 'seed/max.jpg',
                 'userID' => 1000,
                 'created_at' => now(),
                 'updated_at' => now(),

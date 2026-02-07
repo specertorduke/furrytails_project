@@ -21,6 +21,8 @@ php artisan migrate
 
 php artisan db:seed
 
+php artisan storage:link
+
 use thissss for re-updating db:
 
 php artisan migrate:fresh --seed
