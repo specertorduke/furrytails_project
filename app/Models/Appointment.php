@@ -1,5 +1,5 @@
 <?php
-// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Models/Appointment.php
+// filepath: /c:/xampp/htdocs/furrytails_project/app/Models/Appointment.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

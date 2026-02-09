@@ -1,5 +1,5 @@
 <?php
-// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Models/Payment.php
+// filepath: /c:/xampp/htdocs/furrytails_project/app/Models/Payment.php
 
 namespace App\Models;
 

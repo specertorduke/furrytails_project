@@ -3,7 +3,7 @@
 @section('title', 'Explore')
 
 @section('content')
-<!-- filepath: /c:/xampp/htdocs/dashboard/furrytails_project/resources/views/content/account-settings.blade.php -->
+<!-- filepath: /c:/xampp/htdocs/furrytails_project/resources/views/content/account-settings.blade.php -->
 <div class="tw-p-6 tw-bg-gradient-to-tl tw-h-screen tw-to-[#b7f4ff]  tw-from-white">
     <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
         <div>

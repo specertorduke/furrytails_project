@@ -1,6 +1,6 @@
 <?php
 
-// filepath: /c:/xampp/htdocs/dashboard/furrytails_project/app/Models/Boarding.php
+// filepath: /c:/xampp/htdocs/furrytails_project/app/Models/Boarding.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

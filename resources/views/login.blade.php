@@ -1,4 +1,4 @@
-<!-- filepath: /c:/xampp/htdocs/dashboard/furrytails_project/resources/views/login.blade.php -->
+<!-- filepath: /c:/xampp/htdocs/furrytails_project/resources/views/login.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
