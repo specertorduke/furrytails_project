@@ -51,7 +51,7 @@
 <body class="font-poppins">
     <!-- Navigation Bar -->
     <nav class="tw-bg-white tw-shadow-md sticky-header">
-        <div class="container-fluid px-4 py-3">
+        <div class="container py-3">
             <div class="row align-items-center">
                 <div class="col-6 col-md-3">
                     <div class="tw-flex tw-items-center">
@@ -89,7 +89,7 @@
 
     <!-- Hero Section -->
     <section class="tw-bg-gradient-to-r tw-from-[#d8f9ff] tw-to-white">
-        <div class="container-fluid px-4 py-5">
+        <div class="container py-5">
             <div class="row align-items-center">
                 <div class="col-12 col-md-6 mb-4 mb-md-0">
                     <h1 class="tw-text-4xl md:tw-text-5xl tw-font-bold mb-4">Welcome to FurryTails</h1>
@@ -99,8 +99,8 @@
                         <a href="#services" class="tw-bg-white tw-text-[#24CFF4] tw-px-8 tw-py-3 tw-rounded-full tw-border tw-border-[#24CFF4] hover:tw-bg-[#d8f9ff] tw-transition-colors tw-no-underline">Learn More</a>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <img src="{{ asset('images/home/hero-img.png') }}" alt="Happy Pets" class="img-fluid tw-rounded-lg tw-shadow-xl hover-animate">
+                <div class="col-12 col-md-6 text-center">
+                    <img src="{{ asset('images/home/hero-img.png') }}" alt="Happy Pets" class="img-fluid tw-rounded-lg tw-shadow-xl hover-animate" style="max-height: 500px; object-fit: cover;">
                 </div>
             </div>
         </div>
@@ -108,10 +108,10 @@
 
     <!-- About Section -->
     <section id="about" class="py-5">
-        <div class="container-fluid px-4">
+        <div class="container">
             <div class="row align-items-center">
-                <div class="col-12 col-md-6 mb-4 mb-md-0">
-                    <img src="{{ asset('images/home/about-image.png') }}" alt="Our Story" class="img-fluid tw-rounded-lg tw-shadow-xl hover-animate">
+                <div class="col-12 col-md-6 mb-4 mb-md-0 text-center">
+                    <img src="{{ asset('images/home/about-image.png') }}" alt="Our Story" class="img-fluid tw-rounded-lg tw-shadow-xl hover-animate" style="max-height: 500px; object-fit: cover;">
                 </div>
                 <div class="col-12 col-md-6">
                     <h2 class="tw-text-3xl tw-font-bold mb-4">Our Story</h2>
@@ -124,12 +124,12 @@
 
     <!-- Services Section -->
     <section id="services" class="tw-bg-gray-50 py-5">
-        <div class="container-fluid px-4">
+        <div class="container">
             <h2 class="tw-text-3xl tw-font-bold text-center mb-5">Our Services</h2>
-            <div class="row g-4">
+            <div class="row justify-content-center g-4">
                 <!-- Pet Boarding -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
+                <div class="col-12 col-md-6 col-lg-3 d-flex">
+                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 w-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-home tw-text-4xl tw-text-[#24CFF4]"></i>
                         </div>
@@ -138,8 +138,8 @@
                     </div>
                 </div>
                 <!-- Pet Grooming -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
+                <div class="col-12 col-md-6 col-lg-3 d-flex">
+                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 w-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-cut tw-text-4xl tw-text-[#24CFF4]"></i>
                         </div>
@@ -148,8 +148,8 @@
                     </div>
                 </div>
                 <!-- Pet Training -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
+                <div class="col-12 col-md-6 col-lg-3 d-flex">
+                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 w-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-paw tw-text-4xl tw-text-[#24CFF4]"></i>
                         </div>
@@ -158,8 +158,8 @@
                     </div>
                 </div>
                 <!-- Pet Veterinary -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 hover-animate">
+                <div class="col-12 col-md-6 col-lg-3 d-flex">
+                    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-p-6 tw-transition-transform hover:tw-scale-105 h-100 w-100 hover-animate">
                         <div class="tw-flex tw-justify-center mb-4">
                             <i class="fas fa-stethoscope tw-text-4xl tw-text-[#24CFF4]"></i>
                         </div>
@@ -173,7 +173,7 @@
 
     <!-- Contact Section -->
     <section id="contact" class="py-5">
-        <div class="container-fluid px-4">
+        <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6">
                     <h2 class="tw-text-3xl tw-font-bold text-center mb-5">Contact Us</h2>
@@ -203,7 +203,7 @@
 
     <!-- Footer -->
     <footer class="tw-bg-gray-50 py-4">
-        <div class="container-fluid px-4">
+        <div class="container">
             <div class="row align-items-center">
                 <div class="col-12 col-md-6 text-center text-md-start mb-3 mb-md-0">
                     <div class="tw-flex tw-items-center justify-content-center justify-content-md-start">
