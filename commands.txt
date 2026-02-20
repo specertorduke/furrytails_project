@@ -1,13 +1,18 @@
+dependencies:
+    composer install
+    npm install
+    cp .env.example .env
+    
 use this after cloning (make sure you have a database first named furrytails_project & this repo folder is in HTDOCS of xampp): 
+    php artisan key:generate
     php artisan migrate
     php artisan db:seed
+    php artisan storage:link
+    npm run dev
+        ctrl c to stop
+    php artisan serve
 
-php artisan storage:link
-
-npm run dev
-    ctrl c to stop
-
-use this for re-setting db:
+use this for resetting db:
     php artisan migrate:fresh --seed
 
 -----------------------------------------------------
