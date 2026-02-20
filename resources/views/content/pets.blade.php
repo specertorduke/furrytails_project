@@ -18,7 +18,7 @@
             <div class="tw-flex tw-items-center tw-justify-end tw-bg-white tw-py-1 tw-px-4 tw-rounded-full tw-shadow-md tw-gap-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
                 <span class="tw-text-gray-700 tw-font-medium">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</span>
                 <div class="tw-relative">
-                    <img src="{{ asset('storage/' . Auth::user()->userImage) }}" alt="User Avatar" 
+                    <img src="{{ Auth::user()->profile_image_url }}" alt="User Avatar" 
                         class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer tw-transition-all tw-duration-300 hover:tw-brightness-75 tw-object-cover" 
                         onclick="toggleDropdown()">
                     <div id="dropdown" class="tw-absolute tw-rounded-3xl tw-right-0 tw-z-20 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-hidden">

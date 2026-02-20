@@ -21,7 +21,7 @@
                         <div class="col-12 col-md-6 text-center">
                             <div class="tw-relative tw-group tw-inline-block">
                                 <div class="tw-w-32 tw-h-32 tw-rounded-full tw-overflow-hidden">
-                                    <img src="{{ asset('storage/' . Auth::user()->userImage) }}" alt="Profile" 
+                                    <img src="{{ Auth::user()->profile_image_url }}" alt="Profile" 
                                         class="tw-w-full tw-h-full tw-object-cover">
                                     <div class="tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-0 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-transition-all tw-duration-300 group-hover:tw-bg-opacity-40">
                                         <label for="profile_image" class="tw-cursor-pointer">

@@ -67,4 +67,23 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    public function getProfileImageUrlAttribute(): string
+    {
+        $imagePath = $this->userImage;
+
+        if (!empty($imagePath) && filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            return $imagePath;
+        }
+
+        if (!empty($imagePath)) {
+            return asset('storage/' . ltrim(preg_replace('/^storage\//i', '', $imagePath), '/'));
+        }
+
+        if (!empty($this->avatar) && filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+            return $this->avatar;
+        }
+
+        return asset('storage/userImages/default.png');
+    }
 }

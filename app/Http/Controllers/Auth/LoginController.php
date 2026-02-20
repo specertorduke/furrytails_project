@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
+    private const DEFAULT_USER_IMAGE = 'userImages/default.png';
+
     public function login(Request $request)
     {
         // Validate the form data
@@ -72,6 +74,7 @@ class LoginController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
+            $avatarUrl = $googleUser->getAvatar();
             
             // Check if user already exists
             $user = User::where('google_id', $googleUser->getId())
@@ -83,8 +86,22 @@ class LoginController extends Controller
                 if (!$user->google_id) {
                     $user->update([
                         'google_id' => $googleUser->getId(),
-                        'avatar' => $googleUser->getAvatar(),
+                        'avatar' => $avatarUrl,
                     ]);
+                }
+
+                $updates = [];
+
+                if (empty($user->avatar) && !empty($avatarUrl)) {
+                    $updates['avatar'] = $avatarUrl;
+                }
+
+                if (empty($user->userImage) || filter_var($user->userImage, FILTER_VALIDATE_URL)) {
+                    $updates['userImage'] = self::DEFAULT_USER_IMAGE;
+                }
+
+                if (!empty($updates)) {
+                    $user->update($updates);
                 }
             } else {
                 // Create new user
@@ -107,10 +124,10 @@ class LoginController extends Controller
                     'email' => $googleUser->getEmail(),
                     'username' => $username,
                     'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getAvatar(),
+                    'avatar' => $avatarUrl,
                     'phone' => '', // Will need to be filled later
                     'password' => null, // No password for OAuth users
-                    'userImage' => $googleUser->getAvatar(),
+                    'userImage' => self::DEFAULT_USER_IMAGE,
                 ]);
             }
 
