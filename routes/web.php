@@ -23,19 +23,19 @@ use App\Http\Controllers\Admin\AdminReportsController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 
-Route::get('/login', function () { return view('login'); })->name('login');
-Route::post('/login', [LoginController::class, 'login' ])->name('login.submit');
+Route::get('/login', function () { return view('login'); })->middleware('guest')->name('login');
+Route::post('/login', [LoginController::class, 'login' ])->middleware('guest')->name('login.submit');
 
 // Google OAuth routes
-Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->name('google.redirect');
-Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->name('google.callback');
+Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->middleware('guest')->name('google.redirect');
+Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->middleware('guest')->name('google.callback');
 
-Route::get('/signup', function () { return view('signup'); })->name('signup');
-Route::post('/signup', [RegisterController::class, 'register'])->name('signup.submit');
+Route::get('/signup', function () { return view('signup'); })->middleware('guest')->name('signup');
+Route::post('/signup', [RegisterController::class, 'register'])->middleware('guest')->name('signup.submit');
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/main', function () { return view('main'); })->middleware('auth')->name('main');
+Route::get('/main', function () { return view('main'); })->middleware(['auth', 'redirect.admin'])->name('main');
 
 Route::get('/', function () { return view('home'); })->name('home');
 

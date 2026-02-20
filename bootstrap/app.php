@@ -15,12 +15,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => AdminMiddleware::class,
-        ]);
-    })
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
             'redirect.admin' => RedirectIfAdmin::class,
         ]);
+        
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(function () {
+             if (auth()->check() && auth()->user()->role === 'admin') {
+                 return route('admin.dashboard');
+             }
+             return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

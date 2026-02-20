@@ -178,7 +178,7 @@
                             </div>
                         </div>
                     </div>
-                    <span class="tw-text-xs tw-text-gray-500 tw-block tw-mt-1">Use 8+ chars with letters, numbers & symbols</span>
+                    <span id="password-requirements" class="tw-text-xs tw-text-gray-500 tw-block tw-mt-1">Use 8+ chars with letters, numbers & symbols</span>
 
                     <div class="tw-flex tw-items-start tw-mt-4">
                         <div class="tw-flex tw-items-center tw-h-5">
@@ -224,20 +224,45 @@
             const email = document.getElementById('email').value.trim();
             const username = document.getElementById('username').value.trim();
             const phone = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const passwordConfirmation = document.getElementById('password_confirmation').value.trim();
+            const password = document.getElementById('password').value;
+            const passwordConfirmation = document.getElementById('password_confirmation').value;
             const createAccountBtn = document.getElementById('createAccountBtn');
+            const passwordRequirements = document.getElementById('password-requirements');
             
             // Check if phone is valid
             const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
             const isPhoneValid = phoneRegex.test(phone);
+            
+            // Check password strength
+            const hasMinLength = password.length >= 8;
+            const hasLetter = /[a-zA-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const isPasswordStrong = hasMinLength && hasLetter && hasNumber && hasSymbol;
+
+            // Update password requirement text color
+            if (password.length > 0) {
+                if (isPasswordStrong) {
+                    passwordRequirements.classList.remove('tw-text-gray-500', 'tw-text-red-500');
+                    passwordRequirements.classList.add('tw-text-green-500');
+                    passwordRequirements.innerHTML = '<i class="fas fa-check-circle tw-mr-1"></i> Strong password';
+                } else {
+                    passwordRequirements.classList.remove('tw-text-gray-500', 'tw-text-green-500');
+                    passwordRequirements.classList.add('tw-text-red-500');
+                    passwordRequirements.innerHTML = 'Password must have 8+ chars, letters, numbers & symbols';
+                }
+            } else {
+                passwordRequirements.classList.remove('tw-text-green-500', 'tw-text-red-500');
+                passwordRequirements.classList.add('tw-text-gray-500');
+                passwordRequirements.innerHTML = 'Use 8+ chars with letters, numbers & symbols';
+            }
             
             // Check if passwords match
             const doPasswordsMatch = password === passwordConfirmation && password.length > 0;
             
             // Check if all fields are filled and valid
             const allFieldsFilled = firstName && lastName && email && username && phone && password && passwordConfirmation;
-            const allValid = allFieldsFilled && isPhoneValid && doPasswordsMatch;
+            const allValid = allFieldsFilled && isPhoneValid && doPasswordsMatch && isPasswordStrong;
             
             if (allValid) {
                 createAccountBtn.disabled = false;
