@@ -1,8 +1,16 @@
-npm vite build
+use this after cloning (make sure you have a database first named furrytails_project & this repo folder is in HTDOCS of xampp): 
+    php artisan migrate
+    php artisan db:seed
+
+php artisan storage:link
 
 npm run dev
     ctrl c to stop
 
+use this for re-setting db:
+    php artisan migrate:fresh --seed
+
+-----------------------------------------------------
 @csrf - security for forms
 
 php artisan cache:clear
@@ -12,21 +20,7 @@ php artisan optimize:clear
 php artisan route:clear
 php artisan view:clear
 
-php artisan make:controller RegisterController
-
-php artisan make:migration create_users_table
-
 php artisan migrate:rollback
-
-php artisan migrate
-
-php artisan db:seed
-
-php artisan storage:link
-
-use thissss for re-updating db:
-
-php artisan migrate:fresh --seed
 
 <?php
 // In any blade view:
