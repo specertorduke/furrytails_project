@@ -32,6 +32,7 @@ Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallba
 
 Route::get('/signup', function () { return view('signup'); })->middleware('guest')->name('signup');
 Route::post('/signup', [RegisterController::class, 'register'])->middleware('guest')->name('signup.submit');
+Route::get('/signup/validate-field', [RegisterController::class, 'validateField'])->middleware('guest')->name('signup.validate-field');
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

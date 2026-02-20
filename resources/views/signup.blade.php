@@ -116,6 +116,7 @@
                                 class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                 placeholder="john.doe@example.com">
                         </div>
+                        <p id="email-feedback" class="tw-text-xs tw-mt-1 tw-hidden"></p>
                     </div>
 
                     <div>
@@ -128,6 +129,7 @@
                                 class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                 placeholder="johndoe123">
                         </div>
+                        <p id="username-feedback" class="tw-text-xs tw-mt-1 tw-hidden"></p>
                     </div>
 
                     <div>
@@ -143,7 +145,7 @@
                         </div>
                         <div class="tw-flex tw-justify-between tw-items-center tw-mt-1">
                             <span class="tw-text-xs tw-text-gray-500">Format: 9XX XXX XXXX</span>
-                            <p id="phone-error" class="tw-hidden tw-text-red-500 tw-text-xs tw-flex tw-items-center"><i class="fas fa-exclamation-circle tw-mr-1"></i> Invalid format</p>
+                            <p id="phone-feedback" class="tw-hidden tw-text-red-500 tw-text-xs tw-flex tw-items-center"></p>
                         </div>
                     </div>
 
@@ -179,19 +181,22 @@
                         </div>
                     </div>
                     <span id="password-requirements" class="tw-text-xs tw-text-gray-500 tw-block tw-mt-1">Use 8+ chars with letters, numbers & symbols</span>
+                    <p id="password-match-feedback" class="tw-text-xs tw-mt-1 tw-hidden"></p>
 
                     <div class="tw-flex tw-items-start tw-mt-4">
                         <div class="tw-flex tw-items-center tw-h-5">
-                            <input id="terms" type="checkbox" required class="tw-focus:ring-[#24CFF4] tw-h-4 tw-w-4 tw-text-[#24CFF4] tw-border-gray-300 tw-rounded">
+                            <input id="terms" name="terms" type="checkbox" value="1" {{ old('terms') ? 'checked' : '' }} required class="tw-focus:ring-[#24CFF4] tw-h-4 tw-w-4 tw-text-[#24CFF4] tw-border-gray-300 tw-rounded">
                         </div>
                         <div class="tw-ml-3 tw-text-sm">
                             <label for="terms" class="tw-font-medium tw-text-gray-700">I agree to the <a href="#" class="tw-text-[#24CFF4] hover:tw-underline">Terms of Use</a> and <a href="#" class="tw-text-[#24CFF4] hover:tw-underline">Privacy Policy</a>.</label>
                         </div>
                     </div>
+                    <p id="terms-feedback" class="tw-text-xs tw-mt-1 tw-hidden"></p>
 
                     <button type="submit" id="createAccountBtn" class="tw-w-full tw-mt-6 tw-bg-gray-400 tw-text-white tw-font-bold tw-py-3 tw-px-4 tw-rounded-lg tw-shadow-lg tw-transform tw-transition-all tw-duration-300 focus:tw-outline-none tw-cursor-not-allowed" disabled>
                         Create Account <i class="fas fa-arrow-right tw-ml-2"></i>
                     </button>
+                    <p id="form-guidance" class="tw-text-xs tw-text-amber-600 tw-mt-2"></p>
                 </form>
 
                 <p class="tw-mt-6 tw-text-center tw-text-sm tw-text-gray-600">
@@ -203,10 +208,24 @@
     </div>
 
     <script>
+        const validateFieldUrl = "{{ route('signup.validate-field') }}";
+
+        const fieldState = {
+            username: { available: null, pending: false, checkedValue: '' },
+            email: { available: null, pending: false, checkedValue: '' },
+            phone: { available: null, pending: false, checkedValue: '' },
+        };
+
+        const debounceTimers = {
+            username: null,
+            email: null,
+            phone: null,
+        };
+
         function togglePassword(fieldId, iconId) {
             const passwordInput = document.getElementById(fieldId);
             const toggleIcon = document.getElementById(iconId);
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
@@ -218,6 +237,118 @@
             }
         }
 
+        function setFeedback(elementId, message, type = 'neutral') {
+            const el = document.getElementById(elementId);
+
+            if (!el) {
+                return;
+            }
+
+            el.classList.remove('tw-hidden', 'tw-text-gray-500', 'tw-text-red-500', 'tw-text-green-500', 'tw-text-amber-600');
+
+            if (!message) {
+                el.classList.add('tw-hidden');
+                el.innerHTML = '';
+                return;
+            }
+
+            if (type === 'error') {
+                el.classList.add('tw-text-red-500');
+            } else if (type === 'success') {
+                el.classList.add('tw-text-green-500');
+            } else if (type === 'warning') {
+                el.classList.add('tw-text-amber-600');
+            } else {
+                el.classList.add('tw-text-gray-500');
+            }
+
+            el.innerHTML = message;
+        }
+
+        function normalizePhoneDigits(value) {
+            let digits = value.replace(/\D/g, '');
+
+            if (digits.startsWith('63') && digits.length === 12) {
+                digits = digits.slice(2);
+            }
+
+            if (digits.length > 10) {
+                digits = digits.slice(0, 10);
+            }
+
+            return digits;
+        }
+
+        function formatPhoneForDisplay(digits) {
+            if (digits.length > 6) {
+                return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+            }
+
+            if (digits.length > 3) {
+                return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+            }
+
+            return digits;
+        }
+
+        async function checkAvailability(field, value) {
+            fieldState[field].pending = true;
+            checkFormValidation();
+
+            try {
+                const params = new URLSearchParams({ field, value });
+                const response = await fetch(`${validateFieldUrl}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Validation request failed');
+                }
+
+                const data = await response.json();
+
+                const currentFieldValue = field === 'phone'
+                    ? document.getElementById('phone').value.trim()
+                    : document.getElementById(field).value.trim();
+
+                if (currentFieldValue !== value) {
+                    return;
+                }
+
+                fieldState[field].available = !!data.available;
+                fieldState[field].checkedValue = value;
+
+                if (field === 'username') {
+                    setFeedback('username-feedback', data.message, data.available ? 'success' : 'error');
+                } else if (field === 'email') {
+                    setFeedback('email-feedback', data.message, data.available ? 'success' : 'error');
+                } else if (field === 'phone') {
+                    const icon = data.available ? 'fa-check-circle' : 'fa-exclamation-circle';
+                    setFeedback('phone-feedback', `<i class="fas ${icon} tw-mr-1"></i> ${data.message}`, data.available ? 'success' : 'error');
+                }
+            } catch (error) {
+                fieldState[field].available = false;
+
+                if (field === 'username') {
+                    setFeedback('username-feedback', 'Unable to validate username right now.', 'warning');
+                } else if (field === 'email') {
+                    setFeedback('email-feedback', 'Unable to validate email right now.', 'warning');
+                } else if (field === 'phone') {
+                    setFeedback('phone-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Unable to validate phone right now.', 'warning');
+                }
+            } finally {
+                fieldState[field].pending = false;
+                checkFormValidation();
+            }
+        }
+
+        function queueAvailabilityCheck(field, value, delay = 350) {
+            clearTimeout(debounceTimers[field]);
+            debounceTimers[field] = setTimeout(() => checkAvailability(field, value), delay);
+        }
+
         function checkFormValidation() {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
@@ -226,21 +357,28 @@
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const passwordConfirmation = document.getElementById('password_confirmation').value;
+            const termsAccepted = document.getElementById('terms').checked;
             const createAccountBtn = document.getElementById('createAccountBtn');
             const passwordRequirements = document.getElementById('password-requirements');
-            
-            // Check if phone is valid
-            const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-            const isPhoneValid = phoneRegex.test(phone);
-            
-            // Check password strength
+
+            const missingItems = [];
+            const invalidItems = [];
+
+            if (!firstName) missingItems.push('first name');
+            if (!lastName) missingItems.push('last name');
+            if (!email) missingItems.push('email');
+            if (!username) missingItems.push('username');
+            if (!phone) missingItems.push('phone number');
+            if (!password) missingItems.push('password');
+            if (!passwordConfirmation) missingItems.push('confirm password');
+            if (!termsAccepted) missingItems.push('terms acceptance');
+
             const hasMinLength = password.length >= 8;
             const hasLetter = /[a-zA-Z]/.test(password);
             const hasNumber = /\d/.test(password);
             const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
             const isPasswordStrong = hasMinLength && hasLetter && hasNumber && hasSymbol;
 
-            // Update password requirement text color
             if (password.length > 0) {
                 if (isPasswordStrong) {
                     passwordRequirements.classList.remove('tw-text-gray-500', 'tw-text-red-500');
@@ -250,115 +388,220 @@
                     passwordRequirements.classList.remove('tw-text-gray-500', 'tw-text-green-500');
                     passwordRequirements.classList.add('tw-text-red-500');
                     passwordRequirements.innerHTML = 'Password must have 8+ chars, letters, numbers & symbols';
+                    invalidItems.push('password strength');
                 }
             } else {
                 passwordRequirements.classList.remove('tw-text-green-500', 'tw-text-red-500');
                 passwordRequirements.classList.add('tw-text-gray-500');
                 passwordRequirements.innerHTML = 'Use 8+ chars with letters, numbers & symbols';
             }
-            
-            // Check if passwords match
-            const doPasswordsMatch = password === passwordConfirmation && password.length > 0;
-            
-            // Check if all fields are filled and valid
-            const allFieldsFilled = firstName && lastName && email && username && phone && password && passwordConfirmation;
-            const allValid = allFieldsFilled && isPhoneValid && doPasswordsMatch && isPasswordStrong;
-            
+
+            const doPasswordsMatch = password.length > 0 && passwordConfirmation.length > 0 && password === passwordConfirmation;
+
+            if (password.length > 0 && passwordConfirmation.length > 0 && !doPasswordsMatch) {
+                setFeedback('password-match-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Passwords do not match.', 'error');
+                invalidItems.push('password confirmation mismatch');
+            } else if (password.length > 0 && passwordConfirmation.length > 0 && doPasswordsMatch) {
+                setFeedback('password-match-feedback', '<i class="fas fa-check-circle tw-mr-1"></i> Passwords match.', 'success');
+            } else {
+                setFeedback('password-match-feedback', '');
+            }
+
+            const emailFormatValid = email.length > 0 ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) : false;
+            const usernameLengthValid = username.length >= 5;
+            const phoneFormatValid = /^9\d{2}\s?\d{3}\s?\d{4}$/.test(phone);
+
+            if (email.length > 0 && !emailFormatValid) {
+                invalidItems.push('email format');
+            }
+
+            if (username.length > 0 && !usernameLengthValid) {
+                invalidItems.push('username minimum length (5)');
+            }
+
+            if (phone.length > 0 && !phoneFormatValid) {
+                invalidItems.push('phone format');
+            }
+
+            if (email.length > 0 && emailFormatValid && fieldState.email.available === false) {
+                invalidItems.push('email uniqueness');
+            }
+
+            if (username.length > 0 && usernameLengthValid && fieldState.username.available === false) {
+                invalidItems.push('username uniqueness');
+            }
+
+            if (phone.length > 0 && phoneFormatValid && fieldState.phone.available === false) {
+                invalidItems.push('phone uniqueness');
+            }
+
+            const nonTermsMissingCount = missingItems.filter((item) => item !== 'terms acceptance').length;
+            const shouldShowTermsOnlyPrompt = !termsAccepted && nonTermsMissingCount === 0 && invalidItems.length === 0;
+
+            if (shouldShowTermsOnlyPrompt) {
+                setFeedback('terms-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Please accept Terms of Use and Privacy Policy.', 'error');
+            } else {
+                setFeedback('terms-feedback', '');
+            }
+
+            const hasPendingChecks = fieldState.username.pending || fieldState.email.pending || fieldState.phone.pending;
+            const fieldsReadyForUniqueCheck = emailFormatValid && usernameLengthValid && phoneFormatValid;
+            const uniqueChecksPassed = fieldState.email.available === true && fieldState.username.available === true && fieldState.phone.available === true;
+
+            const allFilled = firstName && lastName && email && username && phone && password && passwordConfirmation && termsAccepted;
+            const allValid = allFilled && isPasswordStrong && doPasswordsMatch && fieldsReadyForUniqueCheck && uniqueChecksPassed && !hasPendingChecks;
+
             if (allValid) {
                 createAccountBtn.disabled = false;
                 createAccountBtn.classList.remove('tw-bg-gray-400', 'tw-cursor-not-allowed');
                 createAccountBtn.classList.add('tw-bg-[#24CFF4]', 'tw-cursor-pointer');
+                setFeedback('form-guidance', '<i class="fas fa-check-circle tw-mr-1"></i> All set. You can create your account.', 'success');
             } else {
                 createAccountBtn.disabled = true;
                 createAccountBtn.classList.remove('tw-bg-[#24CFF4]', 'tw-cursor-pointer');
                 createAccountBtn.classList.add('tw-bg-gray-400', 'tw-cursor-not-allowed');
+
+                if (hasPendingChecks) {
+                    setFeedback('form-guidance', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking availability...', 'warning');
+                } else {
+                    const guidance = [];
+
+                    if (missingItems.length) {
+                        guidance.push(`Missing: ${missingItems.join(', ')}`);
+                    }
+
+                    if (invalidItems.length) {
+                        guidance.push(`Fix: ${[...new Set(invalidItems)].join(', ')}`);
+                    }
+
+                    setFeedback('form-guidance', guidance.length ? guidance.join(' • ') : 'Complete all required fields to continue.', 'warning');
+                }
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('signupForm');
             const phoneInput = document.getElementById('phone');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
             const allInputs = document.querySelectorAll('#signupForm input[required]');
-            
-            // Add event listeners to all required inputs for real-time validation
-            allInputs.forEach(input => {
+
+            allInputs.forEach((input) => {
                 input.addEventListener('input', checkFormValidation);
                 input.addEventListener('blur', checkFormValidation);
             });
 
-            if (phoneInput) {
-                phoneInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                    
-                    // Limit to 10 digits (excluding +63 prefix)
-                    if (value.length > 10) {
-                        value = value.slice(0, 10);
-                    }
-                    
-                    // Format with spaces
-                    if (value.length > 3 && value.length <= 6) {
-                        value = value.slice(0, 3) + ' ' + value.slice(3);
-                    } else if (value.length > 6) {
-                        value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
-                    }
-                    
-                    e.target.value = value;
-                    
-                    // Validate format for visual feedback
-                    const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-                    if (value.length > 0 && !phoneRegex.test(value)) {
-                        phoneInput.classList.add('tw-border-yellow-400');
-                        phoneInput.classList.remove('tw-border-green-500');
-                        document.getElementById('phone-error').classList.add('tw-hidden');
-                    } else if (value.length > 0) {
-                        phoneInput.classList.remove('tw-border-yellow-400');
-                        phoneInput.classList.add('tw-border-green-500');
-                        document.getElementById('phone-error').classList.add('tw-hidden');
-                    } else {
-                        phoneInput.classList.remove('tw-border-yellow-400', 'tw-border-green-500');
-                    }
-                    
-                    // Check form validation after phone input change
+            usernameInput.addEventListener('input', function () {
+                const value = usernameInput.value.trim();
+
+                fieldState.username.available = null;
+                fieldState.username.checkedValue = '';
+
+                if (!value) {
+                    setFeedback('username-feedback', '');
                     checkFormValidation();
-                });
+                    return;
+                }
+
+                if (value.length < 5) {
+                    setFeedback('username-feedback', 'Username must be at least 5 characters.', 'error');
+                    checkFormValidation();
+                    return;
+                }
+
+                setFeedback('username-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking username...', 'warning');
+                queueAvailabilityCheck('username', value);
+            });
+
+            emailInput.addEventListener('input', function () {
+                const value = emailInput.value.trim();
+
+                fieldState.email.available = null;
+                fieldState.email.checkedValue = '';
+
+                if (!value) {
+                    setFeedback('email-feedback', '');
+                    checkFormValidation();
+                    return;
+                }
+
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailPattern.test(value)) {
+                    setFeedback('email-feedback', 'Please enter a valid email address.', 'error');
+                    checkFormValidation();
+                    return;
+                }
+
+                setFeedback('email-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking email...', 'warning');
+                queueAvailabilityCheck('email', value);
+            });
+
+            phoneInput.addEventListener('input', function (e) {
+                const digits = normalizePhoneDigits(e.target.value);
+                const formatted = formatPhoneForDisplay(digits);
+                e.target.value = formatted;
+
+                fieldState.phone.available = null;
+                fieldState.phone.checkedValue = '';
+
+                if (!formatted) {
+                    setFeedback('phone-feedback', '');
+                    checkFormValidation();
+                    return;
+                }
+
+                const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
+
+                if (!phoneRegex.test(formatted)) {
+                    setFeedback('phone-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Invalid format. Use 9XX XXX XXXX.', 'error');
+                    checkFormValidation();
+                    return;
+                }
+
+                setFeedback('phone-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking phone...', 'warning');
+                queueAvailabilityCheck('phone', formatted);
+            });
+
+            if (usernameInput.value.trim().length >= 5) {
+                setFeedback('username-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking username...', 'warning');
+                queueAvailabilityCheck('username', usernameInput.value.trim(), 50);
             }
-            
-            // Validate form submission with confirmation
-            const form = document.getElementById('signupForm');
+
+            const initialEmail = emailInput.value.trim();
+            if (initialEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(initialEmail)) {
+                setFeedback('email-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking email...', 'warning');
+                queueAvailabilityCheck('email', initialEmail, 50);
+            }
+
+            const initialPhoneDigits = normalizePhoneDigits(phoneInput.value);
+            if (initialPhoneDigits) {
+                phoneInput.value = formatPhoneForDisplay(initialPhoneDigits);
+            }
+
+            if (/^9\d{2}\s?\d{3}\s?\d{4}$/.test(phoneInput.value.trim())) {
+                setFeedback('phone-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking phone...', 'warning');
+                queueAvailabilityCheck('phone', phoneInput.value.trim(), 50);
+            }
+
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    e.preventDefault(); // Always prevent default first
-                    
-                    const phoneInput = document.getElementById('phone');
-                    const phoneValue = phoneInput.value.trim();
-                    const phoneRegex = /^9\d{2}\s?\d{3}\s?\d{4}$/;
-                    
-                    if (!phoneRegex.test(phoneValue)) {
-                        phoneInput.classList.add('tw-border-red-500');
-                        document.getElementById('phone-error').classList.remove('tw-hidden');
-                        phoneInput.focus();
+                    checkFormValidation();
+
+                    if (document.getElementById('createAccountBtn').disabled) {
+                        e.preventDefault();
+                        setFeedback('form-guidance', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Please complete the missing/invalid fields above before submitting.', 'error');
                         return;
                     }
-                    
-                    // Check if passwords match
-                    const password = document.getElementById('password').value;
-                    const passwordConfirmation = document.getElementById('password_confirmation').value;
-                    
-                    if (password !== passwordConfirmation) {
-                        Swal.fire({
-                            title: 'Password Mismatch',
-                            text: 'Passwords do not match. Please check and try again.',
-                            icon: 'error',
-                            confirmButtonColor: '#24CFF4'
-                        });
-                        return;
-                    }
-                    
-                    // Show confirmation dialog
+
+                    e.preventDefault();
+
                     const firstName = document.getElementById('firstName').value;
                     const lastName = document.getElementById('lastName').value;
                     const email = document.getElementById('email').value;
                     const username = document.getElementById('username').value;
-                    
+                    const phoneValue = document.getElementById('phone').value.trim();
+
                     Swal.fire({
                         title: 'Confirm Account Creation',
                         html: `
@@ -380,27 +623,15 @@
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Show loading state
                             const createBtn = document.getElementById('createAccountBtn');
-                            const originalText = createBtn.innerHTML;
                             createBtn.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i>Creating Account...';
                             createBtn.disabled = true;
-                            
-                            // Add the +63 prefix to phone before submitting
-                            const hiddenPhoneInput = document.createElement('input');
-                            hiddenPhoneInput.type = 'hidden';
-                            hiddenPhoneInput.name = 'full_phone';
-                            hiddenPhoneInput.value = '+63' + phoneValue.replace(/\s/g, '');
-                            form.appendChild(hiddenPhoneInput);
-                            
-                            // Submit the form
                             form.submit();
                         }
                     });
                 });
             }
-            
-            // Initial validation check
+
             checkFormValidation();
         });
     </script>
