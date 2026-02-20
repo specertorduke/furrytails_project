@@ -26,16 +26,12 @@ class LoginController extends Controller
             'password' => $request->password,
         ];
 
-        if (Auth::attempt($credentials, true)) {
-            // Authentication passed...
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
-            // Check if user is admin and redirect accordingly
-            if (Auth::user()->isAdmin()) {
-                return redirect()->intended(route('admin.dashboard'));
-            }
-            
-            return redirect()->intended(route('dashboard'));
+
+            return redirect()->intended(
+                Auth::user()->isAdmin() ? route('admin.dashboard') : route('dashboard')
+            );
         }
 
         return back()->withErrors([
