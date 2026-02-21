@@ -129,7 +129,7 @@
                             <input type="checkbox" name="remember" id="remember" class="tw-rounded tw-border-gray-300 tw-text-[#24CFF4] focus:tw-ring-[#24CFF4] tw-h-4 tw-w-4 tw-transition duration-150 ease-in-out">
                             <span class="tw-ml-2 tw-text-sm tw-text-gray-600">Remember me</span>
                         </label>
-                        <a href="#" class="tw-text-sm tw-font-medium tw-text-[#24CFF4] hover:tw-text-[#0aa5cb] tw-no-underline">Forgot password?</a>
+                        <a href="{{ route('password.request') }}" class="tw-text-sm tw-font-medium tw-text-[#24CFF4] hover:tw-text-[#0aa5cb] tw-no-underline">Forgot password?</a>
                     </div>
 
                     <button type="submit" class="tw-w-full tw-bg-gradient-to-r tw-from-[#24CFF4] tw-to-[#0aa5cb] tw-text-white tw-font-bold tw-py-3 tw-px-4 tw-rounded-lg tw-shadow-lg tw-transform tw-transition-all tw-duration-300 hover:tw-scale-[1.02] hover:tw-shadow-xl focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-[#24CFF4]">
