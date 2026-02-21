@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
@@ -42,7 +43,7 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|min:5|max:255|unique:users',
             'phone' => ['required', 'string', 'max:15', 'regex:/^9\d{2}\s?\d{3}\s?\d{4}$/'],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::min(8)->uncompromised()], // Laravel's built-in password validation rule that checks against known data breaches
             'terms' => 'accepted',
         ]);
 
