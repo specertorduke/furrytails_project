@@ -24,7 +24,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 
 Route::get('/login', function () { return view('login'); })->middleware('guest')->name('login');
-Route::post('/login', [LoginController::class, 'login' ])->middleware('guest')->name('login.submit');
+Route::post('/login', [LoginController::class, 'login'])->middleware(['guest', 'throttle:5,1'])->name('login.submit'); // Apply rate limiting to login attempts (5 attempts per minute)
 
 // Google OAuth routes
 Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->middleware('guest')->name('google.redirect');
