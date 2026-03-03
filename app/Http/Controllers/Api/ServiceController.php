@@ -19,7 +19,7 @@ class ServiceController extends ApiController
                 
             return response()->json($services);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'An unexpected error occurred.'], 500);
         }
     }
 }

@@ -29,6 +29,7 @@ class AccountController extends Controller
             'lastName' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->userID.',userID',
             'phoneNumber' => 'required|string|max:255',
+            'current_password' => 'nullable|string|required_with:password',
             'password' => 'nullable|string|min:8|confirmed',
             'profile_image' => 'nullable|image|max:2048', // 2MB Max
         ]);
@@ -42,6 +43,10 @@ class AccountController extends Controller
         
         // Handle password change if provided
         if (!empty($validated['password'])) {
+            // Verify the current password before allowing the change
+            if (!Hash::check($validated['current_password'] ?? '', $user->password)) {
+                return back()->withErrors(['current_password' => 'The current password you entered is incorrect.']);
+            }
             $user->password = Hash::make($validated['password']);
         }
         

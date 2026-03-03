@@ -50,7 +50,7 @@ class AdminAppointmentsController extends Controller
             \Log::error('Error fetching appointments: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Failed to load appointments',
-                'message' => $e->getMessage(),
+                'message' => 'An unexpected error occurred.',
                 'data' => []
             ], 500);
         }
@@ -273,7 +273,6 @@ class AdminAppointmentsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve appointment details',
-                'error' => $e->getMessage()
             ], 404);
         }
     }
@@ -327,7 +326,6 @@ class AdminAppointmentsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update appointment status',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -452,7 +450,7 @@ class AdminAppointmentsController extends Controller
             \Log::error('Error updating appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update appointment: ' . $e->getMessage()
+                'message' => 'Failed to update appointment.'
             ], 500);
         }
     }

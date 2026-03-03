@@ -72,6 +72,14 @@ public function getAvailableTimes(Request $request)
         try {
             $appointment = Appointment::with(['service', 'pet.user', 'payments'])
                 ->findOrFail($id);
+
+            // Authorize: ensure the appointment belongs to the current user
+            if ($appointment->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
             
             // Format date and time for display
             $appointment->formattedDate = \Carbon\Carbon::parse($appointment->date)->format('F j, Y');
@@ -85,8 +93,7 @@ public function getAvailableTimes(Request $request)
             \Log::error('Error fetching appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve appointment details',
-                'error' => $e->getMessage()
+                'message' => 'Failed to retrieve appointment details'
             ], 404);
         }
     }
@@ -154,7 +161,15 @@ public function getAvailableTimes(Request $request)
             }
             
             // Find appointment
-            $appointment = Appointment::findOrFail($id);
+            $appointment = Appointment::with('pet')->findOrFail($id);
+
+            // Authorize: ensure the appointment belongs to the current user
+            if ($appointment->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
             
             // Check for duplicate appointments (excluding this one)
             $existingAppointment = Appointment::where('date', $request->date)
@@ -197,7 +212,7 @@ public function getAvailableTimes(Request $request)
             \Log::error('Error updating appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false, 
-                'message' => 'Failed to update appointment: ' . $e->getMessage()
+                'message' => 'Failed to update appointment.'
             ], 500);
         }
     }
@@ -315,8 +330,7 @@ public function store(Request $request)
         
         return response()->json([
             'success' => false,
-            'message' => 'An error occurred while creating the appointment',
-            'error'   => $e->getMessage()
+            'message' => 'An error occurred while creating the appointment'
         ], 500);
     }
 }

@@ -35,6 +35,12 @@ public function store(Request $request)
         'serviceID' => 'required|exists:services,serviceID'
     ]);
 
+    // Authorize: ensure the pet belongs to the current user
+    $boardingPet = Pet::findOrFail($request->petID);
+    if ($boardingPet->userID !== Auth::id()) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+    }
+
     // Begin transaction for concurrency safety
     DB::beginTransaction();
 
@@ -111,8 +117,7 @@ public function store(Request $request)
         
         return response()->json([
             'success' => false,
-            'message' => 'An error occurred while booking the boarding',
-            'error' => $e->getMessage()
+            'message' => 'An error occurred while booking the boarding'
         ], 500);
     }
 }
@@ -129,11 +134,14 @@ public function store(Request $request)
             // Get boarding with pet, user, AND PAYMENT information
             $boarding = Boarding::with(['pet.user', 'payments'])
                 ->findOrFail($id);
-                
-                \Log::info('Pet data for boarding #' . $id, [
-                    'has_pet' => isset($boarding->pet),
-                    'pet_data' => $boarding->pet ?? 'No pet found'
-                ]); 
+
+            // Authorize: ensure the boarding belongs to the current user
+            if (!$boarding->pet || $boarding->pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
                 
             // Get the service information for this boarding type
             $service = \App\Models\Service::where('category', 'boarding')
@@ -161,8 +169,7 @@ public function store(Request $request)
             \Log::error('Error fetching boarding details: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve boarding details',
-                'error' => $e->getMessage()
+                'message' => 'Failed to retrieve boarding details'
             ], 404);
         }
     }
@@ -380,8 +387,7 @@ public function update(Request $request, $id)
         \Log::error('Error updating boarding: ' . $e->getMessage());
         return response()->json([
             'success' => false,
-            'message' => 'Failed to update boarding: ' . $e->getMessage(),
-            'error' => $e->getMessage()
+            'message' => 'Failed to update boarding.',
         ], 500);
     }
 }
@@ -413,7 +419,6 @@ public function update(Request $request, $id)
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve pet data',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -488,7 +493,6 @@ public function checkAvailability(Request $request)
         return response()->json([
             'success' => false,
             'message' => 'Failed to check availability',
-            'error' => $e->getMessage()
         ], 500);
     }
 }

@@ -322,7 +322,7 @@ class AdminPaymentsController extends Controller
             \Log::error('Error fetching unpaid bookings: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch unpaid bookings: ' . $e->getMessage()
+                'message' => 'Failed to fetch unpaid bookings.'
             ], 500);
         }
     }

@@ -179,7 +179,7 @@ class AdminReportsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to restore database: ' . $e->getMessage()
+                'message' => 'Failed to restore database.'
             ], 500);
         }
     }

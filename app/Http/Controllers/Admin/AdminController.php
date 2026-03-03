@@ -32,7 +32,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error fetching users data: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'An unexpected error occurred.'], 500);
         }
     }
 

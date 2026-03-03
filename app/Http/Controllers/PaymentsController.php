@@ -66,7 +66,7 @@ class PaymentsController extends Controller
             DB::rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Payment failed: ' . $e->getMessage()
+                'message' => 'Payment failed.'
             ], 500);
         }
     }

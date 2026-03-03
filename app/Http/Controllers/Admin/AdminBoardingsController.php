@@ -48,7 +48,7 @@ class AdminBoardingsController extends Controller {
             \Log::error('Error fetching boardings: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Failed to load boardings',
-                'message' => $e->getMessage(),
+                'message' => 'An unexpected error occurred.',
                 'data' => []
             ], 500);
         }
@@ -165,7 +165,6 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Error creating boarding reservation',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -208,7 +207,6 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve boarding details',
-                'error' => $e->getMessage()
             ], 404);
         }
     }
@@ -248,7 +246,6 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update boarding status',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -296,7 +293,6 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update boarding',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -323,7 +319,6 @@ class AdminBoardingsController extends Controller {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve boarding data',
-                'error' => $e->getMessage()
             ], 404);
         }
     }

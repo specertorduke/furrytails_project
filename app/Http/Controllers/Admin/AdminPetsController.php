@@ -114,7 +114,6 @@ class AdminPetsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve pet data',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -184,7 +183,6 @@ class AdminPetsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update pet',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -209,7 +207,6 @@ class AdminPetsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete pet',
-                'error' => $e->getMessage()
             ], 500);
         }
     }

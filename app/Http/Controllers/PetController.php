@@ -34,7 +34,7 @@ class PetController extends Controller
 
     public function addPet(Request $request)
     {
-        \Log::info('Pet creation attempted', $request->all());
+        \Log::info('Pet creation attempted', ['user_id' => auth()->id(), 'name' => $request->name]);
         
         try {
             $validated = $request->validate([
@@ -119,7 +119,7 @@ class PetController extends Controller
             \Log::error('Pet deletion failed', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete pet: ' . $e->getMessage()
+                'message' => 'Failed to delete pet'
             ], 500);
         }
     }
@@ -128,10 +128,18 @@ class PetController extends Controller
     {
         try {
             $pet = Pet::findOrFail($id);
-            
+
+            // Authorize: ensure the pet belongs to the current user
+            if ($pet->userID !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
             // Delete pet image if it exists
-            if ($pet->petImage && Storage::exists('public/' . $pet->petImage)) {
-                Storage::delete('public/' . $pet->petImage);
+            if ($pet->petImage && \Storage::exists('public/' . $pet->petImage)) {
+                \Storage::delete('public/' . $pet->petImage);
             }
             
             $pet->delete();
@@ -143,8 +151,7 @@ class PetController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete pet',
-                'error' => $e->getMessage()
+                'message' => 'Failed to delete pet'
             ], 500);
         }
     }
@@ -237,7 +244,7 @@ class PetController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update pet: ' . $e->getMessage()
+                'message' => 'Failed to update pet.'
             ], 500);
         }
     }
@@ -287,6 +294,14 @@ class PetController extends Controller
     {
         try {
             $pet = \App\Models\Pet::with('user')->findOrFail($id);
+
+            // Authorize: ensure the pet belongs to the current user
+            if ($pet->userID !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
             
             // Calculate age from birth date
             $birthDate = \Carbon\Carbon::parse($pet->birthDate);
@@ -309,8 +324,7 @@ class PetController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve pet data',
-                'error' => $e->getMessage()
+                'message' => 'Failed to retrieve pet data'
             ], 500);
         }
     }

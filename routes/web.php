@@ -72,13 +72,10 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     // Pet Page routes
     Route::post('/pets/add', [PetController::class, 'addPet'])->name('pets.add');
     Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.delete');
-    Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete');
-    Route::get('/pets/{id}', [PetController::class, 'show'])->name('pets.show');
+    Route::post('/pets/{id}/delete', [PetController::class, 'deletePet'])->name('pets.delete.post');
+    Route::get('/pets/{id}', [PetController::class, 'showPet'])->name('user.pets.show');
     Route::post('/pets/{id}/update', [PetController::class, 'updatePet'])->name('user.pets.update');
     Route::get('/user/pets/list', [PetController::class, 'getUserPets'])->name('user.pets.list');
-    Route::get('/pets/{id}', [PetController::class, 'getPet'])->name('user.pets.get');
-    Route::get('/pets/{id}', [PetController::class, 'showPet'])->name('user.pets.show');
-    Route::delete('/pets/{id}', [PetController::class, 'deletePet'])->name('pets.destroy');
     Route::get('/pet-activities/{id}', [PetController::class, 'getPetActivities'])->name('user.pets.activities'); 
 
     // Appointments
@@ -141,8 +138,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('boardings/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('boardings.ongoing-boardings.data');
     Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
     Route::post('/boardings/{id}/cancel', [AdminBoardingsController::class, 'cancel'])->name('admin.boardings.cancel');
-    Route::get('/boardings', [AdminBoardingsController::class, 'index'])->name('admin.boardings');
-    Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
     Route::get('/boardings/{id}', [AdminBoardingsController::class, 'show'])->name('admin.boardings.show');
     Route::patch('/boardings/{id}/status', [AdminBoardingsController::class, 'updateStatus'])->name('admin.boardings.update-status');
     Route::get('/boardings/{id}/edit', [AdminBoardingsController::class, 'edit'])->name('admin.boardings.edit');
@@ -155,7 +150,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/services/{id}', [AdminServicesController::class, 'destroy'])->name('admin.services.destroy');
     Route::get('/services/{id}', [AdminServicesController::class,'show'])->name('admin.services.show');
     Route::put('/services/{id}', [AdminServicesController::class, 'update'])->name('admin.services.update');    
-    Route::post('/services/{id}/toggle-status', [AdminServicesController::class,'toggleStatus'])->name('admin.services.toggle-status');
     Route::post('/services', [AdminServicesController::class, 'store'])->name('admin.services.store');
     
     // Settings

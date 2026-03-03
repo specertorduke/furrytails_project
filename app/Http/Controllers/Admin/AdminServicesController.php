@@ -92,7 +92,6 @@ class AdminServicesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve service details',
-                'error' => $e->getMessage()
             ], 404);
         }
     }
@@ -178,7 +177,7 @@ class AdminServicesController extends Controller
             \Log::error('Error creating service: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create service: ' . $e->getMessage()
+                'message' => 'Failed to create service.'
             ], 500);
         }
     }
@@ -278,7 +277,7 @@ class AdminServicesController extends Controller
             \Log::error('Error updating service: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update service: ' . $e->getMessage()
+                'message' => 'Failed to update service.'
             ], 500);
         }
     }

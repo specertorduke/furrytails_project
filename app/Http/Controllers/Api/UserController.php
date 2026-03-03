@@ -20,7 +20,7 @@ class UserController extends ApiController
                 
             return response()->json($users);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'An unexpected error occurred.'], 500);
         }
     }
 }

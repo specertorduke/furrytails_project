@@ -30,8 +30,7 @@ class ManageController extends Controller
         } catch (\Exception $e) {
             Log::error('Appointment fetch error: ' . $e->getMessage());
             return response()->json([
-                'error' => 'Failed to fetch appointments',
-                'message' => $e->getMessage()
+                'error' => 'Failed to fetch appointments'
             ], 500);
         }
     }
@@ -56,8 +55,7 @@ class ManageController extends Controller
         } catch (\Exception $e) {
             Log::error('Boarding fetch error: ' . $e->getMessage());
             return response()->json([
-                'error' => 'Failed to fetch boardings',
-                'message' => $e->getMessage()
+                'error' => 'Failed to fetch boardings'
             ], 500);
         }
     }
@@ -71,14 +69,24 @@ class ManageController extends Controller
 
     public function updateAppointment(Request $request, $id)
     {
-        $appointment = Appointment::findOrFail($id);
-        $appointment->update($request->all());
+        $appointment = Appointment::with('pet')->findOrFail($id);
+
+        if (!$appointment->pet || $appointment->pet->userID !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $appointment->update($request->only(['date', 'time', 'notes']));
         return response()->json(['success' => true]);
     }
 
     public function deleteAppointment($id)
     {
-        $appointment = Appointment::findOrFail($id);
+        $appointment = Appointment::with('pet')->findOrFail($id);
+
+        if (!$appointment->pet || $appointment->pet->userID !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
         $appointment->delete();
         return response()->json(['success' => true]);
     }
@@ -91,14 +99,24 @@ class ManageController extends Controller
 
     public function updateBoarding(Request $request, $id)
     {
-        $boarding = Boarding::findOrFail($id);
-        $boarding->update($request->all());
+        $boarding = Boarding::with('pet')->findOrFail($id);
+
+        if (!$boarding->pet || $boarding->pet->userID !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $boarding->update($request->only(['start_date', 'end_date', 'notes']));
         return response()->json(['success' => true]);
     }
 
     public function deleteBoarding($id)
     {
-        $boarding = Boarding::findOrFail($id);
+        $boarding = Boarding::with('pet')->findOrFail($id);
+
+        if (!$boarding->pet || $boarding->pet->userID !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
         $boarding->delete();
         return response()->json(['success' => true]);
     }

@@ -163,7 +163,7 @@ class AdminUsersController extends Controller
             \Log::error('Error creating user: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create user: ' . $e->getMessage()
+                'message' => 'Failed to create user. Please try again.'
             ], 500);
         }
     }
@@ -270,8 +270,7 @@ class AdminUsersController extends Controller
             \Log::error('Error fetching user data: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve user data',
-                'error' => $e->getMessage()
+                'message' => 'Failed to retrieve user data'
             ], 500);
         }
     }
@@ -402,7 +401,7 @@ class AdminUsersController extends Controller
             \Log::error('Error updating user: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update user: ' . $e->getMessage()
+                'message' => 'Failed to update user. Please try again.'
             ], 500);
         }
     }
@@ -486,7 +485,7 @@ class AdminUsersController extends Controller
             \Log::error('Error deleting user: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete user: ' . $e->getMessage()
+                'message' => 'Failed to delete user. Please try again.'
             ], 500);
         }
     }
