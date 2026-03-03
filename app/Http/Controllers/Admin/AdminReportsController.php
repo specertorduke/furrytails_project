@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use Yajra\DataTables\Facades\DataTables;
+
 
 class AdminReportsController extends Controller
 {
@@ -37,38 +37,77 @@ class AdminReportsController extends Controller
     }
     
     /**
-     * Get activity logs data for DataTables
+     * Get activity logs data for DataTables (manual server-side implementation)
      */
     public function getLogsData(Request $request)
     {
+        $draw   = (int) $request->input('draw', 1);
+        $start  = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+
         $query = ActivityLog::with('user');
-        
-        // Apply filters if provided
+
+        // --- Custom filter params sent by the view ---
         if ($request->filled('table')) {
             $query->where('table_name', $request->table);
         }
-        
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
-        
         if ($request->filled('user_id')) {
             $query->where('userID', $request->user_id);
         }
-        
         if ($request->filled('record_id')) {
             $query->where('record_id', $request->record_id);
         }
-        
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-        
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-        
-        return DataTables::of($query)->toJson();
+
+        // --- DataTables global search ---
+        $searchValue = $request->input('search.value');
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('table_name', 'like', "%{$searchValue}%")
+                  ->orWhere('action',     'like', "%{$searchValue}%")
+                  ->orWhere('ip_address', 'like', "%{$searchValue}%")
+                  ->orWhere('record_id',  'like', "%{$searchValue}%")
+                  ->orWhereHas('user', function ($u) use ($searchValue) {
+                      $u->where('firstName', 'like', "%{$searchValue}%")
+                        ->orWhere('lastName', 'like', "%{$searchValue}%");
+                  });
+            });
+        }
+
+        $recordsFiltered = $query->count();
+        $recordsTotal    = ActivityLog::count();
+
+        // --- Ordering ---
+        $columnMap = [
+            0 => 'logID',
+            1 => 'created_at',
+            2 => 'table_name',
+            3 => 'record_id',
+            4 => 'action',
+            6 => 'ip_address',
+        ];
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
+        $orderDir         = $request->input('order.0.dir', 'desc') === 'asc' ? 'asc' : 'desc';
+        $orderColumn      = $columnMap[$orderColumnIndex] ?? 'logID';
+        $query->orderBy($orderColumn, $orderDir);
+
+        // --- Pagination ---
+        $data = $query->skip($start)->take($length)->get();
+
+        return response()->json([
+            'draw'            => $draw,
+            'recordsTotal'    => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data'            => $data,
+        ]);
     }
     
     /**
