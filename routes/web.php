@@ -155,8 +155,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/services', [AdminServicesController::class, 'store'])->name('admin.services.store');
     
     // Settings — super_admin only
-    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings')
-         ->middleware('admin.permission:settings.view');
+    Route::middleware('admin.permission:settings.view')->group(function () {
+        Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+        Route::post('/settings', [AdminSettingsController::class, 'save'])->name('admin.settings.save');
+    });
 
     // Payments
     Route::get('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'index'])->name('admin.payments');
@@ -171,6 +173,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::middleware('admin.permission:reports.view')->group(function () {
         Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
         Route::get('/reports/data', [AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
+        Route::get('/reports/analytics', [AdminReportsController::class, 'getAnalyticsData'])->name('admin.reports.analytics');
+        Route::get('/reports/export', [AdminReportsController::class, 'exportCsv'])->name('admin.reports.export');
         Route::get('/reports/{id}', [AdminReportsController::class, 'show'])->name('admin.reports.show');
         Route::post('/reports/restore', [AdminReportsController::class, 'restore'])->name('admin.reports.restore');
     });

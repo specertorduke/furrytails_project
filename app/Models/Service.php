@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\LogsActivity;
+use App\Models\Appointment;
 
 class Service extends Model
 {
@@ -26,4 +27,9 @@ class Service extends Model
         'price' => 'float',
         'isActive' => 'boolean',
     ];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'serviceID', 'serviceID');
+    }
 }

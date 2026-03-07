@@ -133,11 +133,11 @@ class AdminBoardingsController extends Controller {
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'petID' => 'required|exists:pets,petID',
+            'petID'        => 'required|exists:pets,petID',
             'boardingType' => 'required|in:daycare,overnight,long-term',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'status' => 'required|string',
+            'start_date'   => 'required|date',
+            'end_date'     => 'required|date|after_or_equal:start_date',
+            'status'       => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -147,18 +147,32 @@ class AdminBoardingsController extends Controller {
             ], 422);
         }
 
+        // Check for same-pet date overlap (exclude Cancelled records)
+        $petConflict = Boarding::where('petID', $request->petID)
+            ->whereNotIn('status', ['Cancelled'])
+            ->where('start_date', '<=', $request->end_date)
+            ->where('end_date',   '>=', $request->start_date)
+            ->exists();
+
+        if ($petConflict) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This pet already has an active boarding reservation that overlaps the selected dates. Please choose different dates or cancel the existing booking first.'
+            ], 422);
+        }
+
         try {
             $boarding = new Boarding();
-            $boarding->petID = $request->petID;
+            $boarding->petID        = $request->petID;
             $boarding->boardingType = $request->boardingType;
-            $boarding->start_date = $request->start_date;
-            $boarding->end_date = $request->end_date;
-            $boarding->status = $request->status;
+            $boarding->start_date   = $request->start_date;
+            $boarding->end_date     = $request->end_date;
+            $boarding->status       = $request->status;
             $boarding->save();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Boarding reservation created successfully',
+                'success'  => true,
+                'message'  => 'Boarding reservation created successfully',
                 'boarding' => $boarding
             ]);
         } catch (\Exception $e) {

@@ -459,7 +459,7 @@
                 ],
                 autoWidth: false,
                 scrollX: false,
-                dom: 'Blfrtip',
+                dom: '<"tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-gap-3 tw-mb-4"B<"tw-flex tw-items-center tw-gap-2"lf>>rt<"tw-flex tw-justify-between tw-items-center tw-mt-3"ip>',
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 buttons: [
                     {
