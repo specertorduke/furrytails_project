@@ -43,7 +43,7 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|min:5|max:255|unique:users',
             'phone' => ['required', 'string', 'max:15', 'regex:/^9\d{2}\s?\d{3}\s?\d{4}$/'],
-            'password' => ['required', 'confirmed', Password::min(8)->uncompromised()], // Laravel's built-in password validation rule that checks against known data breaches
+            'password' => ['required', 'confirmed', Password::defaults()],
             'terms' => 'accepted',
         ]);
 

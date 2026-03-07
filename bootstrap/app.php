@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\CheckAdminPermission;
+use App\Http\Middleware\SessionTimeout;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,7 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'redirect.admin'   => RedirectIfAdmin::class,
             'admin.permission' => CheckAdminPermission::class,
         ]);
-        
+
+        // Enforce idle session timeout on all web requests
+        $middleware->appendToGroup('web', SessionTimeout::class);
+
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(function () {
              if (auth()->check() && auth()->user()->role === 'admin') {

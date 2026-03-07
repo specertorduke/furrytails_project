@@ -8,7 +8,8 @@ use App\Models\Boarding;
 use App\Models\Service;
 use App\Models\Pet;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class AdminDashboardController extends AdminController
 {
@@ -19,9 +20,9 @@ class AdminDashboardController extends AdminController
             $query->whereRaw('LOWER(name) NOT LIKE ?', ['%grooming%']);
         })->count();
         
-        $chartData = $this->getServicePopularityData();
+        $chartData        = Cache::remember('admin_chart_data_' . date('Y'), 300, fn() => $this->getServicePopularityData());
         $recentActivities = $this->getRecentActivities();
-        $revenueData = $this->getRevenueData();
+        $revenueData      = Cache::remember('admin_revenue_data', 60, fn() => $this->getRevenueData());
 
         // Get overview stats for dashboard
         $stats = [

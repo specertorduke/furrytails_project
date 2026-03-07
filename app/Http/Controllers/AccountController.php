@@ -5,7 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;
 
 class AccountController extends Controller
 {
@@ -30,7 +31,7 @@ class AccountController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->userID.',userID',
             'phoneNumber' => 'required|string|max:255',
             'current_password' => 'nullable|string|required_with:password',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'profile_image' => 'nullable|image|max:2048', // 2MB Max
         ]);
         

@@ -8,6 +8,7 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Helpers\ActivityLogger;
 
 class LoginController extends Controller
 {
@@ -30,11 +31,25 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            session(['last_activity' => time()]);
+
+            $user = Auth::user();
+            ActivityLogger::log('users', $user->userID, 'login', null, [
+                'method' => 'password',
+                'role'   => $user->role,
+            ]);
 
             return redirect()->intended(
-                Auth::user()->isAdmin() ? route('admin.dashboard') : route('dashboard')
+                $user->isAdmin() ? route('admin.dashboard') : route('dashboard')
             );
         }
+
+        // Resolve user ID if the account exists (for audit trail)
+        $failedUser = User::where($loginType, $request->login)->first();
+        ActivityLogger::log('users', $failedUser?->userID ?? 0, 'login_failed', null, [
+            'identifier' => $request->login,
+            'method'     => 'password',
+        ]);
 
         return back()->withErrors([
             'login' => 'The provided credentials do not match our records.',
@@ -43,10 +58,12 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        ActivityLogger::log('users', Auth::id(), 'logout', null, [
+            'method' => 'manual',
+        ]);
+
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         // Redirect to login page regardless of user type
@@ -132,12 +149,18 @@ class LoginController extends Controller
             }
 
             Auth::login($user, true);
-            
+            session(['last_activity' => time()]);
+
+            ActivityLogger::log('users', $user->userID, 'login', null, [
+                'method' => 'google_oauth',
+                'role'   => $user->role,
+            ]);
+
             // Redirect based on user role
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
-            
+
             return redirect()->route('dashboard');
             
         } catch (\Exception $e) {
