@@ -24,6 +24,33 @@ class AdminDashboardController extends AdminController
         $recentActivities = $this->getRecentActivities();
         $revenueData      = Cache::remember('admin_revenue_data', 60, fn() => $this->getRevenueData());
 
+        // Inline data for dashboard widgets — eliminates extra AJAX roundtrips on load
+        $upcomingAppointmentsJson = Appointment::with(['pet', 'pet.user', 'service'])
+            ->where('date', '>=', now()->format('Y-m-d'))
+            ->where('status', 'Confirmed')
+            ->orderBy('date')
+            ->orderBy('time')
+            ->limit(10)
+            ->get()
+            ->toJson();
+
+        $activeBoardings = Boarding::with(['pet', 'pet.user'])
+            ->where('start_date', '<=', now()->format('Y-m-d'))
+            ->where('end_date', '>=', now()->format('Y-m-d'))
+            ->where('status', 'Active')
+            ->get();
+
+        $ongoingBoardingsJson = json_encode([
+            'active_count' => $activeBoardings->count(),
+            'boardings'    => $activeBoardings->map(fn($b) => [
+                'boardingID' => $b->boardingID,
+                'start_date' => $b->start_date,
+                'end_date'   => $b->end_date,
+                'pet'  => ['petID' => $b->pet->petID, 'name' => $b->pet->name, 'type' => $b->pet->species],
+                'user' => ['userID' => $b->pet->user->userID, 'firstName' => $b->pet->user->firstName, 'lastName' => $b->pet->user->lastName],
+            ])->values(),
+        ]);
+
         // Get overview stats for dashboard
         $stats = [
             'users_count' => User::count(),
@@ -43,7 +70,8 @@ class AdminDashboardController extends AdminController
             'projected_revenue' => $revenueData['projected_revenue']
         ];
 
-        return view('admin.dashboard', compact('stats'));
+        return view('admin.dashboard', compact('stats',
+            'upcomingAppointmentsJson', 'ongoingBoardingsJson'));
     }
 
     /**

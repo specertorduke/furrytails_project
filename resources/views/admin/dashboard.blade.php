@@ -643,14 +643,7 @@ window.DashboardPage = window.DashboardPage || {
         // Initialize upcoming appointments table
         this.upcomingAppointmentsTable = $('#upcomingAppointmentsTable').DataTable({
             serverSide: false,
-            ajax: {
-                url: '{{ route("admin.upcoming-appointments.data") }}',
-                type: 'GET',
-                dataSrc: 'data',
-                error: function(xhr, error, thrown) {
-                    console.error('Appointments Ajax error:', xhr, error, thrown);
-                }
-            },
+            data: {!! $upcomingAppointmentsJson !!},
             columns: [
                 { data: 'appointmentID', width: '5%' },
                 { 
@@ -748,9 +741,8 @@ window.DashboardPage = window.DashboardPage || {
     },
     
     loadOngoingBoardings: function() {
-    fetch('{{ route("admin.ongoing-boardings.data") }}')
-        .then(response => response.json())
-        .then(data => {
+        const data = {!! $ongoingBoardingsJson !!};
+        (function(data) {
             // Update capacity indicator
             const activeCount = data.active_count || 0;
             $('#active-boardings').text(activeCount);
@@ -795,16 +787,7 @@ window.DashboardPage = window.DashboardPage || {
                     </div>
                 `);
             }
-        })
-        .catch(error => {
-            console.error('Error loading boarding data:', error);
-            $('#boarding-pets-container').html(`
-                <div class="tw-col-span-full tw-p-4 tw-text-center">
-                    <i class="fas fa-exclamation-triangle tw-text-red-500 tw-text-3xl tw-mb-2"></i>
-                    <p class="tw-text-gray-400">Error loading boarding data</p>
-                </div>
-            `);
-        });
+        })(data);
     }
 };
 
