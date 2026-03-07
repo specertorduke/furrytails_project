@@ -438,6 +438,12 @@ window.DashboardPage = window.DashboardPage || {
     boardingsTable: null,
     petsTable: null,
 
+    reloadTable: function(table, url) {
+        fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.json())
+            .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+            .catch(err => console.error('Table reload error:', err));
+    },
     initializeTables: function() {
         console.log('Initializing dashboard tables...');
         this.destroyTables();
@@ -523,13 +529,7 @@ window.DashboardPage = window.DashboardPage || {
         // Initialize appointments table (using AJAX similar to ManagePage)
         this.appointmentsTable = $('#appointmentsTable').DataTable({
             ...commonConfig,
-            ajax: {
-                url: '{{ route("dashboard.upcoming-appointments") }}',
-                type: 'GET',
-                error: function (xhr, error, thrown) {
-                    console.error('Appointments Ajax error:', xhr, error, thrown);
-                }
-            },
+            data: {!! $appointmentsJson !!},
             language: {
                 ...commonConfig.language,
                 emptyTable: `
@@ -615,13 +615,7 @@ window.DashboardPage = window.DashboardPage || {
         // Initialize boardings table
         this.boardingsTable = $('#boardingReservationsTable').DataTable({
             ...commonConfig,
-            ajax: {
-                url: '{{ route("dashboard.current-boardings") }}',
-                type: 'GET',
-                error: function (xhr, error, thrown) {
-                    console.error('Boardings Ajax error:', { status: xhr.status, statusText: xhr.statusText, error: error });
-                }
-            },
+            data: {!! $boardingsJson !!},
             language: {
                 ...commonConfig.language,
                 emptyTable: `
@@ -708,13 +702,7 @@ window.DashboardPage = window.DashboardPage || {
             ...commonConfig,
             dom: 'lrtip', 
             buttons: [],
-            ajax: {
-                url: '{{ route("dashboard.pets") }}',
-                type: 'GET',
-                error: function (xhr, error, thrown) {
-                    console.error('Pets Ajax error:', xhr, error, thrown);
-                }
-            },
+            data: {!! $petsJson !!},
             language: {
                 ...commonConfig.language,
                 emptyTable: `
@@ -825,7 +813,7 @@ window.DashboardPage = window.DashboardPage || {
                 .then(data => {
                     if (data.success) {
                         // Refresh the datatable
-                        this.appointmentsTable.ajax.reload();
+                        this.reloadTable(this.appointmentsTable, '{{ route("dashboard.upcoming-appointments") }}');
                         
                         Swal.fire(
                             'Cancelled!',
@@ -899,7 +887,7 @@ window.DashboardPage = window.DashboardPage || {
                 .then(data => {
                     if (data.success) {
                         // Refresh the datatable
-                        this.boardingsTable.ajax.reload();
+                        this.reloadTable(this.boardingsTable, '{{ route("dashboard.current-boardings") }}');
                         
                         Swal.fire(
                             'Cancelled!',

@@ -100,6 +100,12 @@
         appointmentsTable: null,
         boardingsTable: null,
 
+        reloadTable: function(table, url) {
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+                .catch(err => console.error('Table reload error:', err));
+        },
         // CRUD Functions
         viewAppointment: function(id) {
             if(typeof window.openAppointmentModal === 'function') {
@@ -219,7 +225,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if(data.success) {
-                                    this.appointmentsTable.ajax.reload();
+                                    this.reloadTable(this.appointmentsTable, '{{ route("manage.appointments") }}');
                                     Swal.fire({
                                         title: 'Cancelled!',
                                         text: 'Your appointment has been cancelled.',
@@ -385,7 +391,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if(data.success) {
-                                    this.boardingsTable.ajax.reload();
+                                    this.reloadTable(this.boardingsTable, '{{ route("manage.boardings") }}');
                                     Swal.fire({
                                         title: 'Cancelled!',
                                         text: 'Your boarding has been cancelled.',
@@ -492,13 +498,7 @@
             // Initialize appointments table
             this.appointmentsTable = $('#appointmentsTable').DataTable({
                 ...commonConfig,
-                ajax: {
-                    url: '{{ route("manage.appointments") }}',
-                    type: 'GET',
-                    error: function (xhr, error, thrown) {
-                        console.error('Appointments Ajax error:', xhr, error, thrown);
-                    }
-                },
+                data: {!! $appointmentsJson !!},
                 columns: [
                     { data: 'appointmentID', width: '5%' },
                     { data: 'pet.name', width: '15%' },
@@ -593,19 +593,7 @@
             // Initialize boardings table
             this.boardingsTable = $('#boardingsTable').DataTable({
                 ...commonConfig,
-                ajax: {
-                    url: '{{ route("manage.boardings") }}',
-                    type: 'GET',
-                    error: function (xhr, error, thrown) {
-                    console.error('Boardings Ajax error:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        responseText: xhr.responseText,
-                        error: error,
-                        thrown: thrown
-                    });
-                    }
-                },
+                data: {!! $boardingsJson !!},
                 columns: [
                     { data: 'boardingID', width: '5%' },
                     { data: 'boardingType', width: '15%' },

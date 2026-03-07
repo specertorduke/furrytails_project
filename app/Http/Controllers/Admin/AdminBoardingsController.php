@@ -13,24 +13,24 @@ use App\Models\ActivityLog;
 class AdminBoardingsController extends Controller {
     public function index()
     {
-        // Calculate all the stats needed for cards
-        $totalBoardings = Boarding::count();
-        
-        $activeBoardings = Boarding::where('start_date', '<=', now()->format('Y-m-d'))
-            ->where('end_date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Active')
-            ->count();
-        
+        // Stats for cards
+        $totalBoardings     = Boarding::count();
+        $activeBoardings    = Boarding::where('start_date', '<=', now()->format('Y-m-d'))->where('end_date', '>=', now()->format('Y-m-d'))->where('status', 'Active')->count();
         $completedBoardings = Boarding::where('status', 'Completed')->count();
-        
         $cancelledBoardings = Boarding::where('status', 'Cancelled')->count();
-        
-        // Pass all stats to the view
+
+        // Inline data eliminates the second AJAX roundtrip on page load
+        $boardingsJson = Boarding::with(['pet.user'])
+            ->orderBy('start_date', 'desc')
+            ->get()
+            ->toJson();
+
         return view('admin.boardings', compact(
-            'totalBoardings', 
-            'activeBoardings', 
-            'completedBoardings', 
-            'cancelledBoardings'
+            'totalBoardings',
+            'activeBoardings',
+            'completedBoardings',
+            'cancelledBoardings',
+            'boardingsJson'
         ));
     }
 

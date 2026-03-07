@@ -130,6 +130,12 @@
     window.PaymentsPage = window.PaymentsPage || {
         paymentsTable: null,
 
+        reloadTable: function(table, url) {
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+                .catch(err => console.error('Table reload error:', err));
+        },
         // CRUD Functions
         viewPayment: function(id) {
             if (typeof window.openPaymentModal === 'function') {
@@ -178,7 +184,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if(data.success) {
-                            this.paymentsTable.ajax.reload();
+                            this.reloadTable(this.paymentsTable, '{{ route("admin.payments.data") }}');
                             Swal.fire({
                                 title: 'Updated!',
                                 text: 'Payment has been marked as refunded.',
@@ -267,7 +273,7 @@
                     document.getElementById('editPayment-modal').classList.add('tw-hidden');
                     
                     // Reload table
-                    PaymentsPage.paymentsTable.ajax.reload();
+                    PaymentsPage.reloadTable(PaymentsPage.paymentsTable, '{{ route("admin.payments.data") }}');
                     
                     // Show success
                     Swal.fire({
@@ -331,23 +337,7 @@
             // Initialize payments table
             this.paymentsTable = $('#paymentsTable').DataTable({
                 serverSide: false,
-                ajax: {
-                    url: '{{ route("admin.payments.data") }}',
-                    type: 'GET',
-                    dataSrc: function(json) {
-                        // Check if there's an error
-                        if (json.error) {
-                            console.error('Server returned error:', json.error);
-                            return [];
-                        }
-                        return json.data || [];
-                    },
-                    error: function(xhr, error, thrown) {
-                        console.error('Payments Ajax error:', xhr);
-                        console.error('Status text:', xhr.statusText);
-                        console.error('Response text:', xhr.responseText);
-                    }
-                },
+                data: {!! $paymentsJson !!},
                 columns: [
                     { data: 'paymentID', width: '5%' },
                     { 

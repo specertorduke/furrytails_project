@@ -117,6 +117,12 @@
     window.AppointmentsPage = window.AppointmentsPage || {
         appointmentsTable: null,
 
+        reloadTable: function(table, url) {
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+                .catch(err => console.error('Table reload error:', err));
+        },
         // CRUD Functions
         viewAppointment: function(id) {
             console.log('View appointment', id);
@@ -238,7 +244,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if(data.success) {
-                                    this.appointmentsTable.ajax.reload();
+                                    this.reloadTable(this.appointmentsTable, '{{ route("admin.appointments.data") }}');
                                     Swal.fire({
                                         title: 'Cancelled!',
                                         text: 'Appointment has been cancelled.',
@@ -323,14 +329,7 @@
             // Initialize appointments table
             this.appointmentsTable = $('#appointmentsTable').DataTable({
                 serverSide: false,
-                ajax: {
-                    url: '{{ route("admin.appointments.data") }}',
-                    type: 'GET',
-                    dataSrc: 'data',
-                    error: function(xhr, error, thrown) {
-                        console.error('Appointments Ajax error:', xhr, error, thrown);
-                    }
-                },
+                data: {!! $appointmentsJson !!},
                 columns: [
                     { data: 'appointmentID', width: '5%' },
                     { 

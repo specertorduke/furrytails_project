@@ -20,18 +20,57 @@ class AdminPaymentsController extends Controller
      */
     public function index()
     {
-        // Get payment statistics
-        $totalPayments = Payment::count();
+        // Stats for cards
+        $totalPayments     = Payment::count();
         $completedPayments = Payment::where('status', 'Completed')->count();
-        $pendingPayments = Payment::where('status', 'Pending')->count();
-        $totalRevenue = Payment::where('status', 'Completed')->sum('amount');
+        $pendingPayments   = Payment::where('status', 'Pending')->count();
+        $totalRevenue      = Payment::where('status', 'Completed')->sum('amount');
+
+        // Inline data eliminates the second AJAX roundtrip on page load
+        $paymentsJson = $this->buildPaymentsCollection()->toJson();
 
         return view('admin.payments', compact(
             'totalPayments',
             'completedPayments',
             'pendingPayments',
-            'totalRevenue'
+            'totalRevenue',
+            'paymentsJson'
         ));
+    }
+
+    private function buildPaymentsCollection()
+    {
+        $payments = Payment::with('user')
+            ->select('payments.*')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $appointmentIds = $payments->where('payable_type', 'App\Models\Appointment')->pluck('payable_id');
+        $boardingIds    = $payments->where('payable_type', 'App\Models\Boarding')->pluck('payable_id');
+
+        $appointments = $appointmentIds->isNotEmpty()
+            ? Appointment::with('service')->whereIn('appointmentID', $appointmentIds)->get()->keyBy('appointmentID')
+            : collect();
+
+        $boardings = $boardingIds->isNotEmpty()
+            ? Boarding::whereIn('boardingID', $boardingIds)->get()->keyBy('boardingID')
+            : collect();
+
+        foreach ($payments as $payment) {
+            if ($payment->payable_type === 'App\Models\Appointment') {
+                $appointment = $appointments->get($payment->payable_id);
+                if ($appointment) {
+                    $payment->service_info = ['name' => $appointment->service->name ?? 'Appointment', 'id' => $appointment->appointmentID];
+                }
+            } elseif ($payment->payable_type === 'App\Models\Boarding') {
+                $boarding = $boardings->get($payment->payable_id);
+                if ($boarding) {
+                    $payment->service_info = ['name' => 'Boarding: ' . $boarding->boardingType, 'id' => $boarding->boardingID];
+                }
+            }
+        }
+
+        return $payments;
     }
 
     /**
@@ -39,35 +78,7 @@ class AdminPaymentsController extends Controller
      */
     public function getPaymentsData()
     {
-        $payments = Payment::with('user')
-            ->select('payments.*')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Load related service info
-        foreach ($payments as $payment) {
-            if ($payment->payable_type == 'App\Models\Appointment') {
-                $appointment = Appointment::with('service')->find($payment->payable_id);
-                if ($appointment) {
-                    $payment->service_info = [
-                        'name' => $appointment->service->name ?? 'Appointment',
-                        'id' => $appointment->appointmentID
-                    ];
-                }
-            } elseif ($payment->payable_type == 'App\Models\Boarding') {
-                $boarding = Boarding::find($payment->payable_id);
-                if ($boarding) {
-                    $payment->service_info = [
-                        'name' => 'Boarding: ' . $boarding->boardingType,
-                        'id' => $boarding->boardingID
-                    ];
-                }
-            }
-        }
-
-        return response()->json([
-            'data' => $payments
-        ]);
+        return response()->json(['data' => $this->buildPaymentsCollection()]);
     }
 
     /**

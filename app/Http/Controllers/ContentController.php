@@ -2,6 +2,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Appointment;
+use App\Models\Boarding;
 
 class ContentController extends Controller
 {
@@ -13,7 +16,22 @@ class ContentController extends Controller
 
     public function manageContent()
     {
-        return view('content.manage');
+        $userId = Auth::id();
+
+        // Inline JSON eliminates the AJAX roundtrip on page load
+        $appointmentsJson = Appointment::with(['pet', 'service'])
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->select('appointments.*')
+            ->get()
+            ->toJson();
+
+        $boardingsJson = Boarding::with('pet')
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->select('boardings.*')
+            ->get()
+            ->toJson();
+
+        return view('content.manage', compact('appointmentsJson', 'boardingsJson'));
     }
 
     public function petsContent()

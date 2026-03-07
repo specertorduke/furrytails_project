@@ -16,23 +16,24 @@ class AdminAppointmentsController extends Controller
 {
     public function index()
     {
-        // Calculate all the stats needed for cards
-        $totalAppointments = Appointment::count();
-        
-        $upcomingAppointments = Appointment::where('date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Confirmed')
-            ->count();
-        
+        // Stats for cards
+        $totalAppointments     = Appointment::count();
+        $upcomingAppointments  = Appointment::where('date', '>=', now()->format('Y-m-d'))->where('status', 'Confirmed')->count();
         $completedAppointments = Appointment::where('status', 'Completed')->count();
-        
         $cancelledAppointments = Appointment::where('status', 'Cancelled')->count();
-        
-        // Pass all stats to the view
+
+        // Inline data eliminates the second AJAX roundtrip on page load
+        $appointmentsJson = Appointment::with(['pet.user', 'service'])
+            ->orderBy('date', 'desc')
+            ->get()
+            ->toJson();
+
         return view('admin.appointments', compact(
-            'totalAppointments', 
-            'upcomingAppointments', 
-            'completedAppointments', 
-            'cancelledAppointments'
+            'totalAppointments',
+            'upcomingAppointments',
+            'completedAppointments',
+            'cancelledAppointments',
+            'appointmentsJson'
         ));
     }
 

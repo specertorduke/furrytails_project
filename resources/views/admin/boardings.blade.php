@@ -153,6 +153,12 @@
     window.BoardingsPage = window.BoardingsPage || {
         boardingsTable: null,
 
+        reloadTable: function(table, url) {
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+                .catch(err => console.error('Table reload error:', err));
+        },
         // CRUD Functions
         viewBoarding: function(id) {
             console.log('View boarding', id);
@@ -293,7 +299,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if(data.success) {
-                                    this.boardingsTable.ajax.reload();
+                                    this.reloadTable(this.boardingsTable, '{{ route("admin.boardings.data") }}');
                                     // Refresh the ongoing boardings display
                                     if (typeof this.loadOngoingBoardings === 'function') {
                                         this.loadOngoingBoardings();
@@ -383,14 +389,7 @@
             // Initialize boardings table
             this.boardingsTable = $('#boardingsTable').DataTable({
                 serverSide: false,
-                ajax: {
-                    url: '{{ route("admin.boardings.data") }}',
-                    type: 'GET',
-                    dataSrc: 'data',
-                    error: function(xhr, error, thrown) {
-                        console.error('Boardings Ajax error:', xhr, error, thrown);
-                    }
-                },
+                data: {!! $boardingsJson !!},
                 columns: [
                     { data: 'boardingID', width: '5%' },
                     { 

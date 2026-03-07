@@ -17,16 +17,18 @@ class AdminUsersController extends Controller
 {
     public function index()
     {
-        // Get total users count
-        $totalUsers = User::count();
-        
-        // Get active users (assuming all users are active since there's no is_active field)
+        $totalUsers  = User::count();
         $activeUsers = $totalUsers;
-        
-        // Get new users in the last 30 days
-        $newUsers = User::where('created_at', '>=', Carbon::now()->subDays(30))->count();
-        
-        return view('admin.users', compact('totalUsers', 'activeUsers', 'newUsers'));
+        $newUsers    = User::where('created_at', '>=', Carbon::now()->subDays(30))->count();
+
+        // Inline data eliminates the second AJAX roundtrip on page load
+        $usersJson = User::select([
+            'userID', 'firstName', 'lastName', 'email',
+            'phone', 'username', 'role', 'userImage',
+            'created_at', 'updated_at',
+        ])->get()->toJson();
+
+        return view('admin.users', compact('totalUsers', 'activeUsers', 'newUsers', 'usersJson'));
     }
 
     /**

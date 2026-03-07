@@ -25,9 +25,6 @@ class AdminController extends Controller
                 'created_at', 'updated_at'
             ])->get();
             
-            // Logging for debugging
-            \Log::info('Users data fetched: ' . $users->count() . ' records');
-            
             return response()->json(['data' => $users]);
         } catch (\Exception $e) {
             \Log::error('Error fetching users data: ' . $e->getMessage());

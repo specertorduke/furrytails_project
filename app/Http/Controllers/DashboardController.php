@@ -12,21 +12,31 @@ class DashboardController extends Controller
     // Your existing index method stays the same
     public function index(Request $request)
     {
-        $pets = Pet::where('userID', Auth::id())->get();
-        
-        $appointments = Appointment::whereHas('pet', function ($query) {
-            $query->where('userID', Auth::id());
-        })->where('date', '>=', now())
-          ->orderBy('date', 'asc')
-          ->get();
-          
-        $boardings = Boarding::whereHas('pet', function ($query) {
-            $query->where('userID', Auth::id());
-        })->where('end_date', '>=', now())
-          ->orderBy('start_date', 'asc')
-          ->get();
-          
-        return view('content.dashboard', compact('appointments', 'boardings', 'pets'));
+        $userId = Auth::id();
+
+        $appointments = Appointment::with(['pet', 'service'])
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->where('date', '>=', now())
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $boardings = Boarding::with('pet')
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->where('end_date', '>=', now())
+            ->orderBy('start_date', 'asc')
+            ->get();
+
+        $pets = Pet::where('userID', $userId)->get();
+
+        // JSON strings for inline DataTable initialization (no second AJAX roundtrip)
+        $appointmentsJson = $appointments->toJson();
+        $boardingsJson    = $boardings->toJson();
+        $petsJson         = $pets->toJson();
+
+        return view('content.dashboard', compact(
+            'appointments', 'boardings', 'pets',
+            'appointmentsJson', 'boardingsJson', 'petsJson'
+        ));
     }
 
     public function getUpcomingAppointments()

@@ -78,6 +78,12 @@
     window.UsersPage = window.UsersPage || {
         usersTable: null,
 
+        reloadTable: function(table, url) {
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(json => { table.clear().rows.add(json.data || []).draw(false); })
+                .catch(err => console.error('Table reload error:', err));
+        },
         // CRUD Functions
         viewUser: function(id) {
             viewUserDetails(id);
@@ -164,7 +170,7 @@
                                 
                                 // Reload users table or page
                                 if (window.UsersPage && window.UsersPage.usersTable) {
-                                    window.UsersPage.usersTable.ajax.reload();
+                                    window.UsersPage.reloadTable(window.UsersPage.usersTable, '{{ route("admin.users.data") }}');
                                 } else {
                                     location.reload();
                                 }
@@ -216,14 +222,7 @@
             // Initialize users table
             this.usersTable = $('#usersTable').DataTable({
                 serverSide: false,
-                ajax: {
-                    url: '{{ route("admin.users.data") }}',
-                    type: 'GET',
-                    dataSrc: 'data',
-                    error: function(xhr, error, thrown) {
-                        console.error('Users Ajax error:', xhr, error, thrown);
-                    }
-                },
+                data: {!! $usersJson !!},
                 columns: [
                     { data: 'userID', width: '5%' },
                     { 
