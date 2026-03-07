@@ -302,10 +302,13 @@
             );
         });
 
-        // Initialize main object
-        window.ReportsPage = window.ReportsPage || {
+        // Initialize main object (reset on each page load to pick up fresh DOM)
+        window.ReportsPage = {
             // Initialize DataTable for activity logs
             initializeTables: function() {
+                if ($.fn.DataTable.isDataTable('#activityLogsTable')) {
+                    $('#activityLogsTable').DataTable().clear().destroy();
+                }
                 this.logsTable = $('#activityLogsTable').DataTable({
                     serverSide: true,
                     ajax: {

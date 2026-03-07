@@ -293,3 +293,36 @@ table.dataTable tbody td {
     font-weight: 600 !important;
     padding: 8px 15px !important;
 }
+
+/* ============================================================ */
+/* Custom Scrollbar - Admin Side (dark theme)                  */
+/* ============================================================ */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #111827;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #24CFF4;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #111827;
+}

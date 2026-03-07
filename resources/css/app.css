@@ -248,3 +248,36 @@ table.dataTable tbody td {
 .species-filter.active {
     @apply tw-bg-[#24CFF4] tw-text-white;
 }
+
+/* ============================================================ */
+/* Custom Scrollbar - User Side (light theme)                  */
+/* ============================================================ */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #dff4f8;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #93d9e8;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #24CFF4;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #93d9e8 #dff4f8;
+}

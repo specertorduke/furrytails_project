@@ -60,6 +60,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
     Route::delete('/account/delete', [AccountController::class, 'deleteAccount'])->name('account.delete');
+    Route::get('/account/validate-field', [AccountController::class, 'validateAccountField'])->name('account.validate-field');
 
     Route::get('/content/api/appointments', [DashboardController::class, 'getUpcomingAppointments'])->name('dashboard.upcoming-appointments');
     Route::get('/content/api/boardings', [DashboardController::class, 'getCurrentBoardings'])->name('dashboard.current-boardings');
@@ -183,6 +184,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');
     Route::put('/account/update', [App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('admin.account.update');
     Route::get('/account/logout-devices', [App\Http\Controllers\Admin\AdminAccountController::class, 'logoutFromAllDevices'])->name('admin.logout.devices');
+    Route::get('/account/validate-field', [App\Http\Controllers\Admin\AdminAccountController::class, 'validateAccountField'])->name('admin.account.validate-field');
 
     // Data for Pet Modal
     Route::post('/pets/store', [App\Http\Controllers\Admin\AdminPetsController::class, 'store'])->name('admin.pets.store');

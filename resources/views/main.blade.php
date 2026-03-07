@@ -200,7 +200,7 @@
         </div>
     </div>
 
-<script>
+<script data-layout-script>
     document.addEventListener('DOMContentLoaded', function() {
         AOS.init({
         once: true
@@ -239,6 +239,9 @@
         
         document.dispatchEvent(new Event('contentWillChange'));
 
+        // Remove previously appended page-specific scripts to prevent accumulation
+        document.querySelectorAll('[data-dynamic-script]').forEach(s => s.remove());
+
         history.pushState(null, '', url);
         fetch(url)
             .then(response => response.text())
@@ -246,7 +249,8 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const content = doc.querySelector('#main-content');
-                const scripts = doc.querySelectorAll('script');
+                // Only run inline page-specific scripts, not layout script or CDN scripts
+                const scripts = doc.querySelectorAll('script:not([src]):not([data-layout-script])');
                 const title = doc.querySelector('title');
                 
                 if (content) {
@@ -257,11 +261,12 @@
                     }
                     updateActiveLink(url);
                     
-                    // Execute all scripts from the loaded content
+                    // Execute page-specific scripts, tagged for cleanup on next navigation
                     scripts.forEach(script => {
-                        if (script.innerHTML) {
+                        if (script.textContent.trim()) {
                             const newScript = document.createElement('script');
-                            newScript.textContent = script.innerHTML;
+                            newScript.textContent = script.textContent;
+                            newScript.setAttribute('data-dynamic-script', url);
                             document.body.appendChild(newScript);
                         }
                     });
@@ -292,16 +297,27 @@
 
         window.addEventListener('popstate', function() {
             const url = location.pathname;
+            document.querySelectorAll('[data-dynamic-script]').forEach(s => s.remove());
             fetch(url)
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const content = doc.querySelector('#main-content');
+                    const scripts = doc.querySelectorAll('script:not([src]):not([data-layout-script])');
                     if (content) {
                         document.getElementById('main-content').innerHTML = content.innerHTML;
-                        updateActiveLink(url); // Update active link on popstate
-                        initFlowbite();
+                        updateActiveLink(url);
+                        scripts.forEach(script => {
+                            if (script.textContent.trim()) {
+                                const newScript = document.createElement('script');
+                                newScript.textContent = script.textContent;
+                                newScript.setAttribute('data-dynamic-script', url);
+                                document.body.appendChild(newScript);
+                            }
+                        });
+                        if (typeof initFlowbite === 'function') initFlowbite();
+                        document.dispatchEvent(new Event('contentChanged'));
                     } else {
                         console.error('Error: #main-content not found in the fetched HTML.');
                     }
@@ -435,6 +451,6 @@
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    @stack('scripts')
+@stack('scripts')
 </body>
 </html>
