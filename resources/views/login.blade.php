@@ -119,7 +119,7 @@
                                 class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400"
                                 placeholder="Enter your password">
                             <button type="button" onclick="togglePassword()" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
-                                <i class="fa-regular fa-eye" id="toggleIcon"></i>
+                                <i class="fa-regular fa-eye-slash" id="toggleIcon"></i>
                             </button>
                         </div>
                     </div>
@@ -170,12 +170,12 @@
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
                 toggleIcon.classList.remove('fa-eye-slash');
                 toggleIcon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
             }
         }
     </script>

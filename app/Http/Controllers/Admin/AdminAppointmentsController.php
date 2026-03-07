@@ -361,10 +361,7 @@ class AdminAppointmentsController extends Controller
             'status' => 'required|in:Pending,Confirmed,Completed,Cancelled',
             'before_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'after_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'admin_password' => 'required|string',
-        ], [
-            'admin_password.required' => 'Admin password is required to update appointments.',
-        ]);
+        ], []);
 
         if ($validator->fails()) {
             return response()->json([
@@ -378,14 +375,6 @@ class AdminAppointmentsController extends Controller
                 'success' => false,
                 'message' => 'The new appointment date must be today or later.'
             ], 422);
-        }
-
-        $admin = auth()->user();
-        if (!$admin || !Hash::check($request->input('admin_password'), $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
         }
 
         try {
@@ -483,22 +472,6 @@ class AdminAppointmentsController extends Controller
 
     public function cancel(Request $request, $id)
     {
-        // Validate admin password
-        $validated = $request->validate([
-            'admin_password' => 'required|string'
-        ], [
-            'admin_password.required' => 'Admin password is required to cancel appointments.',
-        ]);
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($validated['admin_password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
-
         try {
             $appointment = Appointment::findOrFail($id);
             

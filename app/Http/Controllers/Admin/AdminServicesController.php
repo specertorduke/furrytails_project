@@ -111,9 +111,7 @@ class AdminServicesController extends Controller
             'description' => 'nullable|string',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'isActive' => 'required|boolean',
-            'admin_password' => 'required|string', // Add admin password requirement
         ], [
-            'admin_password.required' => 'Admin password is required to create services.',
             'name.unique' => 'A service with this name already exists. Please choose a different name.',
         ]);
 
@@ -122,15 +120,6 @@ class AdminServicesController extends Controller
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
-        }
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($request->admin_password, $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
         }
 
         try {
@@ -205,9 +194,7 @@ class AdminServicesController extends Controller
             'description' => 'nullable|string',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'isActive' => 'required|boolean',
-            'admin_password' => 'required|string', // Add admin password requirement
         ], [
-            'admin_password.required' => 'Admin password is required to update services.',
             'name.unique' => 'A service with this name already exists. Please choose a different name.',
         ]);
     
@@ -218,15 +205,6 @@ class AdminServicesController extends Controller
             ], 422);
         }
 
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($request->admin_password, $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
-    
         try {
             $service = Service::findOrFail($id);
             
@@ -295,21 +273,6 @@ class AdminServicesController extends Controller
         if (!auth()->user()->hasPermission('services.toggle')) {
             return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
         }
-        // Validate admin password
-        $validated = $request->validate([
-            'admin_password' => 'required|string'
-        ], [
-            'admin_password.required' => 'Admin password is required to change service status.',
-        ]);
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($validated['admin_password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
 
         try {
             $service = Service::findOrFail($id);
@@ -351,21 +314,6 @@ class AdminServicesController extends Controller
     {
         if (!auth()->user()->hasPermission('services.delete')) {
             return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
-        }
-        // Validate admin password
-        $validated = $request->validate([
-            'admin_password' => 'required|string'
-        ], [
-            'admin_password.required' => 'Admin password is required to delete services.',
-        ]);
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($validated['admin_password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
         }
 
         try {

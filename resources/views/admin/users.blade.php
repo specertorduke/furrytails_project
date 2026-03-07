@@ -101,7 +101,6 @@
                         <p class="tw-font-bold tw-bg-gray-700 tw-p-2 tw-rounded tw-text-yellow-300 tw-border tw-border-gray-600">${userName || 'Unknown User'}</p>
                         <p class="tw-mt-2 tw-text-sm tw-text-gray-300">This will remove all user data, appointments, pets, and boarding records.</p>
                     </div>
-                    <input type="password" id="delete-user-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                 `,
                 icon: 'warning',
                 showCancelButton: true,
@@ -110,15 +109,7 @@
                 confirmButtonText: 'Yes, delete user!',
                 cancelButtonText: 'Cancel',
                 background: '#374151',
-                color: '#fff',
-                preConfirm: () => {
-                    const password = document.getElementById('delete-user-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your admin password');
-                        return false;
-                    }
-                    return password;
-                }
+                color: '#fff'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Show loading state
@@ -137,7 +128,7 @@
                     // Get CSRF token
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     
-                    // Send delete request with password
+                    // Send delete request
                     fetch(`{{ route('admin.users.destroy', ':id') }}`.replace(':id', userId), {
                         method: 'DELETE',
                         headers: {
@@ -145,9 +136,7 @@
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            admin_password: result.value
-                        })
+                        body: JSON.stringify({})
                     })
                     .then(response => {
                         if (!response.ok) {

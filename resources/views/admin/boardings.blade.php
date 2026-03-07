@@ -269,7 +269,6 @@
                         title: 'Cancel this boarding?',
                         html: `
                             ${warningMessage}
-                            <input type="password" id="cancel-boarding-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0;">
                         `,
                         icon: 'warning',
                         showCancelButton: true,
@@ -277,15 +276,7 @@
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Yes, cancel it!',
                         background: '#374151',
-                        color: '#fff',
-                        preConfirm: () => {
-                            const password = document.getElementById('cancel-boarding-password').value;
-                            if (!password) {
-                                Swal.showValidationMessage('Please enter your admin password');
-                                return false;
-                            }
-                            return password;
-                        }
+                        color: '#fff'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             // Make AJAX call to cancel
@@ -296,9 +287,7 @@
                                     'Content-Type': 'application/json',
                                     'Accept': 'application/json'
                                 },
-                                body: JSON.stringify({
-                                    admin_password: result.value
-                                }),
+                                body: JSON.stringify({}),
                                 credentials: 'same-origin'
                             })
                             .then(response => response.json())

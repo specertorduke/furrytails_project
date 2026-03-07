@@ -76,22 +76,6 @@ class AdminBoardingsController extends Controller {
 
     public function cancel(Request $request, $id)
     {
-        // Validate admin password
-        $validated = $request->validate([
-            'admin_password' => 'required|string'
-        ], [
-            'admin_password.required' => 'Admin password is required to cancel boardings.',
-        ]);
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($validated['admin_password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid admin password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
-
         try {
             $boarding = Boarding::findOrFail($id);
             

@@ -179,7 +179,7 @@
                                     <input type="password" id="password" name="password" placeholder="Enter new password"
                                         class="tw-w-full tw-bg-gray-700/60 tw-border tw-border-gray-600 hover:tw-border-gray-500 focus:tw-border-[#24CFF4] tw-rounded-xl tw-px-4 tw-py-2.5 tw-pr-12 tw-text-white tw-text-sm tw-outline-none tw-transition-colors">
                                     <button type="button" onclick="togglePwd('password')" class="tw-absolute tw-inset-y-0 tw-right-3.5 tw-text-gray-500 hover:tw-text-gray-300 tw-transition-colors">
-                                        <i id="eye-password" class="fas fa-eye"></i>
+                                        <i id="eye-password" class="fas fa-eye-slash"></i>
                                     </button>
                                 </div>
                                 <p id="password-strength" class="tw-text-xs tw-mt-1.5 tw-hidden"></p>
@@ -192,7 +192,7 @@
                                     <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm new password"
                                         class="tw-w-full tw-bg-gray-700/60 tw-border tw-border-gray-600 hover:tw-border-gray-500 focus:tw-border-[#24CFF4] tw-rounded-xl tw-px-4 tw-py-2.5 tw-pr-12 tw-text-white tw-text-sm tw-outline-none tw-transition-colors">
                                     <button type="button" onclick="togglePwd('password_confirmation')" class="tw-absolute tw-inset-y-0 tw-right-3.5 tw-text-gray-500 hover:tw-text-gray-300 tw-transition-colors">
-                                        <i id="eye-password_confirmation" class="fas fa-eye"></i>
+                                        <i id="eye-password_confirmation" class="fas fa-eye-slash"></i>
                                     </button>
                                 </div>
                                 <p id="password-match" class="tw-text-xs tw-mt-1.5 tw-hidden"></p>
@@ -373,10 +373,10 @@ $(document).ready(function() {
         const icon  = document.getElementById('eye-' + fieldId);
         if (input.type === 'password') {
             input.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
         } else {
             input.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
         }
     };
 

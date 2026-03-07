@@ -102,20 +102,7 @@ class AdminPaymentsController extends Controller
             'reference_number' => 'nullable|string',
             'status' => 'required|in:Pending,Completed,Failed,Refunded',
             'amount' => 'sometimes|required|numeric|min:0',
-            'admin_password' => 'required|string'
-        ], [
-            'admin_password.required' => 'Admin password is required to update payments.'
         ]);
-
-        $admin = auth()->user();
-        if (!$admin || !Hash::check($validated['admin_password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
-
-        unset($validated['admin_password']);
 
         $updateData = [];
         if (array_key_exists('payment_method', $validated)) {
@@ -167,20 +154,6 @@ class AdminPaymentsController extends Controller
         }
         $payment = Payment::findOrFail($id);
         
-        // Validate password
-        $validated = $request->validate([
-            'password' => 'required|string'
-        ]);
-
-        // Verify admin password
-        $admin = auth()->user();
-        if (!Hash::check($validated['password'], $admin->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid password. Please enter your current password to confirm this action.'
-            ], 401);
-        }
-
         if ($payment->status !== 'Completed') {
             return response()->json([
                 'success' => false,

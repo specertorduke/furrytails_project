@@ -155,7 +155,6 @@
                         <p class="tw-text-red-400 tw-font-bold tw-mb-2">⚠️ WARNING: This action cannot be undone</p>
                         <p class="tw-mb-2 tw-text-white">This will mark the payment as refunded and update the status permanently.</p>
                     </div>
-                    <input type="password" id="refund-password" class="swal2-input" placeholder="Enter your admin password" style="margin: 10px 0; background-color: #374151; color: #ffffff; border: 1px solid #6B7280;">
                 `,
                 icon: 'warning',
                 showCancelButton: true,
@@ -163,15 +162,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, mark as refunded!',
                 background: '#374151',
-                color: '#fff',
-                preConfirm: () => {
-                    const password = document.getElementById('refund-password').value;
-                    if (!password) {
-                        Swal.showValidationMessage('Please enter your password');
-                        return false;
-                    }
-                    return password;
-                }
+                color: '#fff'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Make AJAX call to update status with password
@@ -182,9 +173,7 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            password: result.value
-                        })
+                        body: JSON.stringify({})
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -242,28 +231,12 @@
             const form = document.getElementById('editPaymentForm');
             const formData = new FormData(form);
             
-            // Get the password field value
-            const password = document.getElementById('edit-admin-password').value;
-            
-            if (!password) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Please enter your admin password to confirm changes',
-                    icon: 'error',
-                    confirmButtonColor: '#24CFF4',
-                    background: '#374151',
-                    color: '#fff'
-                });
-                return;
-            }
-            
             // Prepare data for submission
             const data = {
                 payment_method: formData.get('payment_method'),
                 reference_number: formData.get('reference_number'),
                 status: formData.get('status'),
-                amount: formData.get('amount'),
-                password: password
+                amount: formData.get('amount')
             };
             
             // Show loading

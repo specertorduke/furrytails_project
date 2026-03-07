@@ -297,42 +297,23 @@ class AdminUsersController extends Controller
                 'userImage' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ];
             
-            $messages = [
-                'admin_password.required' => 'Admin password is required when changing user roles.',
-                'admin_password.string' => 'Admin password must be a valid string.',
-            ];
+            $messages = [];
 
             // Add password validation only if it's provided
             if ($request->filled('password')) {
                 $rules['password'] = 'string|min:8';
             }
-            
-            // Add admin password requirement if role is being changed
-            if ($request->role !== $originalRole) {
-                $rules['admin_password'] = 'required|string';
-            }
-            
+
             $validated = $request->validate($rules);
-            
-            // Verify admin password if role is being changed
-            if ($request->role !== $originalRole) {
-                $admin = auth()->user();
-                if (!Hash::check($validated['admin_password'], $admin->password)) {
+
+            // Safety check - don't allow removing the last admin
+            if ($originalRole === 'admin' && $request->role === 'user') {
+                $adminCount = User::where('role', 'admin')->where('userID', '!=', $id)->count();
+                if ($adminCount < 1) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Invalid admin password. Please enter your current password to confirm role changes.'
-                    ], 401);
-                }
-                
-                // Additional safety check - don't allow removing the last admin
-                if ($originalRole === 'admin' && $request->role === 'user') {
-                    $adminCount = User::where('role', 'admin')->where('userID', '!=', $id)->count();
-                    if ($adminCount < 1) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Cannot remove admin role. At least one admin must remain in the system.'
-                        ], 403);
-                    }
+                        'message' => 'Cannot remove admin role. At least one admin must remain in the system.'
+                    ], 403);
                 }
             }
             
@@ -413,22 +394,6 @@ class AdminUsersController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-            
-            // Validate admin password requirement
-            $validated = $request->validate([
-                'admin_password' => 'required|string'
-            ], [
-                'admin_password.required' => 'Admin password is required to delete users.',
-            ]);
-            
-            // Verify admin password
-            $admin = auth()->user();
-            if (!Hash::check($validated['admin_password'], $admin->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid admin password. Please enter your current password to confirm user deletion.'
-                ], 401);
-            }
             
             // Prevent deleting yourself
             if ($user->userID == auth()->id()) {

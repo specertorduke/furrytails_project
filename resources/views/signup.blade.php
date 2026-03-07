@@ -160,7 +160,7 @@
                                     class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                     placeholder="••••••••">
                                 <button type="button" onclick="togglePassword('password', 'toggleIcon')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
-                                    <i class="fa-regular fa-eye" id="toggleIcon"></i>
+                                    <i class="fa-regular fa-eye-slash" id="toggleIcon"></i>
                                 </button>
                             </div>
                         </div>
@@ -175,7 +175,7 @@
                                     class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                     placeholder="••••••••">
                                 <button type="button" onclick="togglePassword('password_confirmation', 'toggleIconConfirm')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
-                                    <i class="fa-regular fa-eye" id="toggleIconConfirm"></i>
+                                    <i class="fa-regular fa-eye-slash" id="toggleIconConfirm"></i>
                                 </button>
                             </div>
                         </div>
@@ -228,12 +228,12 @@
 
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
                 toggleIcon.classList.remove('fa-eye-slash');
                 toggleIcon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
             }
         }
 

@@ -142,17 +142,6 @@
                         </div>
                     </div>
 
-                    <!-- Admin Password Section -->
-                    <div class="tw-mb-6">
-                        <label for="admin-password-edit-appointment" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">
-                            <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required for Security)
-                        </label>
-               <input type="password" id="admin-password-edit-appointment" name="admin_password" 
-                               class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#FF9666] tw-focus:tw-border-[#FF9666] tw-block tw-w-full tw-p-2.5" 
-                               placeholder="Enter your current password" required>
-                        <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Enter your admin password to confirm appointment changes</p>
-                    </div>
-                    
                     <!-- Actions Section -->
                     <div class="tw-flex tw-justify-between tw-mt-8 tw-pt-4 tw-border-t tw-border-gray-700">
                         <button type="button" data-modal-toggle="editAppointment-modal" class="tw-text-gray-300 tw-bg-gray-700 hover:tw-bg-gray-600 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
@@ -186,7 +175,6 @@
         document.getElementById('after-image-preview').innerHTML = '<span class="tw-text-gray-400 tw-text-sm">No image uploaded</span>';
         
         // Clear admin password field
-        document.getElementById('admin-password-edit-appointment').value = '';
         
         // Show loading state
         const editAppointmentModal = document.getElementById('editAppointment-modal');
@@ -398,24 +386,11 @@
             // Basic validation
             const date = document.getElementById('edit-date').value;
             const time = document.getElementById('edit-time').value;
-            const adminPassword = document.getElementById('admin-password-edit-appointment').value;
             
             if (!date || !time) {
                 Swal.fire({
                     title: 'Missing Information',
                     text: 'Please fill in all required fields',
-                    icon: 'warning',
-                    confirmButtonColor: '#FF9666',
-                    background: '#374151',
-                    color: '#fff'
-                });
-                return;
-            }
-
-            if (!adminPassword) {
-                Swal.fire({
-                    title: 'Admin Password Required',
-                    text: 'Please enter your admin password to confirm this action',
                     icon: 'warning',
                     confirmButtonColor: '#FF9666',
                     background: '#374151',

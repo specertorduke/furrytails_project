@@ -104,17 +104,6 @@
                         </div>
                     </div>
                     
-                    <!-- Admin Password for Security -->
-                    <div class="tw-mb-4">
-                        <label for="edit-admin-password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">
-                            <i class="fas fa-lock tw-mr-2"></i>Admin Password (Required)
-                        </label>
-                        <input type="password" id="edit-admin-password" name="admin_password" 
-                            class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2" 
-                            placeholder="Enter your current password" required>
-                        <p class="tw-text-xs tw-text-gray-400 tw-mt-1">Required for security when updating payment status</p>
-                    </div>
-                    
                     <!-- Actions Section -->
                     <div class="tw-flex tw-justify-between tw-mt-8 tw-pt-4 tw-border-t tw-border-gray-700">
                         <button type="button" data-modal-toggle="editPayment-modal" class="tw-text-gray-300 tw-bg-gray-700 hover:tw-bg-gray-600 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
@@ -249,7 +238,6 @@
             
             // Clear previous admin notes
             document.getElementById('edit-admin-notes').value = '';
-            document.getElementById('edit-admin-password').value = '';
         }
         
         // Function to display current status with appropriate styling
@@ -332,25 +320,12 @@
                 event.preventDefault();
                 
                 const newStatus = document.getElementById('edit-payment-status').value;
-                const adminPassword = document.getElementById('edit-admin-password').value;
                 
                 // Validation
                 if (!newStatus) {
                     Swal.fire({
                         title: 'Missing Information',
                         text: 'Please select a payment status',
-                        icon: 'warning',
-                        confirmButtonColor: '#24CFF4',
-                        background: '#374151',
-                        color: '#fff'
-                    });
-                    return;
-                }
-                
-                if (!adminPassword) {
-                    Swal.fire({
-                        title: 'Password Required',
-                        text: 'Please enter your admin password for security verification',
                         icon: 'warning',
                         confirmButtonColor: '#24CFF4',
                         background: '#374151',
@@ -391,7 +366,6 @@
             const formData = {
                 status: document.getElementById('edit-payment-status').value,
                 admin_notes: document.getElementById('edit-admin-notes').value,
-                admin_password: document.getElementById('edit-admin-password').value,
                 _method: 'PUT'
             };
             
