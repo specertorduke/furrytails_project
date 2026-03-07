@@ -176,6 +176,11 @@
             display: none !important;
         }
     }
+
+    /* Hide user info text when sidebar is icon-only */
+    #sidebar.collapsed #sidebar-user-info {
+        display: none;
+    }
 </style>
 </head>
 <body class="tw-bg-gray-100 tw-font-poppins tw-h-screen">
@@ -197,11 +202,13 @@
                             <i class="fas fa-tachometer-alt nav-i tw-mr-2"></i> <span>Dashboard</span>
                         </a>
                     </li>
+                    @if(auth()->user()->hasPermission('users.view'))
                     <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.users') }}" onclick="loadContent(event, '{{ route('admin.users') }}')">
                             <i class="fas fa-users nav-i tw-mr-2"></i> <span>Users</span>
                         </a>
                     </li>
+                    @endif
                     <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.pets') }}" onclick="loadContent(event, '{{ route('admin.pets') }}')">
                             <i class="fas fa-paw nav-i tw-mr-2"></i> <span>Pets</span>
@@ -227,11 +234,20 @@
                             <i class="fas fa-credit-card nav-i tw-mr-2"></i> <span>Payments</span>
                         </a>
                     </li>
+                    @if(auth()->user()->hasPermission('reports.view'))
                     <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.reports') }}" onclick="loadContent(event, '{{ route('admin.reports') }}')">
                             <i class="fas fa-chart-bar nav-i tw-mr-2"></i> <span>Logs</span>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('settings.view'))
+                    <li>
+                        <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.settings') }}" onclick="loadContent(event, '{{ route('admin.settings') }}')">
+                            <i class="fas fa-cog nav-i tw-mr-2"></i> <span>Settings</span>
+                        </a>
+                    </li>
+                    @endif
                     <li>
                         <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md" href="{{ route('admin.account') }}" onclick="loadContent(event, '{{ route('admin.account') }}')">
                             <i class="fas fa-user-cog nav-i tw-mr-2"></i> <span>Account</span>
@@ -241,6 +257,20 @@
             </nav>
         </div>
         <div class="tw-px-2">
+            @php $sidebarUser = auth()->user(); @endphp
+            <!-- Role badge card -->
+            <div class="tw-flex tw-items-center tw-gap-3 tw-px-3 tw-py-2 tw-mb-3 tw-rounded-lg tw-bg-gray-700" id="sidebar-user-info">
+                <div class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-gray-500 tw-flex tw-items-center tw-justify-center">
+                    <i class="fas fa-user tw-text-gray-300 tw-text-sm"></i>
+                </div>
+                <div class="tw-overflow-hidden tw-min-w-0">
+                    <p class="tw-text-white tw-text-xs tw-font-semibold tw-truncate tw-m-0">{{ $sidebarUser->firstName }} {{ $sidebarUser->lastName }}</p>
+                    <span class="tw-text-xs tw-font-medium tw-px-1.5 tw-py-0.5 tw-rounded {{ $sidebarUser->adminRoleColor }}">
+                        {{ $sidebarUser->adminRoleLabel }}
+                    </span>
+                </div>
+            </div>
+            <!-- Logout -->
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="nav-link tw-flex tw-items-center tw-w-full tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-300" id="logout-button">

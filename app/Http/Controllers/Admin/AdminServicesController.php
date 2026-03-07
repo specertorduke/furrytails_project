@@ -98,6 +98,9 @@ class AdminServicesController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasPermission('services.create')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100|unique:services,name',
@@ -184,6 +187,9 @@ class AdminServicesController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->hasPermission('services.edit')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
             'name' => [
@@ -284,6 +290,9 @@ class AdminServicesController extends Controller
 
     public function toggleStatus(Request $request, $id)
     {
+        if (!auth()->user()->hasPermission('services.toggle')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         // Validate admin password
         $validated = $request->validate([
             'admin_password' => 'required|string'
@@ -338,6 +347,9 @@ class AdminServicesController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        if (!auth()->user()->hasPermission('services.delete')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         // Validate admin password
         $validated = $request->validate([
             'admin_password' => 'required|string'

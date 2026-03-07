@@ -11,9 +11,11 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Appointments Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
+            @if(auth()->user()->hasPermission('appointments.create'))
             <button data-modal-target="adminAddAppointment-modal" data-modal-toggle="adminAddAppointment-modal" id="addAppointmentBtn" class="tw-bg-[#FF9666] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-orange-400">
                 <i class="fas fa-calendar-plus tw-mr-2"></i> Add Appointment
             </button>
+            @endif
         </div>
     </div>
 
@@ -106,6 +108,11 @@
 
 @push('scripts')
 <script>
+    const appointmentPerms = {
+        canCreate: {{ auth()->user()->hasPermission('appointments.create') ? 'true' : 'false' }},
+        canEdit:   {{ auth()->user()->hasPermission('appointments.edit')   ? 'true' : 'false' }},
+        canCancel: {{ auth()->user()->hasPermission('appointments.cancel') ? 'true' : 'false' }},
+    };
     // Create a namespace for our appointments page functionality
     window.AppointmentsPage = window.AppointmentsPage || {
         appointmentsTable: null,
@@ -428,9 +435,13 @@
                         data: null,
                         width: '15%',
                         render: function(data) {
-                            const cancelBtn = data.status !== 'Cancelled' && data.status !== 'Completed' ? 
+                            const cancelBtn = appointmentPerms.canCancel && data.status !== 'Cancelled' && data.status !== 'Completed' ? 
                                 `<button onclick="AppointmentsPage.cancelAppointment(${data.appointmentID})" class="tw-text-red-500 hover:tw-text-red-300">
                                     <i class="fas fa-ban"></i>
+                                </button>` : '';
+                            const editBtn = appointmentPerms.canEdit ?
+                                `<button onclick="AppointmentsPage.editAppointment(${data.appointmentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
+                                    <i class="fas fa-edit"></i>
                                 </button>` : '';
                                 
                             return `
@@ -438,9 +449,7 @@
                                     <button onclick="AppointmentsPage.viewAppointment(${data.appointmentID})" class="tw-text-[#24CFF4] hover:tw-text-blue-300">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button onclick="AppointmentsPage.editAppointment(${data.appointmentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    ${editBtn}
                                     ${cancelBtn}
                                 </div>
                             `;

@@ -110,15 +110,17 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/weekly-data', [App\Http\Controllers\Admin\AdminDashboardController::class, 'getWeeklyServiceData'])
     ->name('admin.dashboard.weekly-data');
 
-    // Users routes
-    Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
-    Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
-    Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
-    Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
-    Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
-    Route::get('/users/{id}', [AdminUsersController::class, 'show'])->name('admin.users.show');
-    Route::put('/users/{id}', [AdminUsersController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy'])->name('admin.users.destroy');
+    // Users routes — super_admin only
+    Route::middleware('admin.permission:users.view')->group(function () {
+        Route::get('/users/list', [AdminUsersController::class, 'getUsersList'])->name('admin.users.list');
+        Route::get('/users/{userId}/pets', [AdminUsersController::class, 'getUserPets'])->name('admin.users.pets');
+        Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
+        Route::get('/users/data', [AdminController::class, 'getUsersData'])->name('admin.users.data');
+        Route::post('/users/store', [AdminUsersController::class, 'storeUser'])->name('admin.users.store');
+        Route::get('/users/{id}', [AdminUsersController::class, 'show'])->name('admin.users.show');
+        Route::put('/users/{id}', [AdminUsersController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{id}', [AdminUsersController::class, 'destroy'])->name('admin.users.destroy');
+    });
 
     // Appointments routes
     Route::get('/appointments', [AdminAppointmentsController::class, 'index'])->name('admin.appointments');
@@ -152,8 +154,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/services/{id}', [AdminServicesController::class, 'update'])->name('admin.services.update');    
     Route::post('/services', [AdminServicesController::class, 'store'])->name('admin.services.store');
     
-    // Settings
-    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+    // Settings — super_admin only
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings')
+         ->middleware('admin.permission:settings.view');
 
     // Payments
     Route::get('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'index'])->name('admin.payments');
@@ -164,11 +167,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/payments', [App\Http\Controllers\Admin\AdminPaymentsController::class, 'store'])->name('admin.payments.store');
     Route::get('/payments/bookings/unpaid', [AdminPaymentsController::class, 'getUnpaidBookings'])->name('admin.bookings.unpaid');
 
-    // Reports
-    Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
-    Route::get('/reports/data', [AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
-    Route::get('/reports/{id}', [AdminReportsController::class, 'show'])->name('admin.reports.show');
-    Route::post('/reports/restore', [AdminReportsController::class, 'restore'])->name('admin.reports.restore');
+    // Reports — super_admin and manager only
+    Route::middleware('admin.permission:reports.view')->group(function () {
+        Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+        Route::get('/reports/data', [AdminReportsController::class, 'getLogsData'])->name('admin.reports.data');
+        Route::get('/reports/{id}', [AdminReportsController::class, 'show'])->name('admin.reports.show');
+        Route::post('/reports/restore', [AdminReportsController::class, 'restore'])->name('admin.reports.restore');
+    });
 
     // Admin Account Routes
     Route::get('/account', [App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('admin.account');

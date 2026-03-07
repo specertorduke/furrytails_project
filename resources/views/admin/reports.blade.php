@@ -11,9 +11,11 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">System Reports & Audit Logs</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
+            @if(auth()->user()->hasPermission('reports.restore'))
             <button type="button" id="restoreDatabaseBtn" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-red-700">
                 <i class="fas fa-history tw-mr-2"></i> Restore Database
             </button>
+            @endif
         </div>
     </div>
 
@@ -175,9 +177,11 @@
         
         <div class="tw-flex tw-justify-end tw-mt-6">
             <button type="button" class="close-modal tw-bg-gray-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Close</button>
+            @if(auth()->user()->hasPermission('reports.restore'))
             <button type="button" id="restoreToPointBtn" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-ml-3">
                 <i class="fas fa-history tw-mr-2"></i> Restore To This Point
             </button>
+            @endif
         </div>
     </div>
 </div>

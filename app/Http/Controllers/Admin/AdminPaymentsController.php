@@ -162,6 +162,9 @@ class AdminPaymentsController extends Controller
      */
     public function markAsRefunded(Request $request, $id)
     {
+        if (!auth()->user()->hasPermission('payments.refund')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         $payment = Payment::findOrFail($id);
         
         // Validate password

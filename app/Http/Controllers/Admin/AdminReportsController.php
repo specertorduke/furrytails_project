@@ -128,6 +128,9 @@ class AdminReportsController extends Controller
      */
     public function restore(Request $request)
     {
+        if (!auth()->user()->hasPermission('reports.restore')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         // Validate input
         $validated = $request->validate([
             'timestamp' => 'nullable|date',

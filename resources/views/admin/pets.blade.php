@@ -11,10 +11,12 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Manage All Pets</h1>
         </div>
         <div class="tw-flex tw-items-center tw-gap-4">
+            @if(auth()->user()->hasPermission('pets.create'))
             <button type="button" data-modal-target="admin-addPet-modal"
                 class="tw-bg-[#66FF8F] tw-text-black tw-px-4 tw-py-2 tw-rounded-lg tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold">
                 <i class="fas fa-plus tw-mr-2"></i> Add New Pet
             </button>
+            @endif
         </div>
     </div>
 
@@ -99,14 +101,18 @@
             <div class="tw-bg-gray-800 tw-rounded-xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:-tw-translate-y-1 tw-relative tw-group">
                 <!-- Admin Actions -->
                 <div class="tw-absolute tw-top-2 tw-right-2 tw-z-20 tw-flex tw-gap-2 tw-opacity-0 tw-invisible group-hover:tw-opacity-100 group-hover:tw-visible tw-transition-all tw-duration-300">
+                    @if(auth()->user()->hasPermission('pets.edit'))
                     <button onclick="editPet({{ $pet->petID }})" 
                         class="tw-bg-[#66FF8F] tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-blue-600 tw-shadow-md tw-transform hover:tw-scale-110 tw-transition-all">
                         <i class="fas fa-edit tw-text-sm"></i>
                     </button>
+                    @endif
+                    @if(auth()->user()->hasPermission('pets.delete'))
                     <button onclick="deletePet({{ $pet->petID }})" 
                         class="tw-bg-red-500 tw-text-white tw-rounded-full tw-w-8 tw-h-8 tw-flex tw-items-center tw-justify-center hover:tw-bg-red-600 tw-shadow-md tw-transform hover:tw-scale-110 tw-transition-all">
                         <i class="fas fa-trash-alt tw-text-sm"></i>
                     </button>
+                    @endif
                 </div>
                 
                 <!-- Pet Image -->

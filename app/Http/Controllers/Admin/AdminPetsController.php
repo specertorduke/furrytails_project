@@ -189,6 +189,9 @@ class AdminPetsController extends Controller
 
     public function destroy($id)
     {
+        if (!auth()->user()->hasPermission('pets.delete')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
+        }
         try {
             $pet = Pet::findOrFail($id);
             

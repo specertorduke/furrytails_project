@@ -28,9 +28,11 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Services Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
+            @if(auth()->user()->hasPermission('services.create'))
             <button type="button" id="addServiceBtn" class="tw-bg-[#27b5d4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
                 <i class="fas fa-plus tw-mr-2"></i> Add Service
             </button>
+            @endif
         </div>
     </div>
 
@@ -153,18 +155,24 @@
                         View Details
                     </button>
                     <div class="tw-flex tw-gap-2">
+                        @if(auth()->user()->hasPermission('services.edit'))
                         <button onclick="editService({{ $service->serviceID }})" 
                                 class="tw-bg-yellow-500 tw-text-white tw-px-3 tw-py-1 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-opacity-90">
                             <i class="fas fa-edit"></i>
                         </button>
+                        @endif
+                        @if(auth()->user()->hasPermission('services.toggle'))
                         <button onclick="toggleServiceStatus({{ $service->serviceID }}, {{ $service->isActive ? 'false' : 'true' }})" 
                                 class="tw-bg-{{ $service->isActive ? 'red' : 'green' }}-500 tw-text-white tw-px-3 tw-py-1 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-opacity-90">
                             <i class="fas fa-{{ $service->isActive ? 'times' : 'check' }}"></i>
                         </button>
+                        @endif
+                        @if(auth()->user()->hasPermission('services.delete'))
                         <button onclick="deleteService({{ $service->serviceID }})" 
                                 class="tw-bg-red-600 tw-text-white tw-px-3 tw-py-1 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-opacity-90">
                             <i class="fas fa-trash"></i>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -174,9 +182,11 @@
             <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-gray-800 tw-rounded-xl tw-p-8 tw-shadow-sm">
                 <i class="fas fa-concierge-bell tw-text-5xl tw-text-gray-600 tw-mb-4"></i>
                 <p class="tw-text-gray-400 tw-mb-4">No services available</p>
+                @if(auth()->user()->hasPermission('services.create'))
                 <button type="button" id="noServicesAddBtn" class="tw-bg-[#27b5d4] tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90">
                     <i class="fas fa-plus tw-mr-2"></i>Add Service
                 </button>
+                @endif
             </div>
         </div>
         @endforelse

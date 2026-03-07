@@ -11,9 +11,11 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">Payments Management</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
+            @if(auth()->user()->hasPermission('payments.create'))
             <button type="button" id="addPaymentBtn" class="tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-green-700">
                 <i class="fas fa-plus-circle tw-mr-2"></i> Record Payment
             </button>
+            @endif
         </div>
     </div>
 
@@ -119,6 +121,11 @@
 
 @push('scripts')
 <script>
+    const paymentPerms = {
+        canCreate: {{ auth()->user()->hasPermission('payments.create') ? 'true' : 'false' }},
+        canEdit:   {{ auth()->user()->hasPermission('payments.edit')   ? 'true' : 'false' }},
+        canRefund: {{ auth()->user()->hasPermission('payments.refund') ? 'true' : 'false' }},
+    };
     // Create a namespace for our payments page functionality
     window.PaymentsPage = window.PaymentsPage || {
         paymentsTable: null,
@@ -495,9 +502,13 @@
                         data: null,
                         width: '15%',
                         render: function(data) {
-                            const refundBtn = data.status === 'Completed' ? 
+                            const refundBtn = paymentPerms.canRefund && data.status === 'Completed' ? 
                                 `<button onclick="PaymentsPage.markAsRefunded(${data.paymentID})" class="tw-text-purple-500 hover:tw-text-purple-300">
                                     <i class="fas fa-undo"></i>
+                                </button>` : '';
+                            const editBtn = paymentPerms.canEdit ?
+                                `<button onclick="PaymentsPage.editPayment(${data.paymentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
+                                    <i class="fas fa-edit"></i>
                                 </button>` : '';
                                 
                             return `
@@ -505,9 +516,7 @@
                                     <button onclick="PaymentsPage.viewPayment(${data.paymentID})" class="tw-text-[#24CFF4] hover:tw-text-blue-300">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button onclick="PaymentsPage.editPayment(${data.paymentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    ${editBtn}
                                     ${refundBtn}
                                 </div>
                             `;
