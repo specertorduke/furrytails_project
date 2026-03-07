@@ -191,6 +191,13 @@
         </div>
         @endforelse
     </div>
+
+    {{-- Pagination --}}
+    @if($services->hasPages())
+    <div class="tw-mt-6">
+        {{ $services->links('pagination.dark') }}
+    </div>
+    @endif
 </div>
 
 @push('scripts')

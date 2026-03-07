@@ -15,11 +15,13 @@ class AdminServicesController extends Controller
 {
     public function index()
     {
-        // Get all services with counts for the stats cards
-        $services = Service::orderBy('name')->get();
-        $totalServices = $services->count();
-        $activeServices = $services->where('isActive', true)->count();
-        $serviceCategories = $services->pluck('category')->unique()->count();
+        // Stats via direct DB queries (independent of pagination)
+        $totalServices    = Service::count();
+        $activeServices   = Service::where('isActive', true)->count();
+        $serviceCategories = Service::select('category')->distinct()->count();
+
+        // Paginated services list
+        $services = Service::orderBy('name')->paginate(8);
 
         return view('admin.services', compact('services', 'totalServices', 'activeServices', 'serviceCategories'));
     }

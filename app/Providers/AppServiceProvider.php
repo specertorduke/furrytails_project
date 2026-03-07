@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Use custom dark-themed pagination view
+        Paginator::defaultView('pagination.dark');
+        Paginator::defaultSimpleView('pagination.dark');
+
         // Enforce password complexity globally:
         // minimum 8 characters, mixed case, number, symbol, not in known breaches.
         Password::defaults(function () {

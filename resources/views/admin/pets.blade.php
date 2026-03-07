@@ -204,7 +204,7 @@
     <!-- Pagination -->
     @if($pets->hasPages())
     <div class="tw-mt-6">
-        {{ $pets->links('pagination.tailwind') }}
+        {{ $pets->links('pagination.dark') }}
     </div>
     @endif
 </div>
