@@ -281,3 +281,128 @@ table.dataTable tbody td {
     scrollbar-width: thin;
     scrollbar-color: #93d9e8 #dff4f8;
 }
+/* ============================================================ */
+/* Magical Smart Dark Mode                                      */
+/* ============================================================ */
+html.smart-dark-mode {
+    filter: invert(1) hue-rotate(180deg) brightness(1.05); /* Slight brightness bump for overall pop */
+    background-color: #121212 !important;
+}
+
+html.smart-dark-mode body {
+    background-color: #ffffff !important; /* Pure white inverts to pure dark/black for max contrast */
+}
+
+/* --- Fix Texts Lacking Contrast --- */
+/* By making gray text darker BEFORE the invert, we guarantee they invert to a bright readable color */
+html.smart-dark-mode .tw-text-gray-400,
+html.smart-dark-mode .tw-text-gray-500,
+html.smart-dark-mode .tw-text-gray-600 {
+    color: #1a202c !important; /* Extremely dark gray -> Inverts to very bright gray/off-white */
+}
+
+html.smart-dark-mode .tw-text-gray-700,
+html.smart-dark-mode .tw-text-gray-800,
+html.smart-dark-mode .tw-text-gray-900 {
+    color: #000000 !important; /* Pure black -> Inverts to pure white */
+}
+
+/* Ensure text on brand colors stays perfectly readable by preserving original contrast */
+
+/* Revert images and elements that absolutely must not change colors */
+html.smart-dark-mode img,
+html.smart-dark-mode video,
+html.smart-dark-mode iframe,
+html.smart-dark-mode .keep-original,
+html.smart-dark-mode [style*="background-image"] {
+    filter: invert(1) hue-rotate(180deg) brightness(0.95);
+}
+
+/*
+ * --- Preserve Brand Colors mathematically ---
+ * Instead of applying 'invert(1)' to components (which ruins containers like cards and inputs),
+ * we inject the "anti-color" directly into the CSS. Once the page is globally inverted,
+ * these colors process through the filter and emerge EXACTLY as the brand colors!
+ */
+
+/* 1. Backgrounds */
+/* Main Brand Color #24CFF4 (Anti-color: #17b9dd) */
+html.smart-dark-mode .tw-bg-\[\#24CFF4\],
+html.smart-dark-mode .bg-primary,
+html.smart-dark-mode .btn-primary,
+html.smart-dark-mode .species-filter.active,
+html.smart-dark-mode .nav-link.active,
+html.smart-dark-mode .dt-buttons .dt-button,
+html.smart-dark-mode [style*="background-color: #24CFF4" i],
+html.smart-dark-mode [style*="background-color:#24CFF4" i] {
+    background-color: #17b9dd !important;
+}
+
+/* Add Appointment Button #45E3FF (Anti-color: #0ca3bd) */
+html.smart-dark-mode .tw-bg-\[\#45E3FF\] {
+    background-color: #0ca3bd !important;
+}
+
+/* Add Pet Button #20b9db (Anti-color: #2ec0e1) */
+html.smart-dark-mode .tw-bg-\[\#20b9db\] {
+    background-color: #2ec0e1 !important;
+}
+
+/* Register Pet button hover #1db8d9 -> #30c4e3 */
+html.smart-dark-mode .hover\:tw-bg-\[\#1db8d9\]:hover,
+html.smart-dark-mode .tw-bg-\[\#1db8d9\] {
+    background-color: #30c4e3 !important;
+}
+
+/* Hover effects for main brand */
+html.smart-dark-mode .hover\:tw-bg-\[\#24CFF4\]:hover,
+html.smart-dark-mode .button-hover:hover {
+    background-color: #17b9dd !important;
+}
+
+/* 2. Text Colors */
+/* Ensure white text inside colored buttons stays white after inversion (Anti-white is #000000) */
+html.smart-dark-mode .tw-bg-\[\#24CFF4\] *,
+html.smart-dark-mode .tw-bg-\[\#45E3FF\] *,
+html.smart-dark-mode .tw-bg-\[\#20b9db\] *,
+html.smart-dark-mode .nav-link.active,
+html.smart-dark-mode .nav-link.active i,
+html.smart-dark-mode .btn-primary,
+html.smart-dark-mode .bg-primary {
+    color: #000000 !important;
+}
+
+/* Main brand text (Anti-color #17b9dd) */
+html.smart-dark-mode .tw-text-\[\#24CFF4\],
+html.smart-dark-mode .hover\:tw-text-\[\#24CFF4\]:hover,
+html.smart-dark-mode #logo h1,
+html.smart-dark-mode #logo p {
+    color: #17b9dd !important;
+}
+
+/* See All text #159cbb (Anti-color: #4dcdeb) */
+html.smart-dark-mode .tw-text-\[\#159cbb\] {
+    color: #4dcdeb !important;
+}
+
+/* 3. Border Colors */
+/* Our Mission / Vision card borders & Input focus states */
+html.smart-dark-mode .tw-border-\[\#24CFF4\],
+html.smart-dark-mode .focus\:tw-border-\[\#24CFF4\]:focus {
+    border-color: #17b9dd !important;
+}
+html.smart-dark-mode .dataTables_info,
+html.smart-dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #1a202c !important; /* Forces inversion to light gray */
+}
+
+
+/* SweetAlert buttons generating explicit RGB or Hex */
+html.smart-dark-mode [style*="rgb(36, 207, 244)" i],
+html.smart-dark-mode [style*="rgb(36,207,244)" i],
+html.smart-dark-mode [style*="background-color: #24CFF4" i],
+html.smart-dark-mode [style*="background-color:#24cff4" i] {
+    background-color: #17b9dd !important;
+    color: #000000 !important;
+}
+

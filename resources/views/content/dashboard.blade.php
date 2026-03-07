@@ -16,6 +16,10 @@
         </div>
         <div class="col-12 col-md-6 d-flex justify-content-md-end tw-justify-end align-items-center mt-3 mt-md-0">
             <div class="tw-flex tw-items-center tw-justify-end tw-bg-white tw-py-1 tw-px-4 tw-rounded-full tw-shadow-md tw-gap-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleSmartDarkMode()" class="keep-original tw-border-none tw-bg-transparent tw-cursor-pointer tw-flex tw-items-center tw-justify-center tw-w-8 tw-h-8 tw-rounded-full hover:tw-bg-gray-100 tw-transition-all tw-duration-300" title="Toggle Dark Mode">
+                    <i id="dark-mode-icon" class="fas fa-moon tw-text-blue-500 tw-text-lg tw-transition-all tw-duration-300" style="transition: transform 0.3s ease, opacity 0.3s ease;"></i>
+                </button>
                 <!--    user's first name -->
                 <span class="tw-text-gray-700 tw-font-medium">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</span>
                 <!-- Profile dropdown -->
@@ -937,4 +941,14 @@ document.addEventListener('contentWillChange', function() {
 
 @endsection
 
+
+
+<script>
+    setTimeout(() => {
+        const icon = document.getElementById("dark-mode-icon");
+        if (icon && document.documentElement.classList.contains("smart-dark-mode")) {
+            icon.className = "fas fa-sun tw-text-yellow-400 tw-text-lg tw-transition-all tw-duration-300";
+        }
+    }, 50);
+</script>
 

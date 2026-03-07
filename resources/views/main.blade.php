@@ -20,6 +20,27 @@
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // Check for smart dark mode preference before rendering
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('smart-dark-mode');
+        }
+        function toggleSmartDarkMode() {
+            const isDark = document.documentElement.classList.toggle('smart-dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            // Animate button if it exists
+            const icon = document.getElementById('dark-mode-icon');
+            if(icon) {
+                icon.style.transform = "rotate(360deg)";
+                icon.style.opacity = 0;
+                setTimeout(() => {
+                    icon.className = isDark ? "fas fa-sun tw-text-yellow-400 tw-text-lg" : "fas fa-moon tw-text-blue-500 tw-text-lg";
+                    icon.style.opacity = 1;
+                    icon.style.transform = "rotate(0deg)";
+                }, 200);
+            }
+        }
+    </script>
     <style>
         #sidebar.collapsed {
             width: 64px !important;
