@@ -56,9 +56,17 @@ class PetController extends Controller
 
             // Handle the base64 image data
             if ($request->has('cropped_image')) {
-                $imageData = $request->input('cropped_image');
+                $imageData    = $request->input('cropped_image');
+                $decodedImage = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+
+                // Verify the decoded content is actually an image before storing
+                $imageInfo = @getimagesizefromstring($decodedImage);
+                if (!$imageInfo || !in_array($imageInfo['mime'], ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+                    return response()->json(['success' => false, 'message' => 'Invalid image file.'], 422);
+                }
+
                 $imageName = 'pet_' . time() . '.png';
-                \Storage::disk('public')->put($imageName, base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData)));
+                \Storage::disk('public')->put($imageName, $decodedImage);
                 $validated['petImage'] = $imageName;
             }
 

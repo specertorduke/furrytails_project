@@ -571,7 +571,7 @@ $(document).ready(function() {
     @endif
 
     @if($errors->any())
-        Swal.fire({ title: 'Error!', html: "{!! implode('<br>', $errors->all()) !!}", icon: 'error',
+        Swal.fire({ title: 'Error!', html: {!! json_encode(implode('<br>', $errors->all()), JSON_HEX_TAG) !!}, icon: 'error',
             confirmButtonColor: '#24CFF4', background: '#1f2937', color: '#f9fafb' });
     @endif
 });

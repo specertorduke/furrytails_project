@@ -29,9 +29,10 @@ class DashboardController extends Controller
         $pets = Pet::where('userID', $userId)->get();
 
         // JSON strings for inline DataTable initialization (no second AJAX roundtrip)
-        $appointmentsJson = $appointments->toJson();
-        $boardingsJson    = $boardings->toJson();
-        $petsJson         = $pets->toJson();
+        // JSON_HEX_TAG prevents </script> injection (stored XSS) when embedded in <script> blocks
+        $appointmentsJson = $appointments->toJson(JSON_HEX_TAG);
+        $boardingsJson    = $boardings->toJson(JSON_HEX_TAG);
+        $petsJson         = $pets->toJson(JSON_HEX_TAG);
 
         return view('content.dashboard', compact(
             'appointments', 'boardings', 'pets',

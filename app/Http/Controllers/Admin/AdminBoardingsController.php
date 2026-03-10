@@ -23,7 +23,7 @@ class AdminBoardingsController extends Controller {
         $boardingsJson = Boarding::with(['pet.user'])
             ->orderBy('start_date', 'desc')
             ->get()
-            ->toJson();
+            ->toJson(JSON_HEX_TAG);
 
         return view('admin.boardings', compact(
             'totalBoardings',

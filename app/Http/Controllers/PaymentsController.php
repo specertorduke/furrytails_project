@@ -21,8 +21,8 @@ class PaymentsController extends Controller
         try {
             // Validate the request
             $request->validate([
-                'appointmentID' => 'required|exists:appointments,appointmentID',
-                'payment_method' => 'required|string',
+                'appointmentID'    => 'required|exists:appointments,appointmentID',
+                'payment_method'   => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
                 'reference_number' => 'nullable|string|max:255',
             ]);
 
@@ -30,7 +30,16 @@ class PaymentsController extends Controller
             DB::beginTransaction();
             
             // Get the appointment
-            $appointment = Appointment::findOrFail($request->appointmentID);
+            $appointment = Appointment::with('pet')->findOrFail($request->appointmentID);
+
+            // Ensure the appointment belongs to the authenticated user
+            if (!$appointment->pet || $appointment->pet->userID !== Auth::id()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ], 403);
+            }
             
             // Get the service price
             $amount = $appointment->service->price;

@@ -27,7 +27,7 @@ class AdminPaymentsController extends Controller
         $totalRevenue      = Payment::where('status', 'Completed')->sum('amount');
 
         // Inline data eliminates the second AJAX roundtrip on page load
-        $paymentsJson = $this->buildPaymentsCollection()->toJson();
+        $paymentsJson = $this->buildPaymentsCollection()->toJson(JSON_HEX_TAG);
 
         return view('admin.payments', compact(
             'totalPayments',

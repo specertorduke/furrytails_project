@@ -478,24 +478,34 @@
     // -- Account deletion ----------------------------------------------------
     function confirmAccountDeletion() {
         Swal.fire({
-            title: 'Delete Account?',
-            text: 'This action cannot be undone. All your data will be permanently removed.',
+            title: 'Confirm Account Deletion',
+            text: 'This action cannot be undone. Enter your password to confirm.',
+            input: 'password',
+            inputPlaceholder: 'Enter your current password',
+            inputAttributes: { autocomplete: 'current-password' },
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete my account',
-            cancelButtonText: 'Cancel'
+            confirmButtonText: 'Delete my account',
+            cancelButtonText: 'Cancel',
+            inputValidator: function(val) { if (!val) return 'Password is required.'; }
         }).then(function(result) {
             if (result.isConfirmed) {
                 fetch('{{ route('account.delete') }}', {
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: result.value })
                 }).then(function(response) {
-                    if (response.ok) {
+                    return response.json();
+                }).then(function(data) {
+                    if (data.success) {
                         window.location.href = '{{ route('login') }}';
                     } else {
-                        Swal.fire('Error!', 'Failed to delete your account.', 'error');
+                        Swal.fire('Error!', data.message || 'Failed to delete your account.', 'error');
                     }
                 }).catch(function() {
                     Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
@@ -510,7 +520,7 @@
     @endif
 
     @if($errors->any())
-        Swal.fire({ title: 'Error!', html: "{!! implode('<br>', $errors->all()) !!}", icon: 'error', confirmButtonColor: '#24CFF4' });
+        Swal.fire({ title: 'Error!', html: {!! json_encode(implode('<br>', $errors->all()), JSON_HEX_TAG) !!}, icon: 'error', confirmButtonColor: '#24CFF4' });
     @endif
 </script>
 @endpush

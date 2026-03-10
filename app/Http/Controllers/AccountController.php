@@ -74,18 +74,23 @@ class AccountController extends Controller
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
-    public function deleteAccount()
+    public function deleteAccount(Request $request)
     {
+        $request->validate(['password' => 'required|string']);
+
         $user = Auth::user();
 
-        if ($user) {
-            Auth::logout();
-            $user->delete();
-            
-            return redirect()->route('login')->with('success', 'Your account has been deleted successfully.');
+        if (!Hash::check($request->input('password'), $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Incorrect password. Account was not deleted.',
+            ], 422);
         }
 
-        return redirect()->back()->with('error', 'Failed to delete your account.');
+        Auth::logout();
+        $user->delete();
+
+        return response()->json(['success' => true]);
     }
 
     public function validateAccountField(Request $request)

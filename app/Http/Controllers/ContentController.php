@@ -19,17 +19,18 @@ class ContentController extends Controller
         $userId = Auth::id();
 
         // Inline JSON eliminates the AJAX roundtrip on page load
+        // JSON_HEX_TAG prevents </script> injection (stored XSS) when embedded in <script> blocks
         $appointmentsJson = Appointment::with(['pet', 'service'])
             ->whereHas('pet', fn($q) => $q->where('userID', $userId))
             ->select('appointments.*')
             ->get()
-            ->toJson();
+            ->toJson(JSON_HEX_TAG);
 
         $boardingsJson = Boarding::with('pet')
             ->whereHas('pet', fn($q) => $q->where('userID', $userId))
             ->select('boardings.*')
             ->get()
-            ->toJson();
+            ->toJson(JSON_HEX_TAG);
 
         return view('content.manage', compact('appointmentsJson', 'boardingsJson'));
     }

@@ -26,7 +26,7 @@ class AdminAppointmentsController extends Controller
         $appointmentsJson = Appointment::with(['pet.user', 'service'])
             ->orderBy('date', 'desc')
             ->get()
-            ->toJson();
+            ->toJson(JSON_HEX_TAG);
 
         return view('admin.appointments', compact(
             'totalAppointments',

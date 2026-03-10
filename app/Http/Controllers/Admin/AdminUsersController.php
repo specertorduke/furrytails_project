@@ -26,7 +26,7 @@ class AdminUsersController extends Controller
             'userID', 'firstName', 'lastName', 'email',
             'phone', 'username', 'role', 'userImage',
             'created_at', 'updated_at',
-        ])->get()->toJson();
+        ])->get()->toJson(JSON_HEX_TAG);
 
         return view('admin.users', compact('totalUsers', 'activeUsers', 'newUsers', 'usersJson'));
     }

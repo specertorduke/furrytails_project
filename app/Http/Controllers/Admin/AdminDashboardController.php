@@ -32,7 +32,7 @@ class AdminDashboardController extends AdminController
             ->orderBy('time')
             ->limit(10)
             ->get()
-            ->toJson();
+            ->toJson(JSON_HEX_TAG);
 
         $activeBoardings = Boarding::with(['pet', 'pet.user'])
             ->where('start_date', '<=', now()->format('Y-m-d'))
@@ -49,7 +49,7 @@ class AdminDashboardController extends AdminController
                 'pet'  => ['petID' => $b->pet->petID, 'name' => $b->pet->name, 'type' => $b->pet->species],
                 'user' => ['userID' => $b->pet->user->userID, 'firstName' => $b->pet->user->firstName, 'lastName' => $b->pet->user->lastName],
             ])->values(),
-        ]);
+        ], JSON_HEX_TAG);
 
         // Get overview stats for dashboard
         $stats = [

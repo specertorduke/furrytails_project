@@ -13,6 +13,7 @@ use App\Http\Controllers\ManageController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\BoardingsController;
+use App\Http\Controllers\PaymentsController;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUsersController;
