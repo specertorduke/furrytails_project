@@ -149,7 +149,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     // Global variable to store the editing pet's ID
     let editingPetID = null;
     // Function to open edit pet modal with data
@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isVaccinatedCheckbox) {
         toggleVaccinationDateField();
     }
-});
+}());
 
  // Connect edit button from view modal
  window.editPet = function(petId) {

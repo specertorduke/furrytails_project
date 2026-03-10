@@ -115,7 +115,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     // Global variable to store current pet data
     window.currentPetData = null;
     
@@ -380,5 +380,5 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Pet view modal initialized');
         });
     });
-});
+}());
 </script>

@@ -109,7 +109,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     // Global variable to store current user data
     let currentUserData = null;
     
@@ -503,5 +503,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+}());
 </script>

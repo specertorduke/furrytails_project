@@ -149,7 +149,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet"/>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     const PetModal = {
         elements: {
             modal: document.getElementById('addPet-modal'),
@@ -437,14 +437,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the Pet Modal
     PetModal.init();
-});
-
-// Re-initialize when content is dynamically changed
-document.addEventListener('contentChanged', function() {
-    const PetModal = {
-        // Same implementation as above
-        // This ensures the modal works even after dynamic content changes
-    };
-    PetModal.init();
-});
+}());
 </script>

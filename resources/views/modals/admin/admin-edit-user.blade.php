@@ -104,7 +104,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
         // Global variables
         let editingUserID = null;
         let originalRole = null;
@@ -363,6 +363,6 @@
                 }
             });
         }
-    });
+    }());
 </script>
 

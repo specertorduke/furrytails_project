@@ -1,57 +1,116 @@
 import './bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import 'flowbite';
-import { Modal } from 'flowbite';
 import 'flowbite/dist/flowbite.js';
-import './bootstrap';
 import 'datatables.net-bs5';
 import 'datatables.net-buttons-bs5';
 import 'datatables.net-buttons/js/buttons.print';
 
-// Move the modal initialization into a separate function
-function initializeModals() {
-    const modalIds = ['addAppointment-modal', 'payment-modal', 'addBoarding-modal', 'addPet-modal'];
+// ---------------------------------------------------------------------------
+// Modal delegation — permanent fix for SPA dynamic content.
+// Replaces Flowbite's per-element initialization (which breaks on DOM swaps).
+// ONE listener on document handles every modal toggle/target/hide button,
+// current or future, regardless of how the page was loaded.
+// ---------------------------------------------------------------------------
+(function () {
+    function showModal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('tw-hidden');
+        el.setAttribute('aria-hidden', 'false');
+        el.setAttribute('aria-modal', 'true');
+        el.setAttribute('role', 'dialog');
+        document.body.classList.add('tw-overflow-hidden');
+    }
 
-    modalIds.forEach(modalId => {
-        const $modalElement = document.querySelector(`#${modalId}`);
-        
-        const modalOptions = {
-            onShow: (modal) => {
-                modal._targetEl.classList.remove('tw-hidden');
-                document.body.classList.add('tw-overflow-hidden');
-                modal._targetEl.classList.add('tw-flex');
-                modal._targetEl.setAttribute('aria-modal', 'true');
-                modal._targetEl.setAttribute('role', 'dialog');
-            },
-            onHide: (modal) => {
-                modal._targetEl.classList.add('tw-hidden');
-                document.body.classList.remove('tw-overflow-hidden');
-                modal._targetEl.classList.remove('tw-flex');
-                modal._targetEl.setAttribute('aria-modal', 'false');
-                modal._targetEl.removeAttribute('role');
-            }
-        };
+    function hideModal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('tw-hidden');
+        el.setAttribute('aria-hidden', 'true');
+        el.removeAttribute('aria-modal');
+        el.removeAttribute('role');
+        // Only unlock scroll if no other modals are still open
+        if (!document.querySelector('[id$="-modal"]:not(.tw-hidden)')) {
+            document.body.classList.remove('tw-overflow-hidden');
+        }
+    }
 
-        if ($modalElement) {
-            const modal = new Modal($modalElement, modalOptions);
-            
-            // Handle modal triggers
-            const modalToggles = document.querySelectorAll(`[data-modal-toggle="${modalId}"]`);
-            modalToggles.forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    modal.toggle();
-                });
-            });
+    // Exposed globally so page scripts can open/close modals programmatically
+    window.ftModalShow = showModal;
+    window.ftModalHide = hideModal;
+
+    // Delegated click handler — catches data-modal-toggle, data-modal-target, data-modal-hide
+    document.addEventListener('click', function (e) {
+        var trigger = e.target.closest('[data-modal-toggle],[data-modal-target],[data-modal-hide]');
+        if (!trigger) return;
+
+        // data-modal-hide always closes the named modal
+        var hideId = trigger.dataset.modalHide;
+        if (hideId) { hideModal(hideId); return; }
+
+        var id = trigger.dataset.modalToggle || trigger.dataset.modalTarget;
+        if (!id) return;
+        var el = document.getElementById(id);
+        if (!el) return;
+        // Use position, not tw-hidden state, to decide action.
+        // Page scripts may add tw-hidden before this handler fires (event bubbles
+        // to document last), so reading classList here gives the post-script state
+        // and would reverse the action. Instead:
+        //   trigger inside the modal  = close button → always hide
+        //   trigger outside the modal = open button  → always show
+        if (el.contains(trigger)) {
+            hideModal(id);
+        } else {
+            showModal(id);
         }
     });
-}
 
-// Call on initial page load
-document.addEventListener('DOMContentLoaded', initializeModals);
+    // Close the topmost open modal on Escape
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        var open = document.querySelectorAll('[id$="-modal"]:not(.tw-hidden)');
+        if (open.length) hideModal(open[open.length - 1].id);
+    });
+}());
 
-// Add event listener for page changes
-document.addEventListener('contentChanged', initializeModals);
+// ---------------------------------------------------------------------------
+// Keep aria-hidden / aria-modal / body-scroll in sync whenever any code
+// toggles tw-hidden on a *-modal element directly (e.g. openXxxModal()).
+// ---------------------------------------------------------------------------
+(function () {
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+            var el = m.target;
+            if (!el.id || !el.id.endsWith('-modal')) return;
+            var hidden = el.classList.contains('tw-hidden');
+            el.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+            if (!hidden) {
+                el.setAttribute('aria-modal', 'true');
+                el.setAttribute('role', 'dialog');
+                document.body.classList.add('tw-overflow-hidden');
+            } else {
+                el.removeAttribute('aria-modal');
+                el.removeAttribute('role');
+                if (!document.querySelector('[id$="-modal"]:not(.tw-hidden)')) {
+                    document.body.classList.remove('tw-overflow-hidden');
+                }
+            }
+        });
+    });
+    function startObserver() {
+        observer.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startObserver);
+    } else {
+        startObserver();
+    }
+}());
 
 // Payment modal
 document.addEventListener('DOMContentLoaded', function() {
@@ -125,13 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             successModal.classList.remove('tw-hidden');
         });
 
-        // Close button handlers
-        document.querySelectorAll('[data-modal-hide]').forEach(button => {
-            button.addEventListener('click', function() {
-                const modalId = this.getAttribute('data-modal-hide');
-                document.getElementById(modalId).classList.add('tw-hidden');
-            });
-        });
+        // Note: [data-modal-hide] close buttons are handled by the global delegation above
     }
 });
 
