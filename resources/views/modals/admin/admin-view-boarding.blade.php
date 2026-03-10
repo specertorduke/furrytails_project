@@ -1,12 +1,12 @@
 <!-- View Boarding Modal -->
-<div id="viewBoarding-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-50 tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/60">
+<div id="admin-viewBoarding-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-[9999] tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/60">
     <div class="tw-relative tw-w-full tw-max-w-2xl tw-max-h-full tw-animate-modal-entry">
         <!-- Modal content -->
         <div class="tw-relative tw-bg-gray-800 tw-rounded-lg tw-shadow-sm tw-transform tw-transition-all">
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-700">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-white">Boarding Details</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="viewBoarding-modal">
+                <button type="button" id="adminBoardingModalCloseBtn" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="admin-viewBoarding-modal">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -20,14 +20,14 @@
                 <div class="tw-flex tw-justify-center tw-mb-5">
                     <div id="boardingStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium">
                         <!-- Status will be set via JavaScript -->
-                        <span id="statusText">Loading...</span>
+                        <span id="adminBoardingStatusText">Loading...</span>
                     </div>
                 </div>
 
                 <!-- Payment Status Section -->
-                <div class="tw-flex tw-justify-center tw-mb-5" id="paymentStatusContainer">
-                    <div id="paymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
-                        <span id="paymentStatusText">No payment info</span>
+                <div class="tw-flex tw-justify-center tw-mb-5" id="adminBoardingPaymentStatusContainer">
+                    <div id="adminBoardingPaymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
+                        <span id="adminBoardingPaymentStatusText">No payment info</span>
                     </div>
                 </div>
 
@@ -82,18 +82,18 @@
                         <div class="tw-mt-6 tw-p-3 tw-bg-gray-700/30 tw-rounded-lg">
                             <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Pet Information</h4>
                             <div class="tw-flex tw-items-center tw-gap-3">
-                                <div id="petImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                <div id="adminBoardingPetImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
                                     <i class="fas fa-paw tw-text-sm tw-text-gray-500"></i>
                                 </div>
                                 <div>
-                                    <p id="petName" class="tw-text-sm tw-text-white tw-font-medium"></p>
+                                    <p id="adminBoardingPetName" class="tw-text-sm tw-text-white tw-font-medium"></p>
                                     <div class="tw-flex tw-items-center tw-gap-2">
-                                        <span id="petSpecies" class="tw-text-xs tw-text-gray-400"></span>
+                                        <span id="adminBoardingPetSpecies" class="tw-text-xs tw-text-gray-400"></span>
                                         <span class="tw-text-xs tw-text-gray-500">•</span>
-                                        <span id="petBreed" class="tw-text-xs tw-text-gray-400"></span>
+                                        <span id="adminBoardingPetBreed" class="tw-text-xs tw-text-gray-400"></span>
                                     </div>
                                 </div>
-                                <button id="viewPetBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
+                                <button id="adminBoardingViewPetBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
                                     <i class="fas fa-external-link-alt tw-mr-1"></i> View
                                 </button>
                             </div>
@@ -103,14 +103,14 @@
                         <div class="tw-mt-4 tw-p-3 tw-bg-gray-700/30 tw-rounded-lg">
                             <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Client Information</h4>
                             <div class="tw-flex tw-items-center tw-gap-3">
-                                <div id="clientImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                <div id="adminBoardingClientImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
                                     <i class="fas fa-user tw-text-sm tw-text-gray-500"></i>
                                 </div>
                                 <div>
-                                    <p id="clientName" class="tw-text-sm tw-text-white tw-font-medium"></p>
-                                    <p id="clientEmail" class="tw-text-xs tw-text-gray-400"></p>
+                                    <p id="adminBoardingClientName" class="tw-text-sm tw-text-white tw-font-medium"></p>
+                                    <p id="adminBoardingClientEmail" class="tw-text-xs tw-text-gray-400"></p>
                                 </div>
-                                <button id="viewClientBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
+                                <button id="adminBoardingViewClientBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
                                     <i class="fas fa-external-link-alt tw-mr-1"></i> View
                                 </button>
                             </div>
@@ -141,14 +141,14 @@
                         </div>
 
                         <!-- Payment Details Section-->
-                        <div class="tw-bg-gray-700/30 tw-p-4 tw-rounded-lg tw-mt-4 tw-hidden" id="paymentDetailsContainer">
+                        <div class="tw-bg-gray-700/30 tw-p-4 tw-rounded-lg tw-mt-4 tw-hidden" id="adminBoardingPaymentDetailsContainer">
                             <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
                                 <h4 class="tw-text-sm tw-font-medium tw-text-gray-400">Payment History</h4>
-                                <span class="tw-text-xs tw-text-gray-400" id="paymentCount">0 payments</span>
+                                <span class="tw-text-xs tw-text-gray-400" id="adminBoardingPaymentCount">0 payments</span>
                             </div>
                             
                             <!-- List of payments -->
-                            <div class="tw-space-y-3 tw-max-h-60 tw-overflow-y-auto" id="paymentsListContainer">
+                            <div class="tw-space-y-3 tw-max-h-60 tw-overflow-y-auto" id="adminBoardingPaymentsListContainer">
                                 <!-- Will be populated by JavaScript -->
                             </div>
                         </div>
@@ -188,28 +188,58 @@
 </div>
 
 <script>
-['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
-    document.addEventListener(eventName, function() {    
+function initializeAdminViewBoardingModal() {
+    const boardingModal = document.getElementById('admin-viewBoarding-modal');
+    if (!boardingModal) {
+        return;
+    }
+
+    if (boardingModal.parentElement !== document.body) {
+        document.body.appendChild(boardingModal);
+    }
+
+    const getBoardingElement = (id) => boardingModal.querySelector(`#${id}`);
+    const resetBoardingButton = (id) => {
+        const button = getBoardingElement(id);
+        const replacement = button.cloneNode(true);
+        button.parentNode.replaceChild(replacement, button);
+        return replacement;
+    };
+    const showBoardingModal = () => {
+        boardingModal.classList.remove('tw-hidden');
+        boardingModal.style.display = 'flex';
+        boardingModal.style.zIndex = '9999';
+        boardingModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    };
+    const hideBoardingModal = () => {
+        boardingModal.classList.add('tw-hidden');
+        boardingModal.style.display = '';
+        boardingModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    };
+
             // Global variable to store current boarding data
     window.currentBoardingData = null;
     
     // Function to open boarding modal with data
-    window.openBoardingModal = function(boardingId) {
+    window.openBoardingModal = function(boardingID) {
+        const viewBoardingModal = boardingModal;
         // Show loading state
-        const viewBoardingModal = document.getElementById('viewBoarding-modal');
         if (!viewBoardingModal) {
             console.error('View boarding modal not found in DOM');
             return;
         }
         
         // Show modal with loading indicator
-        viewBoardingModal.classList.remove('tw-hidden');
+        showBoardingModal();
+        viewBoardingModal.scrollTop = 0;
         
         // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
         // Fetch boarding data
-        fetch("{{ route('admin.boardings.show', ['id' => ':boardingId']) }}".replace(':boardingId', boardingId), {
+        fetch("{{ route('admin.boardings.show', ['id' => ':boardingId']) }}".replace(':boardingId', boardingID), {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -248,7 +278,7 @@
                 color: '#fff'
             });
             
-            viewBoardingModal.classList.add('tw-hidden');
+            hideBoardingModal();
         });
     };
     
@@ -257,29 +287,29 @@
         console.log("Populating boarding data:", boarding);
         
         // Set boarding dates
-        document.getElementById('boardingStartDate').textContent = formatDate(boarding.start_date);
-        document.getElementById('boardingEndDate').textContent = formatDate(boarding.end_date);
+        getBoardingElement('boardingStartDate').textContent = formatDate(boarding.start_date);
+        getBoardingElement('boardingEndDate').textContent = formatDate(boarding.end_date);
         
         // Set boarding type and calculate duration
-        document.getElementById('boardingType').textContent = boarding.boardingType || 'Standard Boarding';
+        getBoardingElement('boardingType').textContent = boarding.boardingType || 'Standard Boarding';
         
         // Calculate and set duration
         const startDate = new Date(boarding.start_date);
         const endDate = new Date(boarding.end_date);
         const durationDays = calculateDays(startDate, endDate);
-        document.getElementById('boardingDuration').textContent = `${durationDays} day${durationDays !== 1 ? 's' : ''}`;
+        getBoardingElement('boardingDuration').textContent = `${durationDays} day${durationDays !== 1 ? 's' : ''}`;
         
         // Get base rate from the boarding data (supplied by the controller)
         const baseRate = boarding.baseRate || 0;
 
         // Calculate price
         const price = calculateBoardingPrice(baseRate, durationDays);
-        document.getElementById('baseRate').textContent = formatPrice(price.baseRate) + ' per day';
-        document.getElementById('priceDuration').textContent = `${durationDays} day${durationDays !== 1 ? 's' : ''}`;
-        document.getElementById('totalPrice').textContent = formatPrice(price.totalPrice);
+        getBoardingElement('baseRate').textContent = formatPrice(price.baseRate) + ' per day';
+        getBoardingElement('priceDuration').textContent = `${durationDays} day${durationDays !== 1 ? 's' : ''}`;
+        getBoardingElement('totalPrice').textContent = formatPrice(price.totalPrice);
 
         // Set boarding icon based on type
-        const boardingIcon = document.getElementById('boardingIcon');
+        const boardingIcon = getBoardingElement('boardingIcon');
         let iconClass = 'fa-home'; // Default icon
         
         // Customize icon based on boarding type if needed
@@ -313,8 +343,8 @@
                 console.log('Payment totals:', { totalPaid, boardingPrice });
                 
                 // Show payment status badge based on payment total vs boarding price
-                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
-                const paymentStatusText = document.getElementById('paymentStatusText');
+                const paymentStatusBadge = getBoardingElement('adminBoardingPaymentStatusBadge');
+                const paymentStatusText = getBoardingElement('adminBoardingPaymentStatusText');
                 
                 // Clear existing content to prevent duplication
                 while (paymentStatusBadge && paymentStatusBadge.firstChild) {
@@ -372,18 +402,18 @@
                     }
                     
                     // Display payment details container
-                    const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+                    const paymentDetailsContainer = getBoardingElement('adminBoardingPaymentDetailsContainer');
                     if (paymentDetailsContainer) {
                         paymentDetailsContainer.classList.remove('tw-hidden');
                         
                         // Update payment count
-                        const paymentCount = document.getElementById('paymentCount');
+                        const paymentCount = getBoardingElement('adminBoardingPaymentCount');
                         if (paymentCount) {
                             paymentCount.textContent = `${boarding.payments.length} payment${boarding.payments.length !== 1 ? 's' : ''}`;
                         }
                         
                         // Generate payment list HTML
-                        const paymentsListContainer = document.getElementById('paymentsListContainer');
+                        const paymentsListContainer = getBoardingElement('adminBoardingPaymentsListContainer');
                         if (paymentsListContainer) {
                             paymentsListContainer.innerHTML = '';
                             
@@ -447,10 +477,10 @@
                 }
             } catch (error) {
                 console.error('Error processing payment data:', error);
-                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+                const paymentStatusBadge = getBoardingElement('adminBoardingPaymentStatusBadge');
                 if (paymentStatusBadge) {
                     paymentStatusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-gray-700 tw-text-gray-300';
-                    const paymentStatusText = document.getElementById('paymentStatusText');
+                    const paymentStatusText = getBoardingElement('adminBoardingPaymentStatusText');
                     if (paymentStatusText) {
                         paymentStatusText.innerHTML = '<i class="fas fa-exclamation-triangle tw-mr-2"></i> Error loading payments';
                     }
@@ -458,8 +488,8 @@
             }
         } else {
             // No payment information available
-            const paymentStatusBadge = document.getElementById('paymentStatusBadge');
-            const paymentStatusText = document.getElementById('paymentStatusText');
+            const paymentStatusBadge = getBoardingElement('adminBoardingPaymentStatusBadge');
+            const paymentStatusText = getBoardingElement('adminBoardingPaymentStatusText');
             
             if (paymentStatusBadge && paymentStatusText) {
                 // Clear existing content to prevent duplication
@@ -474,16 +504,16 @@
                 paymentStatusBadge.classList.remove('tw-hidden');
                 
                 // Show payment details container with empty state
-                const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+                const paymentDetailsContainer = getBoardingElement('adminBoardingPaymentDetailsContainer');
                 if (paymentDetailsContainer) {
                     paymentDetailsContainer.classList.remove('tw-hidden');
                     
-                    const paymentCount = document.getElementById('paymentCount');
+                    const paymentCount = getBoardingElement('adminBoardingPaymentCount');
                     if (paymentCount) {
                         paymentCount.textContent = '0 payments';
                     }
                     
-                    const paymentsListContainer = document.getElementById('paymentsListContainer');
+                    const paymentsListContainer = getBoardingElement('adminBoardingPaymentsListContainer');
                     if (paymentsListContainer) {
                         paymentsListContainer.innerHTML = `
                             <div class="tw-text-center tw-py-4 tw-text-gray-400">
@@ -498,12 +528,12 @@
         
         // Set pet information
         if (boarding.pet) {
-            document.getElementById('petName').textContent = boarding.pet.name || 'Unknown Pet';
-            document.getElementById('petSpecies').textContent = boarding.pet.species || '';
-            document.getElementById('petBreed').textContent = boarding.pet.breed || '';
+            getBoardingElement('adminBoardingPetName').textContent = boarding.pet.name || 'Unknown Pet';
+            getBoardingElement('adminBoardingPetSpecies').textContent = boarding.pet.species || '';
+            getBoardingElement('adminBoardingPetBreed').textContent = boarding.pet.breed || '';
             
             // Set pet image if available
-            const petImage = document.getElementById('petImage');
+            const petImage = getBoardingElement('adminBoardingPetImage');
             if (boarding.pet.petImage) {
                 let imageUrl = "{{ asset('storage/') }}/" + boarding.pet.petImage.replace(/^storage\//i, '');
                 petImage.innerHTML = `<img src="${imageUrl}" alt="${boarding.pet.name}" class="tw-h-full tw-w-full tw-object-cover">`;
@@ -521,14 +551,13 @@
             }
             
             // Set up view pet button - clone and replace to avoid duplicate event listeners
-            const viewPetBtn = document.getElementById('viewPetBtn');
+            const viewPetBtn = getBoardingElement('adminBoardingViewPetBtn');
             const newViewPetBtn = viewPetBtn.cloneNode(true);
             viewPetBtn.parentNode.replaceChild(newViewPetBtn, viewPetBtn);
             
             newViewPetBtn.addEventListener('click', function() {
                 // Close boarding modal first
-                const viewBoardingModal = document.getElementById('viewBoarding-modal');
-                viewBoardingModal.classList.add('tw-hidden');
+                hideBoardingModal();
                 // Open pet modal with pet ID
                 if (typeof window.openPetModal === 'function') {
                     window.openPetModal(boarding.pet.petID);
@@ -540,25 +569,24 @@
             // Set client information if available through pet
             if (boarding.pet.user) {
                 const client = boarding.pet.user;
-                document.getElementById('clientName').textContent = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Unknown Client';
-                document.getElementById('clientEmail').textContent = client.email || '';
+                getBoardingElement('adminBoardingClientName').textContent = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Unknown Client';
+                getBoardingElement('adminBoardingClientEmail').textContent = client.email || '';
                 
                 // Set client image if available
-                const clientImage = document.getElementById('clientImage');
+                const clientImage = getBoardingElement('adminBoardingClientImage');
                 if (client.userImage) {
                     let imageUrl = "{{ asset('storage/') }}/" + client.userImage.replace(/^storage\//i, '');
                     clientImage.innerHTML = `<img src="${imageUrl}" alt="Client" class="tw-h-full tw-w-full tw-object-cover">`;
                 }
                 
                 // Set up view client button - clone and replace to avoid duplicate event listeners
-                const viewClientBtn = document.getElementById('viewClientBtn');
+                const viewClientBtn = getBoardingElement('adminBoardingViewClientBtn');
                 const newViewClientBtn = viewClientBtn.cloneNode(true);
                 viewClientBtn.parentNode.replaceChild(newViewClientBtn, viewClientBtn);
                 
                 newViewClientBtn.addEventListener('click', function() {
                     // Close boarding modal first
-                    const viewBoardingModal = document.getElementById('viewBoarding-modal');
-                    viewBoardingModal.classList.add('tw-hidden');
+                    hideBoardingModal();
                     // Open user modal with client ID
                     if (typeof window.openUserModal === 'function') {
                         window.openUserModal(client.userID);
@@ -574,39 +602,16 @@
         
         // Set creation and update timestamps
         if (boarding.created_at) {
-            document.getElementById('boardingCreatedAt').textContent = formatDateTime(boarding.created_at);
+            getBoardingElement('boardingCreatedAt').textContent = formatDateTime(boarding.created_at);
         }
         
         if (boarding.updated_at && boarding.updated_at !== boarding.created_at) {
-            document.getElementById('boardingUpdatedAt').textContent = formatDateTime(boarding.updated_at);
-            document.getElementById('boardingUpdatedBlock').classList.remove('tw-hidden');
+            getBoardingElement('boardingUpdatedAt').textContent = formatDateTime(boarding.updated_at);
+            getBoardingElement('boardingUpdatedBlock').classList.remove('tw-hidden');
         } else {
-            document.getElementById('boardingUpdatedBlock').classList.add('tw-hidden');
+            getBoardingElement('boardingUpdatedBlock').classList.add('tw-hidden');
         }
     }
-
-    // Set up status change buttons event handlers - clone buttons to prevent duplicate listeners
-    document.querySelectorAll('#confirmBoardingBtn, #activateBoardingBtn, #completeBoardingBtn, #cancelBoardingBtn').forEach(button => {
-        const newButton = button.cloneNode(true);
-        button.parentNode.replaceChild(newButton, button);
-    });
-
-    // Re-add event listeners after cloning
-    document.getElementById('confirmBoardingBtn').addEventListener('click', function() {
-        updateBoardingStatus('Confirmed');
-    });
-
-    document.getElementById('activateBoardingBtn').addEventListener('click', function() {
-        updateBoardingStatus('Active');
-    });
-
-    document.getElementById('completeBoardingBtn').addEventListener('click', function() {
-        updateBoardingStatus('Completed');
-    });
-
-    document.getElementById('cancelBoardingBtn').addEventListener('click', function() {
-        updateBoardingStatus('Cancelled');
-    });
 
     // Helper function for payment status styling
     function getPaymentStatusClass(status) {
@@ -626,12 +631,12 @@
     
     // Set status badge and action buttons based on current status
     function setStatusDisplay(status) {
-        const statusBadge = document.getElementById('boardingStatusBadge');
-        const statusText = document.getElementById('statusText');
-        const confirmBtn = document.getElementById('confirmBoardingBtn');
-        const activateBtn = document.getElementById('activateBoardingBtn');
-        const completeBtn = document.getElementById('completeBoardingBtn');
-        const cancelBtn = document.getElementById('cancelBoardingBtn');
+        const statusBadge = getBoardingElement('boardingStatusBadge');
+        const statusText = getBoardingElement('adminBoardingStatusText');
+        const confirmBtn = getBoardingElement('confirmBoardingBtn');
+        const activateBtn = getBoardingElement('activateBoardingBtn');
+        const completeBtn = getBoardingElement('completeBoardingBtn');
+        const cancelBtn = getBoardingElement('cancelBoardingBtn');
         
         // Hide all action buttons first
         confirmBtn.classList.add('tw-hidden');
@@ -678,19 +683,19 @@
     }
     
     // Set up status change buttons event handlers
-    document.getElementById('confirmBoardingBtn').addEventListener('click', function() {
+    resetBoardingButton('confirmBoardingBtn').addEventListener('click', function() {
         updateBoardingStatus('Confirmed');
     });
     
-    document.getElementById('activateBoardingBtn').addEventListener('click', function() {
+    resetBoardingButton('activateBoardingBtn').addEventListener('click', function() {
         updateBoardingStatus('Active');
     });
     
-    document.getElementById('completeBoardingBtn').addEventListener('click', function() {
+    resetBoardingButton('completeBoardingBtn').addEventListener('click', function() {
         updateBoardingStatus('Completed');
     });
     
-    document.getElementById('cancelBoardingBtn').addEventListener('click', function() {
+    resetBoardingButton('cancelBoardingBtn').addEventListener('click', function() {
         updateBoardingStatus('Cancelled');
     });
     
@@ -763,10 +768,10 @@
     }
     
     // Setup edit boarding button handler
-    document.getElementById('editBoardingBtn').addEventListener('click', function() {
+    resetBoardingButton('editBoardingBtn').addEventListener('click', function() {
         if (window.currentBoardingData) {
             // Close this modal
-            document.getElementById('viewBoarding-modal').classList.add('tw-hidden');
+            hideBoardingModal();
             
             // Call the edit function if it exists
             if (typeof window.BoardingsPage.editBoarding === 'function') {
@@ -778,10 +783,10 @@
     });
     
     // Close modal handler
-    const modalToggle = document.querySelector('[data-modal-toggle="viewBoarding-modal"]');
+    const modalToggle = resetBoardingButton('adminBoardingModalCloseBtn');
     if (modalToggle) {
         modalToggle.addEventListener('click', function() {
-            document.getElementById('viewBoarding-modal').classList.add('tw-hidden');
+            hideBoardingModal();
         });
     }
     
@@ -842,8 +847,8 @@
             minimumFractionDigits: 2
         }).format(price).replace('PHP', '₱');
     }
-    
+}
 
-    });
-});
+initializeAdminViewBoardingModal();
+document.addEventListener('contentChanged', initializeAdminViewBoardingModal);
 </script>

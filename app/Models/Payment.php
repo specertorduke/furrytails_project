@@ -13,13 +13,15 @@ class Payment extends Model
     protected $primaryKey = 'paymentID';
     
     protected $fillable = [
-        'amount', 
-        'payment_method', 
+        'amount',
+        'total_cost',
+        'payment_type',
+        'payment_method',
         'reference_number',
         'status',
         'payable_type',
         'payable_id',
-        'userID'
+        'userID',
     ];
     
     /**

@@ -20,7 +20,7 @@ class AdminBoardingsController extends Controller {
         $cancelledBoardings = Boarding::where('status', 'Cancelled')->count();
 
         // Inline data eliminates the second AJAX roundtrip on page load
-        $boardingsJson = Boarding::with(['pet.user'])
+        $boardingsJson = Boarding::with(['pet.user', 'payments'])
             ->orderBy('start_date', 'desc')
             ->get()
             ->toJson(JSON_HEX_TAG);
@@ -37,7 +37,7 @@ class AdminBoardingsController extends Controller {
     public function getBoardingsData()
     {
         try {
-            $boardings = Boarding::with(['pet.user'])
+            $boardings = Boarding::with(['pet.user', 'payments'])
                 ->orderBy('start_date', 'desc')
                 ->get();
                 
@@ -74,6 +74,88 @@ class AdminBoardingsController extends Controller {
     //     }
     // }
 
+    /**
+     * Mark a boarding payment as collected (cash full or GCash deposit balance).
+     */
+    public function markAsPaid(Request $request, $id)
+    {
+        try {
+            $boarding = Boarding::with('payments')->findOrFail($id);
+            $admin = auth()->user();
+
+            $latestPayment = $boarding->payments()->latest()->first();
+
+            if (!$latestPayment) {
+                return response()->json(['success' => false, 'message' => 'No payment record found for this boarding.'], 404);
+            }
+
+            if ($latestPayment->status === 'Pending') {
+                $originalStatus = $boarding->status;
+                $latestPayment->status = 'Completed';
+                $latestPayment->save();
+
+                $boarding->status = 'Confirmed';
+                $boarding->save();
+
+                if ($latestPayment->payment_method === 'GCash') {
+                    $message = $latestPayment->payment_type === 'deposit'
+                        ? 'GCash deposit verified. Boarding is now Confirmed. Remaining balance will be collected at check-in.'
+                        : 'GCash payment verified. Boarding is now Confirmed.';
+                } else {
+                    $message = 'Cash payment confirmed. Boarding is now Confirmed.';
+                }
+
+                $logNote = [
+                    'status_from' => $originalStatus,
+                    'status_to' => 'Confirmed',
+                    'payment_method' => $latestPayment->payment_method,
+                    'payment_type' => $latestPayment->payment_type,
+                ];
+            } elseif ($latestPayment->payment_type === 'deposit' && $latestPayment->status === 'Completed') {
+                if ($boarding->payments()->where('payment_type', 'balance')->exists()) {
+                    return response()->json(['success' => false, 'message' => 'Balance payment has already been recorded for this boarding.'], 422);
+                }
+
+                // GCash deposit already verified — record the remaining cash balance.
+                $balanceAmount = $latestPayment->total_cost
+                    ? round($latestPayment->total_cost - $latestPayment->amount, 2)
+                    : round($latestPayment->amount / 0.3 * 0.7, 2);
+
+                $balancePayment = new \App\Models\Payment();
+                $balancePayment->userID         = $latestPayment->userID;
+                $balancePayment->amount         = $balanceAmount;
+                $balancePayment->total_cost      = $latestPayment->total_cost;
+                $balancePayment->payment_type   = 'balance';
+                $balancePayment->payment_method = 'Cash';
+                $balancePayment->status         = 'Completed';
+                $balancePayment->payable_id     = $boarding->boardingID;
+                $balancePayment->payable_type   = 'App\Models\Boarding';
+                $balancePayment->save();
+
+                $message = "Balance of ₱{$balanceAmount} collected. Boarding fully paid.";
+                $logNote = ['collected_balance' => $balanceAmount];
+            } else {
+                return response()->json(['success' => false, 'message' => 'This boarding payment is already fully processed.'], 422);
+            }
+
+            ActivityLog::create([
+                'table_name' => 'boardings',
+                'record_id'  => $boarding->boardingID,
+                'action'     => 'payment_collected',
+                'old_values' => json_encode([]),
+                'new_values' => json_encode(array_merge($logNote, ['by_admin' => $admin->userID])),
+                'userID'     => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            \Log::error('Error marking boarding as paid: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to process payment.'], 500);
+        }
+    }
+
     public function cancel(Request $request, $id)
     {
         try {
@@ -86,6 +168,7 @@ class AdminBoardingsController extends Controller {
             $boarding->save();
 
             // Log the cancellation action
+            $admin = auth()->user();
             ActivityLog::create([
                 'table_name' => 'boardings',
                 'record_id' => $boarding->boardingID,
@@ -118,7 +201,7 @@ class AdminBoardingsController extends Controller {
     {
         $validator = \Validator::make($request->all(), [
             'petID'        => 'required|exists:pets,petID',
-            'boardingType' => 'required|in:daycare,overnight,long-term',
+            'boardingType' => 'required|in:Daycare,Overnight,Extended',
             'start_date'   => 'required|date',
             'end_date'     => 'required|date|after_or_equal:start_date',
             'status'       => 'required|string',
@@ -259,7 +342,7 @@ class AdminBoardingsController extends Controller {
     {
         $validator = Validator::make($request->all(), [
             'petID' => 'required|exists:pets,petID',
-            'boardingType' => 'required|in:daycare,overnight,long-term',
+            'boardingType' => 'required|in:Daycare,Overnight,Extended',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'status' => 'required|in:Confirmed,Active,Completed,Cancelled'

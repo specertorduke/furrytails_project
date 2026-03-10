@@ -317,7 +317,7 @@
                     }).then(() => {
                         document.getElementById('editUser-modal').classList.add('tw-hidden');
                         if (window.UsersPage && window.UsersPage.usersTable) {
-                            window.UsersPage.usersTable.ajax.reload();
+                            window.UsersPage.reloadTable(window.UsersPage.usersTable, '{{ route("admin.users.data") }}');
                         } else {
                             window.location.reload();
                         }

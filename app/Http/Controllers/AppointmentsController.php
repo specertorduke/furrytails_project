@@ -116,6 +116,13 @@ public function getAvailableTimes(Request $request)
                     'message' => 'Unauthorized'
                 ], 403);
             }
+
+                if (in_array($appointment->status, ['Cancelled', 'Completed'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cancelled or completed appointments can only be viewed.'
+                    ], 422);
+                }
             
             return response()->json([
                 'success' => true,
@@ -169,6 +176,13 @@ public function getAvailableTimes(Request $request)
                     'success' => false,
                     'message' => 'Unauthorized'
                 ], 403);
+            }
+
+            if (in_array($appointment->status, ['Cancelled', 'Completed'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cancelled or completed appointments can no longer be edited.'
+                ], 422);
             }
             
             // Check for duplicate appointments (excluding this one)
@@ -250,16 +264,10 @@ public function store(Request $request)
         'date'           => 'required|date|after:today',
         'time'           => 'required',
         'serviceID'      => 'required|exists:services,serviceID',
-        'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
-        'payment_reference' => 'nullable|string|max:255',
-    ]);
-
-    // Retrieve the pet record
-    $pet = Pet::findOrFail($request->petID);
-    // Optionally ensure the pet belongs to the current user
-    if ($pet->userID !== Auth::id()) {
-        abort(403, 'Unauthorized');
-    }
+        'payment_method'    => 'required|in:Cash,GCash',
+        'reference_number'  => $request->payment_method === 'GCash' ? 'required|digits:13' : 'nullable',
+        'payment_type'      => 'nullable|in:deposit,full',
+        ]);
 
     // Begin transaction with exclusive lock to prevent concurrent booking
     DB::beginTransaction();
@@ -291,25 +299,44 @@ public function store(Request $request)
 
         // Create payment record
         $service = Service::find($request->serviceID);
+        $totalPrice = $service->price;
+
+        // Cash bookings always pay the full amount at the counter (deposit N/A for cash).
+        // GCash bookings may choose deposit (30% now, balance at visit) or full.
+        $paymentMethod = $request->payment_method;
+        $paymentType   = ($paymentMethod === 'GCash')
+            ? $request->input('payment_type', 'full')
+            : 'full';
+        $paymentAmount = ($paymentType === 'deposit') ? round($totalPrice * 0.3, 2) : $totalPrice;
+
         $payment = new \App\Models\Payment();
-        $payment->userID = Auth::id();
-        $payment->amount = $service->price;
-        $payment->payment_method = $request->payment_method;
+        $payment->userID          = Auth::id();
+        $payment->amount          = $paymentAmount;
+        $payment->total_cost      = $totalPrice;
+        $payment->payment_type    = $paymentType;
+        $payment->payment_method  = $paymentMethod;
         $payment->reference_number = $request->reference_number ?? null;
-        $payment->status = $request->payment_method === 'Cash' ? 'Pending' : 'Completed';
-        
+
+        // Both Cash and GCash bookings stay Pending until staff verification.
+        // For GCash, the reference is submitted now but staff still verifies the transfer manually.
+        $payment->status = 'Pending';
+
         // Set polymorphic relationship
         $payment->payable_id = $appointment->appointmentID;
         $payment->payable_type = 'App\Models\Appointment';
         $payment->save();
 
-        // If payment is completed, update appointment status
-        if ($payment->status === 'Completed') {
-            $appointment->status = 'Confirmed';
-            $appointment->save();
-        }
-
         DB::commit();
+
+        // Send booking confirmation email (non-blocking)
+        try {
+            $appointment->load(['pet', 'service']);
+            $emailUser = Auth::user();
+            \Illuminate\Support\Facades\Mail::to($emailUser->email)
+                ->send(new \App\Mail\BookingConfirmation($appointment, 'appointment', $emailUser, $payment));
+        } catch (\Exception $e) {
+            \Log::warning('Confirmation email failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success'     => true,
@@ -402,6 +429,15 @@ public function store(Request $request)
             
             $appointment->status = 'Cancelled';
             $appointment->save();
+
+            // Send cancellation email (non-blocking)
+            try {
+                $appointment->load('service');
+                \Illuminate\Support\Facades\Mail::to($user->email)
+                    ->send(new \App\Mail\BookingCancellation($appointment, 'appointment', $user));
+            } catch (\Exception $e) {
+                \Log::warning('Cancellation email failed: ' . $e->getMessage());
+            }
 
             // Log the cancellation action
             ActivityLog::create([

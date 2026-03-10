@@ -48,19 +48,15 @@
                     <select id="payment-method" name="payment-method" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                         <option value="">Select payment method</option>
                         <option value="Cash">Cash</option>
-                        <option value="Credit Card">Credit Card</option>
-                        <option value="Debit Card">Debit Card</option>
-                        <option value="PayPal">PayPal</option>
                         <option value="GCash">GCash</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="Other">Other</option>
                     </select>
                 </div>
 
                 <!-- Reference Number -->
                 <div class="tw-mb-4">
-                    <label for="payment-reference" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Reference Number (Optional)</label>
-                    <input type="text" name="payment-reference" id="payment-reference" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Transaction ID, receipt number, etc.">
+                    <label for="payment-reference" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Reference Number</label>
+                    <input type="text" name="payment-reference" id="payment-reference" inputmode="numeric" autocomplete="off" maxlength="13" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="13-digit GCash reference number">
+                    <p class="tw-mt-1 tw-text-xs tw-text-gray-400">Required for GCash payments. Cash payments can leave this blank.</p>
                 </div>
 
                 <!-- Status -->
@@ -146,6 +142,20 @@ const AdminPaymentModal = {
         if (this.elements.userSelect) {
             this.elements.userSelect.addEventListener('change', () => {
                 this.loadUnpaidBookings();
+            });
+        }
+
+        if (this.elements.methodSelect) {
+            this.elements.methodSelect.addEventListener('change', () => {
+                if (this.elements.methodSelect.value === 'Cash') {
+                    this.elements.referenceInput.value = '';
+                }
+            });
+        }
+
+        if (this.elements.referenceInput) {
+            this.elements.referenceInput.addEventListener('input', () => {
+                this.elements.referenceInput.value = this.elements.referenceInput.value.replace(/\D/g, '').slice(0, 13);
             });
         }
         
@@ -249,7 +259,7 @@ const AdminPaymentModal = {
                             '<span class="tw-ml-1 tw-px-1 tw-py-0.5 tw-bg-yellow-900 tw-text-yellow-300 tw-rounded-sm tw-text-xs">Partial</span>' : '';
                         
                         this.elements.bookingSelect.innerHTML += `
-                            <option value="A${appointment.appointmentID}" data-price="${remainingBalance}" data-type="appointment">
+                            <option value="A${appointment.appointmentID}" data-price="${remainingBalance}" data-type="appointment" data-partial="${appointment.is_partially_paid ? 'true' : 'false'}">
                                 ${serviceName} (${serviceDate}) - ₱${remainingBalance.toFixed(2)} ${partialPaymentBadge}
                             </option>`;
                     });
@@ -269,7 +279,7 @@ const AdminPaymentModal = {
                             '<span class="tw-ml-1 tw-px-1 tw-py-0.5 tw-bg-yellow-900 tw-text-yellow-300 tw-rounded-sm tw-text-xs">Partial</span>' : '';
                         
                         this.elements.bookingSelect.innerHTML += `
-                            <option value="B${boarding.boardingID}" data-price="${remainingBalance}" data-type="boarding">
+                            <option value="B${boarding.boardingID}" data-price="${remainingBalance}" data-type="boarding" data-partial="${boarding.is_partially_paid ? 'true' : 'false'}">
                                 ${boardingType} (${startDate} - ${endDate}) - ₱${remainingBalance.toFixed(2)} ${partialPaymentBadge}
                             </option>`;
                     });
@@ -347,6 +357,11 @@ const AdminPaymentModal = {
             this.showError('Please select a payment method');
             return false;
         }
+
+        if (method === 'GCash' && !/^\d{13}$/.test(this.elements.referenceInput.value.trim())) {
+            this.showError('GCash reference number must be exactly 13 digits');
+            return false;
+        }
         
         const status = this.elements.statusSelect.value;
         if (!status) {
@@ -384,6 +399,7 @@ const AdminPaymentModal = {
         }
         
         // Prepare data
+        const selectedOption = this.elements.bookingSelect.options[this.elements.bookingSelect.selectedIndex];
         const paymentData = {
             userID: this.elements.userSelect.value,
             payable_type: payableType,
@@ -391,7 +407,8 @@ const AdminPaymentModal = {
             amount: this.elements.amountInput.value,
             payment_method: this.elements.methodSelect.value,
             reference_number: this.elements.referenceInput.value,
-            status: this.elements.statusSelect.value
+            status: this.elements.statusSelect.value,
+            payment_type: selectedOption && selectedOption.dataset.partial === 'true' ? 'balance' : 'full'
         };
         
         // Get CSRF token

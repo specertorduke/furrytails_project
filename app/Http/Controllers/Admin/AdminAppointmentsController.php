@@ -23,7 +23,7 @@ class AdminAppointmentsController extends Controller
         $cancelledAppointments = Appointment::where('status', 'Cancelled')->count();
 
         // Inline data eliminates the second AJAX roundtrip on page load
-        $appointmentsJson = Appointment::with(['pet.user', 'service'])
+        $appointmentsJson = Appointment::with(['pet.user', 'service', 'payments'])
             ->orderBy('date', 'desc')
             ->get()
             ->toJson(JSON_HEX_TAG);
@@ -40,7 +40,7 @@ class AdminAppointmentsController extends Controller
     public function getAppointmentsData()
     {
         try {
-            $appointments = Appointment::with(['pet.user', 'service'])
+            $appointments = Appointment::with(['pet.user', 'service', 'payments'])
                 ->orderBy('date', 'desc')
                 ->get();
                 
@@ -341,6 +341,7 @@ class AdminAppointmentsController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $admin = auth()->user();
             $appointment = Appointment::findOrFail($id);
         } catch (\Exception $e) {
             return response()->json([
@@ -474,6 +475,7 @@ class AdminAppointmentsController extends Controller
     public function cancel(Request $request, $id)
     {
         try {
+            $admin = auth()->user();
             $appointment = Appointment::findOrFail($id);
             
             // Store original values for logging
@@ -508,6 +510,89 @@ class AdminAppointmentsController extends Controller
                 'success' => false,
                 'message' => 'Failed to cancel appointment'
             ], 500);
+        }
+    }
+
+    /**
+     * Mark an appointment's payment as completed and confirm the appointment.
+     */
+    public function markAsPaid(Request $request, $id)
+    {
+        try {
+            $appointment = Appointment::with('payments')->findOrFail($id);
+            $admin = auth()->user();
+
+            // Get the most recent payment for this appointment
+            $latestPayment = $appointment->payments()->latest()->first();
+
+            if (!$latestPayment) {
+                return response()->json(['success' => false, 'message' => 'No payment record found for this appointment.'], 404);
+            }
+
+            if ($latestPayment->status === 'Pending') {
+                $originalStatus = $appointment->status;
+                $latestPayment->status = 'Completed';
+                $latestPayment->save();
+
+                $appointment->status = 'Confirmed';
+                $appointment->save();
+
+                if ($latestPayment->payment_method === 'GCash') {
+                    $message = $latestPayment->payment_type === 'deposit'
+                        ? 'GCash deposit verified. Appointment is now Confirmed. Remaining balance will be collected at the visit.'
+                        : 'GCash payment verified. Appointment is now Confirmed.';
+                } else {
+                    $message = 'Cash payment confirmed. Appointment is now Confirmed.';
+                }
+
+                $logNote = [
+                    'status_from' => $originalStatus,
+                    'status_to' => 'Confirmed',
+                    'payment_method' => $latestPayment->payment_method,
+                    'payment_type' => $latestPayment->payment_type,
+                ];
+            } elseif ($latestPayment->payment_type === 'deposit' && $latestPayment->status === 'Completed') {
+                if ($appointment->payments()->where('payment_type', 'balance')->exists()) {
+                    return response()->json(['success' => false, 'message' => 'Balance payment has already been recorded for this appointment.'], 422);
+                }
+
+                // GCash deposit was already verified — record the remaining cash balance now.
+                $balanceAmount = $latestPayment->total_cost
+                    ? round($latestPayment->total_cost - $latestPayment->amount, 2)
+                    : round($latestPayment->amount / 0.3 * 0.7, 2);
+
+                $balancePayment = new \App\Models\Payment();
+                $balancePayment->userID         = $latestPayment->userID;
+                $balancePayment->amount         = $balanceAmount;
+                $balancePayment->total_cost     = $latestPayment->total_cost;
+                $balancePayment->payment_type   = 'balance';
+                $balancePayment->payment_method = 'Cash';
+                $balancePayment->status         = 'Completed';
+                $balancePayment->payable_id     = $appointment->appointmentID;
+                $balancePayment->payable_type   = 'App\Models\Appointment';
+                $balancePayment->save();
+
+                $message = "Balance of ₱{$balanceAmount} collected. Appointment fully paid.";
+                $logNote  = ['collected_balance' => $balanceAmount];
+            } else {
+                return response()->json(['success' => false, 'message' => 'This appointment payment is already fully processed.'], 422);
+            }
+
+            ActivityLog::create([
+                'table_name' => 'appointments',
+                'record_id'  => $appointment->appointmentID,
+                'action'     => 'payment_collected',
+                'old_values' => json_encode([]),
+                'new_values' => json_encode(array_merge($logNote, ['by_admin' => $admin->userID])),
+                'userID'     => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            \Log::error('Error marking appointment as paid: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to process payment.'], 500);
         }
     }
 }

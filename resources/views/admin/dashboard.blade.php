@@ -108,7 +108,7 @@
             <!-- Upcoming Appointments Table -->
             <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-mb-6 tw-transition-all tw-duration-300 hover:tw-shadow-md">
                 <div class="tw-flex tw-justify-between tw-items-center tw-mb-4">
-                    <h2 class="tw-text-lg tw-font-bold tw-text-white">Upcoming Appointments</h2>
+                    <h2 class="tw-text-lg tw-font-bold tw-text-white">Appointment Queue</h2>
                     <a href="{{ route('admin.appointments') }}" class="tw-text-[#24CFF4] tw-text-sm tw-font-medium hover:tw-underline">View All</a>
                 </div>
                 
@@ -122,6 +122,7 @@
                                 <th class="tw-px-4 tw-py-3 tw-bg-gray-700 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Service</th>
                                 <th class="tw-px-4 tw-py-3 tw-bg-gray-700 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Date</th>
                                 <th class="tw-px-4 tw-py-3 tw-bg-gray-700 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Time</th>
+                                <th class="tw-px-4 tw-py-3 tw-bg-gray-700 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Status</th>
                                 <th class="tw-px-4 tw-py-3 tw-bg-gray-700"></th>
                             </tr>
                         </thead>
@@ -134,7 +135,7 @@
             <!-- Ongoing Boarding Capacity Visualization -->
             <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-mt-6 tw-mb-6 tw-transition-all tw-duration-300 hover:tw-shadow-md">
                 <div class="tw-flex tw-justify-between tw-items-center tw-mb-4">
-                    <h2 class="tw-text-lg tw-font-bold tw-text-white">Ongoing Boarding</h2>
+                    <h2 class="tw-text-lg tw-font-bold tw-text-white">Boarding Queue</h2>
                     <span class="tw-text-sm tw-font-medium tw-text-gray-300">
                         <span id="active-boardings">{{ $stats['active_boardings'] ?? 0 }}</span>/10 Capacity
                     </span>
@@ -147,7 +148,7 @@
                     </div>
                     <div class="tw-flex tw-justify-between tw-mt-1">
                         <span class="tw-text-xs tw-text-gray-400">0</span>
-                        <span class="tw-text-xs tw-text-gray-400">Capacity: 10</span>
+                        <span class="tw-text-xs tw-text-gray-400">Active Capacity: 10</span>
                     </div>
                 </div>
 
@@ -632,6 +633,131 @@
 // Dashboard functionality namespace
 window.DashboardPage = window.DashboardPage || {
     upcomingAppointmentsTable: null,
+
+    ensureModalFunction: function(functionName) {
+        if (typeof window[functionName] === 'function') {
+            return true;
+        }
+
+        document.dispatchEvent(new Event('contentChanged'));
+        return typeof window[functionName] === 'function';
+    },
+
+    viewAppointment: function(appointmentId) {
+        if (this.ensureModalFunction('openAppointmentModal')) {
+            window.openAppointmentModal(appointmentId);
+            return;
+        }
+
+        Swal.fire({
+            title: 'Unavailable',
+            text: 'The appointment details modal is not available right now.',
+            icon: 'error',
+            confirmButtonColor: '#24CFF4',
+            background: '#374151',
+            color: '#fff'
+        });
+    },
+
+    verifyAppointmentPayment: function(appointmentId, amount, method) {
+        const label = method === 'GCash' ? 'Verify GCash Payment' : 'Confirm Cash Payment';
+
+        Swal.fire({
+            title: label,
+            text: `Confirm that ₱${parseFloat(amount).toFixed(2)} via ${method} has been verified?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, confirm',
+            background: '#374151',
+            color: '#fff'
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            fetch(`{{ route('admin.appointments.mark-paid', ['id' => ':id']) }}`.replace(':id', appointmentId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to verify payment');
+                }
+
+                Swal.fire({ title: 'Done!', text: data.message, icon: 'success', confirmButtonColor: '#24CFF4', background: '#374151', color: '#fff' })
+                    .then(() => window.location.reload());
+            })
+            .catch(error => {
+                Swal.fire({ title: 'Error!', text: error.message || 'Failed to verify payment.', icon: 'error', confirmButtonColor: '#24CFF4', background: '#374151', color: '#fff' });
+            });
+        });
+    },
+
+    verifyBoardingPayment: function(boardingId, amount, method) {
+        const label = method === 'GCash' ? 'Verify GCash Payment' : 'Confirm Cash Payment';
+
+        Swal.fire({
+            title: label,
+            text: `Confirm that ₱${parseFloat(amount).toFixed(2)} via ${method} has been verified?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, confirm',
+            background: '#374151',
+            color: '#fff'
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            fetch(`{{ route('admin.boardings.mark-paid', ['id' => ':id']) }}`.replace(':id', boardingId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to verify payment');
+                }
+
+                Swal.fire({ title: 'Done!', text: data.message, icon: 'success', confirmButtonColor: '#66FF8F', background: '#374151', color: '#fff' })
+                    .then(() => window.location.reload());
+            })
+            .catch(error => {
+                Swal.fire({ title: 'Error!', text: error.message || 'Failed to verify payment.', icon: 'error', confirmButtonColor: '#66FF8F', background: '#374151', color: '#fff' });
+            });
+        });
+    },
+
+    viewBoarding: function(boardingId) {
+        if (this.ensureModalFunction('openBoardingModal')) {
+            window.openBoardingModal(boardingId);
+            return;
+        }
+
+        Swal.fire({
+            title: 'Unavailable',
+            text: 'The boarding details modal is not available right now.',
+            icon: 'error',
+            confirmButtonColor: '#66FF8F',
+            background: '#374151',
+            color: '#fff'
+        });
+    },
     
     // Initialize tables
     initializeTables: function() {
@@ -696,11 +822,38 @@ window.DashboardPage = window.DashboardPage || {
                     }
                 },
                 {
+                    data: 'status',
+                    render: function(data) {
+                        const styles = {
+                            Pending: 'tw-bg-yellow-900 tw-text-yellow-300',
+                            Confirmed: 'tw-bg-green-900 tw-text-green-300',
+                            Active: 'tw-bg-blue-900 tw-text-blue-300',
+                            Cancelled: 'tw-bg-red-900 tw-text-red-300'
+                        };
+                        const badgeClass = styles[data] || 'tw-bg-gray-700 tw-text-gray-300';
+                        return `<span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs ${badgeClass}">${data}</span>`;
+                    }
+                },
+                {
                     data: null,
                     width: '10%',
                     render: function(data) {
+                        const latestPayment = (data.payments || []).reduce((latest, payment) => {
+                            if (!latest || payment.paymentID > latest.paymentID) {
+                                return payment;
+                            }
+                            return latest;
+                        }, null);
+
+                        const verifyBtn = latestPayment && latestPayment.status === 'Pending' && data.status !== 'Cancelled'
+                            ? `<button type="button" onclick="DashboardPage.verifyAppointmentPayment(${data.appointmentID}, ${parseFloat(latestPayment.amount)}, '${latestPayment.payment_method}')" class="tw-inline-flex tw-items-center tw-justify-center tw-h-8 tw-w-8 tw-rounded-full tw-bg-green-900/70 tw-text-green-300 hover:tw-bg-green-800" title="Verify payment"><i class="fas fa-check"></i></button>`
+                            : '';
+
                         return `
-                            <a href="/admin/appointments/${data.appointmentID}" class="tw-text-[#24CFF4] hover:tw-text-blue-300">View</a>
+                            <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
+                                <button type="button" onclick="DashboardPage.viewAppointment(${data.appointmentID})" class="tw-inline-flex tw-items-center tw-justify-center tw-h-8 tw-w-8 tw-rounded-full tw-bg-sky-900/70 tw-text-sky-300 hover:tw-bg-sky-800" title="View appointment details"><i class="fas fa-eye"></i></button>
+                                ${verifyBtn}
+                            </div>
                         `;
                     },
                     orderable: false
@@ -715,7 +868,7 @@ window.DashboardPage = window.DashboardPage || {
             pageLength: 5,
             order: [[4, 'asc'], [5, 'asc']],
             language: {
-                emptyTable: '<div class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-py-4"><i class="fas fa-calendar-times tw-text-4xl tw-text-gray-600"></i><p>No upcoming appointments</p></div>'
+                emptyTable: '<div class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-py-4"><i class="fas fa-calendar-times tw-text-4xl tw-text-gray-600"></i><p>No pending or upcoming appointments</p></div>'
             },
             drawCallback: function() {
                 DashboardPage.applyTableStyling();
@@ -751,27 +904,57 @@ window.DashboardPage = window.DashboardPage || {
             // Render pet cards
             const container = $('#boarding-pets-container');
             container.empty();
+            const sortedBoardings = [...(data.boardings || [])].sort((left, right) => {
+                const leftRank = left.status === 'Cancelled' ? 1 : 0;
+                const rightRank = right.status === 'Cancelled' ? 1 : 0;
+
+                if (leftRank !== rightRank) {
+                    return leftRank - rightRank;
+                }
+
+                return 0;
+            });
             
-            if (data.boardings && data.boardings.length > 0) {
-                data.boardings.forEach(boarding => {
+            if (sortedBoardings.length > 0) {
+                sortedBoardings.forEach(boarding => {
                     // Use species instead of type for dog/cat icons
                     const petIcon = boarding.pet.type.toLowerCase() === 'dog' ? 
                         '<i class="fas fa-dog tw-text-[#66FF8F]"></i>' : 
                         '<i class="fas fa-cat tw-text-[#FF9666]"></i>';
+
+                    const statusStyles = {
+                        Pending: 'tw-bg-yellow-900 tw-text-yellow-300',
+                        Confirmed: 'tw-bg-green-900 tw-text-green-300',
+                        Active: 'tw-bg-blue-900 tw-text-blue-300',
+                        Cancelled: 'tw-bg-red-900 tw-text-red-300'
+                    };
+                    const badgeClass = statusStyles[boarding.status] || 'tw-bg-gray-700 tw-text-gray-300';
                         
                     const endDate = moment(boarding.end_date).format('MMM DD');
+                    const latestPayment = boarding.latest_payment;
+                    const verifyBtn = latestPayment && latestPayment.status === 'Pending' && boarding.status !== 'Cancelled'
+                        ? `<button type="button" onclick="DashboardPage.verifyBoardingPayment(${boarding.boardingID}, ${parseFloat(latestPayment.amount)}, '${latestPayment.payment_method}')" class="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-green-900/60 tw-px-3 tw-py-1 tw-text-[11px] tw-font-medium tw-text-green-300 hover:tw-bg-green-800"><i class="fas fa-check"></i><span>Verify</span></button>`
+                        : '';
+                    const viewBtn = `<button type="button" onclick="DashboardPage.viewBoarding(${boarding.boardingID})" class="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-sky-900/60 tw-px-3 tw-py-1 tw-text-[11px] tw-font-medium tw-text-sky-300 hover:tw-bg-sky-800"><i class="fas fa-eye"></i><span>View</span></button>`;
                     
                     const card = `
                         <div class="tw-bg-gray-700 tw-rounded-lg tw-p-3 tw-flex tw-items-center tw-gap-3">
                             <div class="tw-h-10 tw-w-10 tw-bg-gray-600 tw-rounded-full tw-flex tw-items-center tw-justify-center">
                                 ${petIcon}
                             </div>
-                            <div>
-                                <div class="tw-text-sm tw-font-medium tw-text-white">${boarding.pet.name}</div>
+                            <div class="tw-flex-1">
+                                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2">
+                                    <div class="tw-text-sm tw-font-medium tw-text-white">${boarding.pet.name}</div>
+                                    <span class="tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] ${badgeClass}">${boarding.status}</span>
+                                </div>
                                 <div class="tw-flex tw-items-center tw-gap-2 tw-text-xs tw-text-gray-400">
                                     <span>${boarding.user.lastName}</span>
                                     <span>•</span>
                                     <span>Until ${endDate}</span>
+                                </div>
+                                <div class="tw-mt-2 tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                                    ${viewBtn}
+                                    ${verifyBtn}
                                 </div>
                             </div>
                         </div>
@@ -783,7 +966,7 @@ window.DashboardPage = window.DashboardPage || {
                 container.html(`
                     <div class="tw-col-span-full tw-p-4 tw-text-center">
                         <i class="fas fa-home tw-text-gray-600 tw-text-3xl tw-mb-2"></i>
-                        <p class="tw-text-gray-400">No pets currently boarding</p>
+                        <p class="tw-text-gray-400">No pending or active boardings to review</p>
                     </div>
                 `);
             }
@@ -922,4 +1105,8 @@ document.addEventListener('contentWillChange', function() {
 @include('modals.admin.admin-add-user')
 @include('modals.admin.admin-add-appointment')
 @include('modals.admin.admin-add-pet')
+@include('modals.admin.admin-view-appointment')
+@include('modals.admin.admin-edit-appointment')
+@include('modals.admin.admin-view-boarding')
+@include('modals.admin.admin-edit-boarding')
 @endsection

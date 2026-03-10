@@ -310,8 +310,11 @@
         },
         
         openAddServiceModal: function() {
-            console.log('Opening add service modal');
-            // Implement modal functionality
+            if (typeof window.openAddServiceModal === 'function') {
+                window.openAddServiceModal();
+            } else {
+                console.error('openAddServiceModal is not defined');
+            }
         }
     };
 
@@ -439,11 +442,20 @@
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({})
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Failed to delete service');
+                        });
+                    }
+
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
@@ -466,6 +478,16 @@
                             color: '#fff'
                         });
                     }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to delete service.',
+                        icon: 'error',
+                        confirmButtonColor: '#27b5d4',
+                        background: '#374151',
+                        color: '#fff'
+                    });
                 });
             }
         });

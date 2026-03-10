@@ -314,6 +314,17 @@ const EditBoardingModal = {
             if (!data.success) {
                 throw new Error(data.message || 'Failed to load boarding data');
             }
+
+                if (['Cancelled', 'Completed'].includes(data.boarding.status)) {
+                    document.getElementById('editBoarding-modal').classList.add('tw-hidden');
+                    Swal.fire({
+                        title: 'Editing unavailable',
+                        text: 'Cancelled or completed boardings can only be viewed.',
+                        icon: 'info',
+                        confirmButtonColor: '#24CFF4'
+                    });
+                    return;
+                }
             
             // Store boarding data
             this.boardingData = data.boarding;

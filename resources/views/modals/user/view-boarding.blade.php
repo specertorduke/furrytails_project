@@ -400,109 +400,132 @@
         pet.petNotes || pet.special_notes || 'No special notes provided.';
 }
     
-    // Function to populate payment details
+    // Function to populate payment details — deposit/balance aware
     function populatePaymentDetails(payments, boarding) {
         try {
-            // Get the first payment if payments is an array
-            let payment = null;
-            if (Array.isArray(payments) && payments.length > 0) {
-                payment = payments[0];
-            } else if (payments && !Array.isArray(payments)) {
-                payment = payments;
-            }
-            
-            // Safely calculate the rate with fallbacks
-            let rate = 0;
+            const pmts = Array.isArray(payments) ? payments : (payments ? [payments] : []);
+            const depositPmt     = pmts.find(p => p.payment_type === 'deposit' && p.status === 'Completed');
+            const balancePmt     = pmts.find(p => p.payment_type === 'balance');
+            const fullPmt        = pmts.find(p => p.payment_type === 'full' && p.status === 'Completed');
+            const pendingGcashPmt = pmts.find(p => p.payment_method === 'GCash' && p.status === 'Pending');
+            const cashPendingPmt = pmts.find(p => p.payment_method === 'Cash' && p.status === 'Pending');
+            const anyPmt         = pmts.length > 0 ? pmts[0] : null;
+
+            // Calculate total days
             let total_days = 1;
-            
-            // Calculate total days if dates are available
             if (boarding.start_date && boarding.end_date) {
                 const startDate = new Date(boarding.start_date);
-                const endDate = new Date(boarding.end_date);
-                const diffTime = Math.abs(endDate - startDate);
-                total_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+                const endDate   = new Date(boarding.end_date);
+                total_days = Math.ceil(Math.abs(endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
             } else if (boarding.total_days) {
                 total_days = boarding.total_days;
             }
-            
-            // Calculate daily rate based on available data
-            if (payment && payment.amount && total_days > 0) {
-                rate = payment.amount / total_days;
-            } else if (boarding.baseRate) {
-                rate = parseFloat(boarding.baseRate);
-            } else if (boarding.price_per_day) {
-                rate = parseFloat(boarding.price_per_day);
-            } else if (boarding.total_price && total_days > 0) {
-                rate = boarding.total_price / total_days;
+
+            // Resolve total cost from stored total_cost column (preferred) or fallback
+            let totalCost = 0;
+            const refPmt = pendingGcashPmt || depositPmt || fullPmt || cashPendingPmt || anyPmt;
+            if (refPmt) {
+                if (refPmt.total_cost) {
+                    totalCost = parseFloat(refPmt.total_cost);
+                } else if (depositPmt) {
+                    totalCost = parseFloat(depositPmt.amount) / 0.3; // estimate from 30%
+                } else {
+                    totalCost = parseFloat(refPmt.amount) || 0;
+                }
             }
-            
-            // Display rate with safeguard against NaN
-            document.getElementById('view-boarding-rate').textContent = isNaN(rate) ? 
-                '₱0.00' : '₱' + parseFloat(rate).toFixed(2);
-            
-            // Calculate total amount
-            let totalAmount = 0;
-            if (payment && payment.amount) {
-                totalAmount = parseFloat(payment.amount);
-            } else if (boarding.total_price) {
-                totalAmount = parseFloat(boarding.total_price);
-            } else if (rate && total_days) {
-                totalAmount = rate * total_days;
-            }
-            
-            // Display total with safeguard against NaN
-            document.getElementById('view-boarding-total').textContent = isNaN(totalAmount) ? 
-                '₱0.00' : '₱' + parseFloat(totalAmount).toFixed(2);
-            
-            // Set payment method with default value
-            const paymentMethod = payment && payment.payment_method ? payment.payment_method : 'Not yet paid';
-            document.getElementById('view-payment-method').textContent = paymentMethod;
-            
-            // Set payment status with appropriate color
-            const paymentStatusElement = document.getElementById('view-payment-status');
-            const paymentStatus = payment && payment.status ? payment.status : 'Pending';
-            paymentStatusElement.textContent = paymentStatus;
-            
-            // Remove any existing status classes
-            paymentStatusElement.className = "tw-px-3 tw-py-1 tw-rounded-full tw-text-sm";
-            
-            // Add appropriate status color class
-            switch(paymentStatus) {
-                case 'Completed':
-                    paymentStatusElement.classList.add('tw-bg-green-100', 'tw-text-green-800');
-                    break;
-                case 'Pending':
-                    paymentStatusElement.classList.add('tw-bg-yellow-100', 'tw-text-yellow-800');
-                    break;
-                case 'Refunded':
-                    paymentStatusElement.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
-                    break;
-                case 'Failed':
-                    paymentStatusElement.classList.add('tw-bg-red-100', 'tw-text-red-800');
-                    break;
-                default:
-                    paymentStatusElement.classList.add('tw-bg-gray-100', 'tw-text-gray-800');
-            }
-            
-            // Show/hide payment reference section
-            const referenceSection = document.getElementById('payment-reference-section');
-            if (payment && payment.reference_number) {
-                referenceSection.classList.remove('tw-hidden');
-                document.getElementById('view-payment-reference').textContent = payment.reference_number;
+
+            const rate = (total_days > 0 && totalCost > 0) ? totalCost / total_days : 0;
+            document.getElementById('view-boarding-rate').textContent  = isNaN(rate)      ? '₱0.00' : '₱' + rate.toFixed(2);
+            document.getElementById('view-boarding-total').textContent = isNaN(totalCost) ? '₱0.00' : '₱' + totalCost.toFixed(2);
+
+            const methodEl = document.getElementById('view-payment-method');
+            const statusEl = document.getElementById('view-payment-status');
+            const refSection = document.getElementById('payment-reference-section');
+            const refEl      = document.getElementById('view-payment-reference');
+
+            statusEl.className = 'tw-px-3 tw-py-1 tw-rounded-full tw-text-sm';
+
+            if (pendingGcashPmt) {
+                const submittedAmt = parseFloat(pendingGcashPmt.amount);
+                const balanceAmt = Math.max(0, totalCost - submittedAmt);
+                const isDeposit = pendingGcashPmt.payment_type === 'deposit';
+                methodEl.innerHTML = `GCash <span class="tw-text-xs tw-text-gray-400">(${isDeposit ? 'deposit submitted' : 'payment submitted'})</span>`;
+                statusEl.textContent = 'Pending Verification';
+                statusEl.classList.add('tw-bg-yellow-100', 'tw-text-yellow-800');
+                refSection.classList.remove('tw-hidden');
+                refEl.innerHTML = `${pendingGcashPmt.reference_number || 'N/A'}<span class="tw-block tw-text-xs tw-text-gray-600 tw-mt-1"><i class="fas fa-info-circle"></i> Staff still needs to verify the GCash payment before this booking is confirmed.</span>${isDeposit ? `<span class="tw-block tw-text-xs tw-text-amber-600 tw-mt-1"><i class="fas fa-info-circle"></i> If approved, the remaining balance of ₱${balanceAmt.toFixed(2)} will be collected in cash at check-in.</span>` : ''}`;
+
+            } else if (depositPmt && !balancePmt) {
+                // GCash deposit paid — balance still owed
+                const depositAmt = parseFloat(depositPmt.amount);
+                const balanceAmt = totalCost - depositAmt;
+                methodEl.innerHTML = `GCash <span class="tw-text-xs tw-text-gray-400">(deposit)</span>`;
+                statusEl.textContent = 'Deposit Paid';
+                statusEl.classList.add('tw-bg-blue-100', 'tw-text-blue-800');
+                refSection.classList.remove('tw-hidden');
+                refEl.innerHTML = depositPmt.reference_number
+                    ? `${depositPmt.reference_number}<span class="tw-block tw-text-xs tw-text-amber-600 tw-mt-1"><i class="fas fa-info-circle"></i> Balance ₱${balanceAmt.toFixed(2)} due in cash at visit</span>`
+                    : `<span class="tw-text-xs tw-text-amber-600"><i class="fas fa-info-circle"></i> Balance ₱${balanceAmt.toFixed(2)} due in cash at visit</span>`;
+
+            } else if (depositPmt && balancePmt) {
+                // Deposit + balance collected — fully settled
+                methodEl.textContent = 'GCash + Cash';
+                statusEl.textContent = 'Fully Paid';
+                statusEl.classList.add('tw-bg-green-100', 'tw-text-green-800');
+                if (depositPmt.reference_number) {
+                    refSection.classList.remove('tw-hidden');
+                    refEl.textContent = depositPmt.reference_number;
+                } else {
+                    refSection.classList.add('tw-hidden');
+                }
+
+            } else if (fullPmt) {
+                // Full GCash payment
+                methodEl.textContent = 'GCash';
+                statusEl.textContent = 'Fully Paid';
+                statusEl.classList.add('tw-bg-green-100', 'tw-text-green-800');
+                if (fullPmt.reference_number) {
+                    refSection.classList.remove('tw-hidden');
+                    refEl.textContent = fullPmt.reference_number;
+                } else {
+                    refSection.classList.add('tw-hidden');
+                }
+
+            } else if (cashPendingPmt) {
+                // Cash — awaiting collection at counter
+                methodEl.innerHTML = `Cash <span class="tw-text-xs tw-text-gray-400">(pay at counter)</span>`;
+                statusEl.textContent = 'Pending';
+                statusEl.classList.add('tw-bg-yellow-100', 'tw-text-yellow-800');
+                refSection.classList.remove('tw-hidden');
+                refEl.innerHTML = `<span class="tw-text-yellow-600 tw-text-xs"><i class="fas fa-info-circle"></i> Bring ₱${totalCost.toFixed(2)} cash on your visit. Booking confirmed once payment is verified.</span>`;
+
+            } else if (anyPmt) {
+                // Fallback
+                methodEl.textContent = anyPmt.payment_method || 'N/A';
+                statusEl.textContent = anyPmt.status || 'Unknown';
+                statusEl.classList.add('tw-bg-gray-100', 'tw-text-gray-800');
+                if (anyPmt.reference_number) {
+                    refSection.classList.remove('tw-hidden');
+                    refEl.textContent = anyPmt.reference_number;
+                } else {
+                    refSection.classList.add('tw-hidden');
+                }
+
             } else {
-                referenceSection.classList.add('tw-hidden');
+                methodEl.textContent = 'Not yet paid';
+                statusEl.textContent = 'Pending';
+                statusEl.classList.add('tw-bg-gray-100', 'tw-text-gray-800');
+                refSection.classList.add('tw-hidden');
             }
+
         } catch (error) {
-            console.error("Error in populatePaymentDetails:", error);
-            // Set default values if there's an error
-            document.getElementById('view-boarding-rate').textContent = '₱0.00';
+            console.error('Error in populatePaymentDetails:', error);
+            document.getElementById('view-boarding-rate').textContent  = '₱0.00';
             document.getElementById('view-boarding-total').textContent = '₱0.00';
             document.getElementById('view-payment-method').textContent = 'Not available';
-            
-            const paymentStatusElement = document.getElementById('view-payment-status');
-            paymentStatusElement.textContent = 'Unknown';
-            paymentStatusElement.className = "tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-bg-gray-100 tw-text-gray-800";
-            
+            const el = document.getElementById('view-payment-status');
+            el.textContent  = 'Unknown';
+            el.className    = 'tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-bg-gray-100 tw-text-gray-800';
             document.getElementById('payment-reference-section').classList.add('tw-hidden');
         }
     }
@@ -602,26 +625,31 @@
     function confirmCancelBoarding(boardingId) {
         Swal.fire({
             title: 'Cancel Boarding?',
-            text: 'Are you sure you want to cancel this boarding? This action cannot be undone.',
+            html: '<p style="margin-bottom:10px">Are you sure you want to cancel this boarding? This action cannot be undone.</p>' +
+                  '<input type="password" id="cancel-boarding-modal-pw" class="swal2-input" placeholder="Enter your password to confirm">',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: 'Yes, cancel it',
-            cancelButtonText: 'No, keep it'
+            cancelButtonText: 'No, keep it',
+            preConfirm: () => {
+                const pw = document.getElementById('cancel-boarding-modal-pw').value;
+                if (!pw) { Swal.showValidationMessage('Please enter your password'); return false; }
+                return pw;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                // Send cancel request
                 fetch("{{ route('user.boardings.cancel', ['id' => ':id']) }}".replace(':id', boardingId), {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ user_password: result.value })
                 })
                 .then(response => {
                     if (!response.ok) {

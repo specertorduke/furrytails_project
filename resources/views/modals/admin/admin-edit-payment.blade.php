@@ -41,6 +41,16 @@
                                     <span class="tw-text-gray-400 tw-text-sm">Service:</span>
                                     <span id="edit-payment-service" class="tw-text-white tw-text-sm"></span>
                                 </div>
+
+                                <div class="tw-flex tw-justify-between">
+                                    <span class="tw-text-gray-400 tw-text-sm">Payment Type:</span>
+                                    <span id="edit-payment-type-display" class="tw-text-white tw-text-sm"></span>
+                                </div>
+
+                                <div class="tw-flex tw-justify-between">
+                                    <span class="tw-text-gray-400 tw-text-sm">Total Cost:</span>
+                                    <span id="edit-payment-total-cost-display" class="tw-text-white tw-text-sm"></span>
+                                </div>
                                 
                                 <div class="tw-flex tw-justify-between">
                                     <span class="tw-text-gray-400 tw-text-sm">Amount:</span>
@@ -192,6 +202,8 @@
             // Display payment information (read-only)
             document.getElementById('edit-payment-id').textContent = `#${payment.paymentID}`;
             document.getElementById('edit-payment-amount-display').textContent = `₱${parseFloat(payment.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('edit-payment-type-display').textContent = formatPaymentType(payment.payment_type);
+            document.getElementById('edit-payment-total-cost-display').textContent = payment.total_cost ? `₱${parseFloat(payment.total_cost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
             document.getElementById('edit-payment-method-display').textContent = payment.payment_method || 'Not specified';
             document.getElementById('edit-payment-reference-display').textContent = payment.reference_number || 'None';
             
@@ -406,7 +418,7 @@
                         
                         // Refresh the payments table
                         if (window.PaymentsPage && window.PaymentsPage.paymentsTable) {
-                            window.PaymentsPage.paymentsTable.ajax.reload();
+                            window.PaymentsPage.reloadTable(window.PaymentsPage.paymentsTable, '{{ route("admin.payments.data") }}');
                         } else {
                             // If we can't refresh the table, reload the page
                             window.location.reload();
@@ -455,6 +467,17 @@
                 minute: '2-digit',
                 hour12: true
             });
+        }
+
+        function formatPaymentType(paymentType) {
+            switch ((paymentType || 'full').toLowerCase()) {
+                case 'deposit':
+                    return 'Deposit';
+                case 'balance':
+                    return 'Balance';
+                default:
+                    return 'Full';
+            }
         }
     });
 });

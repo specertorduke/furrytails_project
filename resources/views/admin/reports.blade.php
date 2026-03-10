@@ -482,10 +482,21 @@
             
             // View log details handler
             viewLogDetails: function(id) {
-                fetch(logRouteTemplate.replace(':id', id))
+                fetch(logRouteTemplate.replace(':id', id), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
+                            return response.json()
+                                .then(errorData => {
+                                    throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                                })
+                                .catch(() => {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                });
                         }
                         return response.json();
                     })

@@ -1,12 +1,12 @@
 <!-- View Appointment Modal -->
-<div id="viewAppointment-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-50 tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/60">
+<div id="admin-viewAppointment-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-[9999] tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/60">
     <div class="tw-relative tw-w-full tw-max-w-2xl tw-max-h-full tw-animate-modal-entry">
         <!-- Modal content -->
         <div class="tw-relative tw-bg-gray-800 tw-rounded-lg tw-shadow-sm tw-transform tw-transition-all">
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-700">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-white">Appointment Details</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="viewAppointment-modal">
+                <button type="button" id="adminAppointmentModalCloseBtn" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-700 tw-hover:tw-text-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="admin-viewAppointment-modal">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -20,14 +20,14 @@
                 <div class="tw-flex tw-justify-center tw-mb-5">
                     <div id="appointmentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium">
                         <!-- Status will be set via JavaScript -->
-                        <span id="statusText">Loading...</span>
+                        <span id="adminAppointmentStatusText">Loading...</span>
                     </div>
                 </div>
 
                 <!-- Payment Status Section -->
-                <div class="tw-flex tw-justify-center tw-mb-5" id="paymentStatusContainer">
-                    <div id="paymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
-                        <span id="paymentStatusText">No payment info</span>
+                <div class="tw-flex tw-justify-center tw-mb-5" id="adminAppointmentPaymentStatusContainer">
+                    <div id="adminAppointmentPaymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
+                        <span id="adminAppointmentPaymentStatusText">No payment info</span>
                     </div>
                 </div>
 
@@ -63,18 +63,18 @@
                         <div class="tw-mt-6 tw-p-3 tw-bg-gray-700/30 tw-rounded-lg">
                             <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Pet Information</h4>
                             <div class="tw-flex tw-items-center tw-gap-3">
-                                <div id="petImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                <div id="adminAppointmentPetImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
                                     <i class="fas fa-paw tw-text-sm tw-text-gray-500"></i>
                                 </div>
                                 <div>
-                                    <p id="petName" class="tw-text-sm tw-text-white tw-font-medium"></p>
+                                    <p id="adminAppointmentPetName" class="tw-text-sm tw-text-white tw-font-medium"></p>
                                     <div class="tw-flex tw-items-center tw-gap-2">
-                                        <span id="petSpecies" class="tw-text-xs tw-text-gray-400"></span>
+                                        <span id="adminAppointmentPetSpecies" class="tw-text-xs tw-text-gray-400"></span>
                                         <span class="tw-text-xs tw-text-gray-500">•</span>
-                                        <span id="petBreed" class="tw-text-xs tw-text-gray-400"></span>
+                                        <span id="adminAppointmentPetBreed" class="tw-text-xs tw-text-gray-400"></span>
                                     </div>
                                 </div>
-                                <button id="viewPetBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
+                                <button id="adminAppointmentViewPetBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
                                     <i class="fas fa-external-link-alt tw-mr-1"></i> View
                                 </button>
                             </div>
@@ -84,14 +84,14 @@
                         <div class="tw-mt-4 tw-p-3 tw-bg-gray-700/30 tw-rounded-lg">
                             <h4 class="tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-2">Client Information</h4>
                             <div class="tw-flex tw-items-center tw-gap-3">
-                                <div id="clientImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
+                                <div id="adminAppointmentClientImage" class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
                                     <i class="fas fa-user tw-text-sm tw-text-gray-500"></i>
                                 </div>
                                 <div>
-                                    <p id="clientName" class="tw-text-sm tw-text-white tw-font-medium"></p>
-                                    <p id="clientEmail" class="tw-text-xs tw-text-gray-400"></p>
+                                    <p id="adminAppointmentClientName" class="tw-text-sm tw-text-white tw-font-medium"></p>
+                                    <p id="adminAppointmentClientEmail" class="tw-text-xs tw-text-gray-400"></p>
                                 </div>
-                                <button id="viewClientBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
+                                <button id="adminAppointmentViewClientBtn" class="tw-ml-auto tw-text-xs tw-bg-gray-700 hover:tw-bg-gray-600 tw-text-gray-200 tw-px-3 tw-py-1 tw-rounded-lg">
                                     <i class="fas fa-external-link-alt tw-mr-1"></i> View
                                 </button>
                             </div>
@@ -145,14 +145,14 @@
                         </div>
 
                         <!-- Payment Details Section-->
-                        <div class="tw-bg-gray-700/30 tw-p-4 tw-rounded-lg tw-mt-4 tw-hidden" id="paymentDetailsContainer">
+                        <div class="tw-bg-gray-700/30 tw-p-4 tw-rounded-lg tw-mt-4 tw-hidden" id="adminAppointmentPaymentDetailsContainer">
                             <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
                                 <h4 class="tw-text-sm tw-font-medium tw-text-gray-400">Payment History</h4>
-                                <span class="tw-text-xs tw-text-gray-400" id="paymentCount">0 payments</span>
+                                <span class="tw-text-xs tw-text-gray-400" id="adminAppointmentPaymentCount">0 payments</span>
                             </div>
                             
                             <!-- List of payments -->
-                            <div class="tw-space-y-3 tw-max-h-60 tw-overflow-y-auto" id="paymentsListContainer">
+                            <div class="tw-space-y-3 tw-max-h-60 tw-overflow-y-auto" id="adminAppointmentPaymentsListContainer">
                                 <!-- Will be populated by JavaScript -->
                             </div>
                             
@@ -195,22 +195,52 @@
 </div>
 
 <script>
-['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
-    document.addEventListener(eventName, function() {    
+function initializeAdminViewAppointmentModal() {
+    const appointmentModal = document.getElementById('admin-viewAppointment-modal');
+    if (!appointmentModal) {
+        return;
+    }
+
+    if (appointmentModal.parentElement !== document.body) {
+        document.body.appendChild(appointmentModal);
+    }
+
+    const getAppointmentElement = (id) => appointmentModal.querySelector(`#${id}`);
+    const resetAppointmentButton = (id) => {
+        const button = getAppointmentElement(id);
+        const replacement = button.cloneNode(true);
+        button.parentNode.replaceChild(replacement, button);
+        return replacement;
+    };
+    const showAppointmentModal = () => {
+        appointmentModal.classList.remove('tw-hidden');
+        appointmentModal.style.display = 'flex';
+        appointmentModal.style.zIndex = '9999';
+        appointmentModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    };
+    const hideAppointmentModal = () => {
+        appointmentModal.classList.add('tw-hidden');
+        appointmentModal.style.display = '';
+        appointmentModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    };
+
     // Global variable to store current appointment data
     window.currentAppointmentData = null;
     
     // Function to open appointment modal with data
     window.openAppointmentModal = function(appointmentId) {
+        const viewAppointmentModal = appointmentModal;
         // Show loading state
-        const viewAppointmentModal = document.getElementById('viewAppointment-modal');
         if (!viewAppointmentModal) {
             console.error('View appointment modal not found in DOM');
             return;
         }
         
         // Show modal with loading indicator
-        viewAppointmentModal.classList.remove('tw-hidden');
+        showAppointmentModal();
+        viewAppointmentModal.scrollTop = 0;
         
         // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -255,7 +285,7 @@
                 color: '#fff'
             });
             
-            viewAppointmentModal.classList.add('tw-hidden');
+            hideAppointmentModal();
         });
     };
     
@@ -264,16 +294,16 @@
         console.log("Populating appointment data:", appointment);
         
         // Set appointment date and time
-        document.getElementById('appointmentDate').textContent = formatDate(appointment.date);
-        document.getElementById('appointmentTime').textContent = formatTime(appointment.time);
+        getAppointmentElement('appointmentDate').textContent = formatDate(appointment.date);
+        getAppointmentElement('appointmentTime').textContent = formatTime(appointment.time);
         
         // Set service information
         if (appointment.service) {
-            document.getElementById('serviceName').textContent = appointment.service.name || 'Unknown Service';
-            document.getElementById('servicePrice').textContent = formatPrice(appointment.service.price);
+            getAppointmentElement('serviceName').textContent = appointment.service.name || 'Unknown Service';
+            getAppointmentElement('servicePrice').textContent = formatPrice(appointment.service.price);
             
             // Set service icon based on service type
-            const serviceIcon = document.getElementById('serviceIcon');
+            const serviceIcon = getAppointmentElement('serviceIcon');
             let iconClass = 'fa-concierge-bell'; // Default icon
             
             // Customize icon based on service name/type if needed
@@ -295,12 +325,12 @@
         
         // Set pet information
         if (appointment.pet) {
-            document.getElementById('petName').textContent = appointment.pet.name || 'Unknown Pet';
-            document.getElementById('petSpecies').textContent = appointment.pet.species || '';
-            document.getElementById('petBreed').textContent = appointment.pet.breed || '';
+            getAppointmentElement('adminAppointmentPetName').textContent = appointment.pet.name || 'Unknown Pet';
+            getAppointmentElement('adminAppointmentPetSpecies').textContent = appointment.pet.species || '';
+            getAppointmentElement('adminAppointmentPetBreed').textContent = appointment.pet.breed || '';
             
             // Set pet image if available
-            const petImage = document.getElementById('petImage');
+            const petImage = getAppointmentElement('adminAppointmentPetImage');
             if (appointment.pet.petImage) {
                 let imageUrl = "{{ asset('') }}" + (appointment.pet.petImage.startsWith('storage/') 
                     ? appointment.pet.petImage 
@@ -321,12 +351,13 @@
             }
             
             // Set up view pet button
-            const viewPetBtn = document.getElementById('viewPetBtn');
-            viewPetBtn.addEventListener('click', function() {
-                // Close appointment modal first
-                const viewAppointmentModal = document.getElementById('viewAppointment-modal');
+            const viewPetBtn = getAppointmentElement('adminAppointmentViewPetBtn');
+            const newViewPetBtn = viewPetBtn.cloneNode(true);
+            viewPetBtn.parentNode.replaceChild(newViewPetBtn, viewPetBtn);
 
-                viewAppointmentModal.classList.add('tw-hidden');
+            newViewPetBtn.addEventListener('click', function() {
+                // Close appointment modal first
+                hideAppointmentModal();
                 // Open pet modal with pet ID
                 if (typeof window.openPetModal === 'function') {
                     window.openPetModal(appointment.pet.petID);
@@ -338,11 +369,11 @@
             // Set client information if available through pet
             if (appointment.pet.user) {
                 const client = appointment.pet.user;
-                document.getElementById('clientName').textContent = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Unknown Client';
-                document.getElementById('clientEmail').textContent = client.email || '';
+                getAppointmentElement('adminAppointmentClientName').textContent = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Unknown Client';
+                getAppointmentElement('adminAppointmentClientEmail').textContent = client.email || '';
                 
                 // Set client image if available
-                const clientImage = document.getElementById('clientImage');
+                const clientImage = getAppointmentElement('adminAppointmentClientImage');
                 if (client.userImage) {
                     let imageUrl = "{{ asset('') }}" + (client.userImage.startsWith('storage/') 
                         ? client.userImage 
@@ -352,11 +383,13 @@
                 }
                 
                 // Set up view client button
-                const viewClientBtn = document.getElementById('viewClientBtn');
-                viewClientBtn.addEventListener('click', function() {
+                const viewClientBtn = getAppointmentElement('adminAppointmentViewClientBtn');
+                const newViewClientBtn = viewClientBtn.cloneNode(true);
+                viewClientBtn.parentNode.replaceChild(newViewClientBtn, viewClientBtn);
+
+                newViewClientBtn.addEventListener('click', function() {
                     // Close appointment modal first
-                    const viewAppointmentModal = document.getElementById('viewAppointment-modal');
-                    viewAppointmentModal.classList.add('tw-hidden');
+                    hideAppointmentModal();
                     // Open user modal with client ID
                     if (typeof window.openUserModal === 'function') {
                         window.openUserModal(client.userID);
@@ -370,12 +403,12 @@
             if (appointment.service && appointment.service.category && 
                 appointment.service.category.toLowerCase() === 'grooming') {
                 
-                const groomingSection = document.getElementById('groomingSection');
+                const groomingSection = getAppointmentElement('groomingSection');
                 if (groomingSection) {
                     groomingSection.classList.remove('tw-hidden');
                     
                     // Display before image if available
-                    const beforeContainer = document.getElementById('beforeImageContainer');
+                    const beforeContainer = getAppointmentElement('beforeImageContainer');
                     if (appointment.before_image) {
                         beforeContainer.innerHTML = `
                             <img src="{{ asset('storage') }}/${appointment.before_image}" 
@@ -387,7 +420,7 @@
                     }
                     
                     // Display after image if available
-                    const afterContainer = document.getElementById('afterImageContainer');
+                    const afterContainer = getAppointmentElement('afterImageContainer');
                     if (appointment.after_image) {
                         afterContainer.innerHTML = `
                             <img src="{{ asset('storage') }}/${appointment.after_image}" 
@@ -400,7 +433,7 @@
                 }
             } else {
                 // Hide grooming section for non-grooming services
-                const groomingSection = document.getElementById('groomingSection');
+                const groomingSection = getAppointmentElement('groomingSection');
                 if (groomingSection) {
                     groomingSection.classList.add('tw-hidden');
                 }
@@ -412,14 +445,14 @@
         
         // Set creation and update timestamps
         if (appointment.created_at) {
-            document.getElementById('appointmentCreatedAt').textContent = formatDateTime(appointment.created_at);
+            getAppointmentElement('appointmentCreatedAt').textContent = formatDateTime(appointment.created_at);
         }
         
         if (appointment.updated_at && appointment.updated_at !== appointment.created_at) {
-            document.getElementById('appointmentUpdatedAt').textContent = formatDateTime(appointment.updated_at);
-            document.getElementById('appointmentUpdatedBlock').classList.remove('tw-hidden');
+            getAppointmentElement('appointmentUpdatedAt').textContent = formatDateTime(appointment.updated_at);
+            getAppointmentElement('appointmentUpdatedBlock').classList.remove('tw-hidden');
         } else {
-            document.getElementById('appointmentUpdatedBlock').classList.add('tw-hidden');
+            getAppointmentElement('appointmentUpdatedBlock').classList.add('tw-hidden');
         }
 
         // Handle payment information if available
@@ -441,8 +474,8 @@
                 console.log('Payment totals:', { totalPaid, servicePrice });
                 
                 // Show payment status badge based on payment total vs service price
-                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
-                const paymentStatusText = document.getElementById('paymentStatusText');
+                const paymentStatusBadge = getAppointmentElement('adminAppointmentPaymentStatusBadge');
+                const paymentStatusText = getAppointmentElement('adminAppointmentPaymentStatusText');
                 
                 // Clear existing content to prevent duplication
                 while (paymentStatusBadge.firstChild) {
@@ -499,14 +532,14 @@
                 }
                 
                 // Display payment details container
-                const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+                const paymentDetailsContainer = getAppointmentElement('adminAppointmentPaymentDetailsContainer');
                 paymentDetailsContainer.classList.remove('tw-hidden');
                 
                 // Update payment count
-                document.getElementById('paymentCount').textContent = `${appointment.payments.length} payment${appointment.payments.length !== 1 ? 's' : ''}`;
+                getAppointmentElement('adminAppointmentPaymentCount').textContent = `${appointment.payments.length} payment${appointment.payments.length !== 1 ? 's' : ''}`;
                 
                 // Generate payment list HTML
-                const paymentsListContainer = document.getElementById('paymentsListContainer');
+                const paymentsListContainer = getAppointmentElement('adminAppointmentPaymentsListContainer');
                 paymentsListContainer.innerHTML = '';
                 
                 sortedPayments.forEach((payment, index) => {
@@ -566,20 +599,20 @@
                 });
                 
                 // Hide record payment button - feature not implemented
-                const recordPaymentBtn = document.getElementById('recordPaymentBtn');
+                const recordPaymentBtn = getAppointmentElement('recordPaymentBtn');
                 recordPaymentBtn.classList.add('tw-hidden');
                 
             } catch (error) {
                 console.error('Error processing payment data:', error);
-                const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+                const paymentStatusBadge = getAppointmentElement('adminAppointmentPaymentStatusBadge');
                 paymentStatusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-gray-700 tw-text-gray-300';
-                const paymentStatusText = document.getElementById('paymentStatusText');
+                const paymentStatusText = getAppointmentElement('adminAppointmentPaymentStatusText');
                 paymentStatusText.innerHTML = '<i class="fas fa-exclamation-triangle tw-mr-2"></i> Error loading payments';
             }
         } else {
             // No payment information available
-            const paymentStatusBadge = document.getElementById('paymentStatusBadge');
-            const paymentStatusText = document.getElementById('paymentStatusText');
+            const paymentStatusBadge = getAppointmentElement('adminAppointmentPaymentStatusBadge');
+            const paymentStatusText = getAppointmentElement('adminAppointmentPaymentStatusText');
             
             // Clear existing content to prevent duplication
             while (paymentStatusBadge.firstChild) {
@@ -593,11 +626,11 @@
             paymentStatusBadge.classList.remove('tw-hidden');
             
             // Show payment details container with empty state
-            const paymentDetailsContainer = document.getElementById('paymentDetailsContainer');
+            const paymentDetailsContainer = getAppointmentElement('adminAppointmentPaymentDetailsContainer');
             paymentDetailsContainer.classList.remove('tw-hidden');
             
-            document.getElementById('paymentCount').textContent = '0 payments';
-            document.getElementById('paymentsListContainer').innerHTML = `
+            getAppointmentElement('adminAppointmentPaymentCount').textContent = '0 payments';
+            getAppointmentElement('adminAppointmentPaymentsListContainer').innerHTML = `
                 <div class="tw-text-center tw-py-4 tw-text-gray-400">
                     <i class="fas fa-receipt tw-text-2xl tw-mb-2"></i>
                     <p>No payments recorded</p>
@@ -605,7 +638,7 @@
             `;
             
             // Hide record payment button - feature not implemented 
-            const recordPaymentBtn = document.getElementById('recordPaymentBtn');
+            const recordPaymentBtn = getAppointmentElement('recordPaymentBtn');
             recordPaymentBtn.classList.add('tw-hidden');
         }
 
@@ -628,11 +661,11 @@
     
     // Set status badge and action buttons based on current status
     function setStatusDisplay(status) {
-        const statusBadge = document.getElementById('appointmentStatusBadge');
-        const statusText = document.getElementById('statusText');
-        const confirmBtn = document.getElementById('confirmAppointmentBtn');
-        const completeBtn = document.getElementById('completeAppointmentBtn');
-        const cancelBtn = document.getElementById('cancelAppointmentBtn');
+        const statusBadge = getAppointmentElement('appointmentStatusBadge');
+        const statusText = getAppointmentElement('adminAppointmentStatusText');
+        const confirmBtn = getAppointmentElement('confirmAppointmentBtn');
+        const completeBtn = getAppointmentElement('completeAppointmentBtn');
+        const cancelBtn = getAppointmentElement('cancelAppointmentBtn');
         
         // Hide all action buttons first
         confirmBtn.classList.add('tw-hidden');
@@ -678,15 +711,15 @@
     }
     
     // Set up status change buttons event handlers
-    document.getElementById('confirmAppointmentBtn').addEventListener('click', function() {
+    resetAppointmentButton('confirmAppointmentBtn').addEventListener('click', function() {
         updateAppointmentStatus('Confirmed');
     });
     
-    document.getElementById('completeAppointmentBtn').addEventListener('click', function() {
+    resetAppointmentButton('completeAppointmentBtn').addEventListener('click', function() {
         updateAppointmentStatus('Completed');
     });
     
-    document.getElementById('cancelAppointmentBtn').addEventListener('click', function() {
+    resetAppointmentButton('cancelAppointmentBtn').addEventListener('click', function() {
         updateAppointmentStatus('Cancelled');
     });
     
@@ -759,10 +792,10 @@
     }
     
     // Setup edit appointment button handler
-    document.getElementById('editAppointmentBtn').addEventListener('click', function() {
+    resetAppointmentButton('editAppointmentBtn').addEventListener('click', function() {
         if (window.currentAppointmentData) {
             // Close this modal
-            document.getElementById('viewAppointment-modal').classList.add('tw-hidden');
+            hideAppointmentModal();
             
             // Call the edit function if it exists
             if (typeof window.AppointmentsPage.editAppointment === 'function') {
@@ -774,10 +807,10 @@
     });
     
     // Close modal handler
-    const modalToggle = document.querySelector('[data-modal-toggle="viewAppointment-modal"]');
+    const modalToggle = resetAppointmentButton('adminAppointmentModalCloseBtn');
     if (modalToggle) {
         modalToggle.addEventListener('click', function() {
-            document.getElementById('viewAppointment-modal').classList.add('tw-hidden');
+            hideAppointmentModal();
         });
     }
     
@@ -834,7 +867,9 @@
             currency: 'PHP',
             minimumFractionDigits: 2
         }).format(price);
-    }      
-    });
-});
+    }
+}
+
+initializeAdminViewAppointmentModal();
+document.addEventListener('contentChanged', initializeAdminViewAppointmentModal);
 </script>

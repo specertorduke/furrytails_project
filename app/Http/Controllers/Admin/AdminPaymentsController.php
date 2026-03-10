@@ -8,6 +8,7 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use App\Models\Appointment;
 use App\Models\Boarding;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,41 @@ class AdminPaymentsController extends Controller
         return $payments;
     }
 
+    private function resolveAppointmentTotalCost($appointment): float
+    {
+        $storedTotal = optional(
+            $appointment->payments()->whereNotNull('total_cost')->latest('paymentID')->first()
+        )->total_cost;
+
+        if ($storedTotal !== null) {
+            return (float) $storedTotal;
+        }
+
+        return (float) optional($appointment->service)->price;
+    }
+
+    private function resolveBoardingTotalCost($boarding): float
+    {
+        $storedTotal = optional(
+            $boarding->payments()->whereNotNull('total_cost')->latest('paymentID')->first()
+        )->total_cost;
+
+        if ($storedTotal !== null) {
+            return (float) $storedTotal;
+        }
+
+        $service = Service::where('category', 'Boarding')
+            ->where('name', 'LIKE', '%' . $boarding->boardingType . '%')
+            ->first();
+
+        $days = Carbon::parse($boarding->start_date)->diffInDays(Carbon::parse($boarding->end_date)) + 1;
+        if ($boarding->boardingType === 'Daycare') {
+            $days = 1;
+        }
+
+        return (float) (($service->price ?? 0) * $days);
+    }
+
     /**
      * Get payments data for DataTables
      */
@@ -109,11 +145,18 @@ class AdminPaymentsController extends Controller
         $payment = Payment::findOrFail($id);
 
         $validated = $request->validate([
-            'payment_method' => 'sometimes|required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
+            'payment_method' => 'sometimes|required|in:Cash,GCash',
             'reference_number' => 'nullable|string',
             'status' => 'required|in:Pending,Completed,Failed,Refunded',
             'amount' => 'sometimes|required|numeric|min:0',
         ]);
+
+        $effectiveMethod = $validated['payment_method'] ?? $payment->payment_method;
+        if ($effectiveMethod === 'GCash' && array_key_exists('reference_number', $validated) && $validated['reference_number'] !== null && $validated['reference_number'] !== '') {
+            $request->validate([
+                'reference_number' => 'digits:13'
+            ]);
+        }
 
         $updateData = [];
         if (array_key_exists('payment_method', $validated)) {
@@ -132,6 +175,7 @@ class AdminPaymentsController extends Controller
         }
 
         // Log the original state before update
+        $admin = auth()->user();
         ActivityLog::create([
             'table_name' => 'payments',
             'record_id' => $payment->paymentID,
@@ -160,9 +204,6 @@ class AdminPaymentsController extends Controller
      */
     public function markAsRefunded(Request $request, $id)
     {
-        if (!auth()->user()->hasPermission('payments.refund')) {
-            return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
-        }
         $payment = Payment::findOrFail($id);
         
         if ($payment->status !== 'Completed') {
@@ -173,6 +214,7 @@ class AdminPaymentsController extends Controller
         }
         
         // Log the change
+        $admin = auth()->user();
         ActivityLog::create([
             'table_name' => 'payments',
             'record_id' => $payment->paymentID,
@@ -207,10 +249,41 @@ class AdminPaymentsController extends Controller
             'payable_type' => 'required|string',
             'payable_id' => 'required|integer',
             'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
+            'payment_method' => 'required|in:Cash,GCash',
             'reference_number' => 'nullable|string',
-            'status' => 'required|in:Pending,Completed,Failed,Refunded'
+            'status' => 'required|in:Pending,Completed,Failed,Refunded',
+            'payment_type' => 'nullable|in:deposit,full,balance'
         ]);
+
+        if ($validated['payment_method'] === 'GCash') {
+            $request->validate([
+                'reference_number' => 'required|digits:13'
+            ]);
+        }
+
+        if ($validated['payable_type'] === 'App\\Models\\Appointment') {
+            $payable = Appointment::with(['service', 'payments' => function ($query) {
+                $query->where('status', 'Completed');
+            }])->findOrFail($validated['payable_id']);
+
+            $totalCost = $this->resolveAppointmentTotalCost($payable);
+        } elseif ($validated['payable_type'] === 'App\\Models\\Boarding') {
+            $payable = Boarding::with(['payments' => function ($query) {
+                $query->where('status', 'Completed');
+            }])->findOrFail($validated['payable_id']);
+
+            $totalCost = $this->resolveBoardingTotalCost($payable);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unsupported payable type.'
+            ], 422);
+        }
+
+        $completedPaid = (float) $payable->payments->sum('amount');
+        $validated['total_cost'] = $totalCost;
+        $validated['payment_type'] = $validated['payment_type']
+            ?? ($completedPaid > 0 ? 'balance' : 'full');
         
         $payment = Payment::create($validated);
         
@@ -262,7 +335,7 @@ class AdminPaymentsController extends Controller
             
             // Filter to only unpaid or partially paid appointments
             $unpaidAppointments = $appointments->filter(function($appointment) {
-                $totalPrice = $appointment->price ?? ($appointment->service->price ?? 0);
+                $totalPrice = $this->resolveAppointmentTotalCost($appointment);
                 $totalPaid = $appointment->payments->sum('amount');
                 return $totalPaid < $totalPrice;
             })->values();
@@ -279,22 +352,24 @@ class AdminPaymentsController extends Controller
             
             // Filter to only unpaid or partially paid boardings
             $unpaidBoardings = $boardings->filter(function($boarding) {
-                $totalPrice = $boarding->price ?? 0;
+                $totalPrice = $this->resolveBoardingTotalCost($boarding);
                 $totalPaid = $boarding->payments->sum('amount');
                 return $totalPaid < $totalPrice;
             })->values();
             
             // Add remaining balance to each item
             foreach ($unpaidAppointments as $appointment) {
-                $totalPrice = $appointment->price ?? ($appointment->service->price ?? 0);
+                $totalPrice = $this->resolveAppointmentTotalCost($appointment);
                 $totalPaid = $appointment->payments->sum('amount');
+                $appointment->price = $totalPrice;
                 $appointment->remaining_balance = max(0, $totalPrice - $totalPaid);
                 $appointment->is_partially_paid = $totalPaid > 0;
             }
             
             foreach ($unpaidBoardings as $boarding) {
-                $totalPrice = $boarding->price ?? 0;
+                $totalPrice = $this->resolveBoardingTotalCost($boarding);
                 $totalPaid = $boarding->payments->sum('amount');
+                $boarding->price = $totalPrice;
                 $boarding->remaining_balance = max(0, $totalPrice - $totalPaid);
                 $boarding->is_partially_paid = $totalPaid > 0;
             }

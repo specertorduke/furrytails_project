@@ -69,7 +69,7 @@
 
     <!-- Filter Controls -->
     <div class="tw-bg-gray-800 tw-rounded-xl tw-overflow-x-auto tw-shadow-sm tw-p-4 tw-mb-6">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-4">
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-5 tw-gap-4">
             <div class="">
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Status</label>
                 <select id="status-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
@@ -85,11 +85,16 @@
                 <select id="payment-method-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
                     <option value="">All Methods</option>
                     <option value="Cash">Cash</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Debit Card">Debit Card</option>
-                    <option value="PayPal">PayPal</option>
                     <option value="GCash">GCash</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+            </div>
+            <div>
+                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Payment Type</label>
+                <select id="payment-type-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
+                    <option value="">All Types</option>
+                    <option value="deposit">Deposit</option>
+                    <option value="full">Full</option>
+                    <option value="balance">Balance</option>
                 </select>
             </div>
             <div>
@@ -257,7 +262,7 @@
             });
             
             // Submit the form
-            fetch(`{{ route('admin.payments.update', ':id') }}`.replace(':id', paymentId), {
+            fetch(`{{ route('admin.payments.update', ':id') }}`.replace(':id', editingPaymentId), {
                 method: 'PUT',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -324,6 +329,7 @@
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Client</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Service</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Amount</th>
+                        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Payment Type</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Method</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Reference</th>
                         <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-300 tw-uppercase tw-tracking-wider">Status</th>
@@ -385,7 +391,7 @@
                                 serviceName = row.service_info?.name || 'Appointment';
                             } else if (modelName === 'Boarding') {
                                 icon = '<i class="fas fa-home tw-text-[#24CFF4] tw-mr-2"></i>';
-                                serviceName = 'Boarding';
+                                serviceName = row.service_info?.name || 'Boarding';
                             } else {
                                 icon = '<i class="fas fa-question-circle tw-text-gray-400 tw-mr-2"></i>';
                                 serviceName = modelName || 'Unknown';
@@ -401,20 +407,28 @@
                             return '₱' + parseFloat(data).toFixed(2);
                         }
                     },
+                    {
+                        data: 'payment_type',
+                        width: '10%',
+                        render: function(data) {
+                            const type = (data || 'full').toLowerCase();
+                            const labels = {
+                                deposit: { text: 'Deposit', cls: 'tw-bg-blue-900 tw-text-blue-300' },
+                                full: { text: 'Full', cls: 'tw-bg-green-900 tw-text-green-300' },
+                                balance: { text: 'Balance', cls: 'tw-bg-amber-900 tw-text-amber-300' }
+                            };
+                            const config = labels[type] || { text: type || 'Unknown', cls: 'tw-bg-gray-900 tw-text-gray-300' };
+                            return `<span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs ${config.cls}">${config.text}</span>`;
+                        }
+                    },
                     { 
                         data: 'payment_method',
                         width: '10%',
                         render: function(data) {
                             let icon = 'fa-money-bill-wave';
-                            
-                            if (data === 'Credit Card' || data === 'Debit Card') {
-                                icon = 'fa-credit-card';
-                            } else if (data === 'PayPal') {
-                                icon = 'fa-paypal';
-                            } else if (data === 'GCash') {
+
+                            if (data === 'GCash') {
                                 icon = 'fa-mobile-alt';
-                            } else if (data === 'Bank Transfer') {
-                                icon = 'fa-university';
                             }
                             
                             return `<div class="tw-flex tw-items-center"><i class="fas ${icon} tw-mr-2 tw-text-gray-400"></i> ${data}</div>`;
@@ -497,7 +511,7 @@
                         text: '<i class="fas fa-print tw-mr-2"></i> Print',
                         className: 'tw-text-white tw-bg-gray-700 tw-border-gray-600 tw-rounded-md tw-px-3 tw-py-2 tw-mr-2 hover:tw-bg-gray-600',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                         },
                         title: 'Payments Report'
                     }
@@ -519,7 +533,7 @@
 
         setupFilters: function() {
             // Apply filters on change
-            $('#status-filter, #payment-method-filter, #service-type-filter, #date-from, #date-to').on('change', () => {
+            $('#status-filter, #payment-method-filter, #payment-type-filter, #service-type-filter, #date-from, #date-to').on('change', () => {
                 this.applyFilters();
             });
         },
@@ -527,6 +541,7 @@
         applyFilters: function() {
             const statusFilter = $('#status-filter').val();
             const methodFilter = $('#payment-method-filter').val();
+            const paymentTypeFilter = $('#payment-type-filter').val();
             const serviceTypeFilter = $('#service-type-filter').val();
             const dateFrom = $('#date-from').val();
             const dateTo = $('#date-to').val();
@@ -541,6 +556,11 @@
                 
                 // Payment method filter
                 if (methodFilter && rowData.payment_method !== methodFilter) {
+                    return false;
+                }
+
+                // Payment type filter
+                if (paymentTypeFilter && rowData.payment_type !== paymentTypeFilter) {
                     return false;
                 }
                 

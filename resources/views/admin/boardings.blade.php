@@ -92,9 +92,9 @@
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Boarding Type</label>
                 <select id="boarding-type-filter" class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
                     <option value="">All Boarding Types</option>
-                    <option value="daycare">Daycare</option>
-                    <option value="overnight">Overnight</option>
-                    <option value="long-term">Long-term</option>
+                    <option value="Daycare">Daycare</option>
+                    <option value="Overnight">Overnight</option>
+                    <option value="Extended">Long-term</option>
                 </select>
             </div>
             <div>
@@ -144,13 +144,14 @@
 
 @push('scripts')
 <script>
-    const boardingPerms = {
+    var boardingPerms = {
         canCreate: {{ auth()->user()->hasPermission('boardings.create') ? 'true' : 'false' }},
         canEdit:   {{ auth()->user()->hasPermission('boardings.edit')   ? 'true' : 'false' }},
         canCancel: {{ auth()->user()->hasPermission('boardings.cancel') ? 'true' : 'false' }},
+        canMarkPaid: {{ auth()->user()->hasPermission('boardings.edit') ? 'true' : 'false' }},
     };
     // Create a namespace for our boardings page functionality
-    window.BoardingsPage = window.BoardingsPage || {
+    window.BoardingsPage = Object.assign(window.BoardingsPage || {}, {
         boardingsTable: null,
 
         reloadTable: function(table, url) {
@@ -192,6 +193,53 @@
                     color: '#fff'
                 });
             }
+        },
+
+        markBoardingPaid: function(id, actionType, amount) {
+            const isBalance = actionType === 'balance';
+            const isGcashVerification = actionType === 'verify-gcash';
+            const title = isBalance ? 'Collect Remaining Balance' : (isGcashVerification ? 'Verify GCash Payment' : 'Mark Cash Payment as Collected');
+            const text  = isBalance
+                ? `Confirm collection of ₱${parseFloat(amount).toFixed(2)} cash (remaining balance) from the client?`
+                : (isGcashVerification
+                    ? `Confirm that the submitted GCash payment of ₱${parseFloat(amount).toFixed(2)} has been received?`
+                    : `Confirm receipt of ₱${parseFloat(amount).toFixed(2)} cash from the client?`);
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, confirm',
+                background: '#374151',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{ route('admin.boardings.mark-paid', ['id' => ':id']) }}".replace(':id', id), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.reloadTable(this.boardingsTable, '{{ route("admin.boardings.data") }}');
+                            Swal.fire({ title: 'Done!', text: data.message, icon: 'success', confirmButtonColor: '#66FF8F', background: '#374151', color: '#fff' });
+                        } else {
+                            Swal.fire({ title: 'Error!', text: data.message || 'Failed to process payment.', icon: 'error', confirmButtonColor: '#66FF8F', background: '#374151', color: '#fff' });
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire({ title: 'Error!', text: 'An error occurred.', icon: 'error', confirmButtonColor: '#66FF8F', background: '#374151', color: '#fff' });
+                    });
+                }
+            });
         },
 
         cancelBoarding: function(id) {
@@ -434,20 +482,21 @@
                         render: function(data) {
                             let badgeClass = 'tw-bg-purple-900 tw-text-purple-300';
                             let icon = 'fa-home';
+                            const dt = (data || '').toLowerCase();
                             
-                            if (data === 'daycare') {
+                            if (dt === 'daycare') {
                                 badgeClass = 'tw-bg-blue-900 tw-text-blue-300';
                                 icon = 'fa-sun';
-                            } else if (data === 'overnight') {
+                            } else if (dt === 'overnight') {
                                 badgeClass = 'tw-bg-indigo-900 tw-text-indigo-300';
                                 icon = 'fa-moon';
-                            } else if (data === 'long-term') {
+                            } else if (dt === 'long-term' || dt === 'extended') {
                                 badgeClass = 'tw-bg-purple-900 tw-text-purple-300';
                                 icon = 'fa-calendar-week';
                             }
                             
                             return `<span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs ${badgeClass}">
-                                <i class="fas ${icon} tw-mr-1"></i> ${data.charAt(0).toUpperCase() + data.slice(1)}
+                                <i class="fas ${icon} tw-mr-1"></i> ${data ? data.charAt(0).toUpperCase() + data.slice(1) : 'Unknown'}
                             </span>`;
                         }
                     },
@@ -499,6 +548,28 @@
                                 `<button onclick="BoardingsPage.editBoarding(${data.boardingID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
                                     <i class="fas fa-edit"></i>
                                 </button>` : '';
+
+                            // Determine payment action needed
+                            let markPaidBtn = '';
+                            if (boardingPerms.canMarkPaid && data.status !== 'Cancelled' && data.status !== 'Completed') {
+                                const pmts = data.payments || [];
+                                const latest = pmts.length ? pmts.reduce((a,b) => (a.paymentID > b.paymentID ? a : b)) : null;
+                                const hasBalance = pmts.some(p => p.payment_type === 'balance');
+
+                                if (latest && latest.payment_type === 'deposit' && latest.status === 'Completed' && !hasBalance) {
+                                    const bal = latest.total_cost
+                                        ? parseFloat(latest.total_cost - latest.amount).toFixed(2)
+                                        : parseFloat(latest.amount / 0.3 * 0.7).toFixed(2);
+                                    markPaidBtn = `<button onclick="BoardingsPage.markBoardingPaid(${data.boardingID},'balance',${bal})" class="tw-text-orange-400 hover:tw-text-orange-200" title="Collect Balance ₱${bal}"><i class="fas fa-hand-holding-usd"></i></button>`;
+                                } else if (latest && latest.status === 'Pending') {
+                                    const amt = parseFloat(latest.amount).toFixed(2);
+                                    const actionType = latest.payment_method === 'GCash' ? 'verify-gcash' : 'cash';
+                                    const title = latest.payment_method === 'GCash'
+                                        ? `Verify GCash Payment ₱${amt}`
+                                        : `Mark Cash Paid ₱${amt}`;
+                                    markPaidBtn = `<button onclick="BoardingsPage.markBoardingPaid(${data.boardingID},'${actionType}',${amt})" class="tw-text-green-500 hover:tw-text-green-300" title="${title}"><i class="fas fa-check-circle"></i></button>`;
+                                }
+                            }
                                 
                             return `
                                 <div class="tw-flex tw-space-x-3 tw-justify-center">
@@ -506,6 +577,7 @@
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     ${editBtn}
+                                    ${markPaidBtn}
                                     ${cancelBtn}
                                 </div>
                             `;
@@ -678,7 +750,7 @@
                 `);
             });
         }
-    };
+    });
 
     // Initialize tables when page loads directly
     $(document).ready(function() {
@@ -697,8 +769,7 @@
         });
     });
 
-    // Handle dynamic content changes
-    document.addEventListener('contentChanged', function() {
+    window.initializeBoardingsPageTables = function() {
         console.log('Content changed event received');
         // Make sure jQuery and DataTables are available
         if (window.jQuery && $.fn.DataTable) {
@@ -706,15 +777,24 @@
         } else {
             console.error('jQuery or DataTables not available on content change');
         }
-    });
+    };
 
-    // Cleanup when content will change
-    document.addEventListener('contentWillChange', function() {
+    window.destroyBoardingsPageTables = function() {
         console.log('Content will change event received');
         if (window.jQuery && $.fn.DataTable) {
             BoardingsPage.destroyTables();
         }
-    });
+    };
+
+    document.removeEventListener('contentChanged', window.initializeBoardingsPageTables);
+    document.addEventListener('contentChanged', window.initializeBoardingsPageTables);
+
+    document.removeEventListener('contentWillChange', window.destroyBoardingsPageTables);
+    document.addEventListener('contentWillChange', window.destroyBoardingsPageTables);
+
+    if (document.getElementById('boardingsTable') && window.jQuery && $.fn.DataTable) {
+        BoardingsPage.initializeTables();
+    }
 </script>
 
 <script>

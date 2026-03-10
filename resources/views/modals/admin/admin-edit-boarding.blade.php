@@ -55,9 +55,9 @@
                             <label for="edit-boardingType" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Boarding Type</label>
                             <select id="edit-boardingType" name="boardingType" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                                 <option value="">Select boarding type</option>
-                                <option value="daycare">Daycare</option>
-                                <option value="overnight">Overnight</option>
-                                <option value="long-term">Long-term</option>
+                                <option value="Daycare">Daycare</option>
+                                <option value="Overnight">Overnight</option>
+                                <option value="Extended">Long-term</option>
                             </select>
                         </div>
                         
@@ -417,7 +417,7 @@
                         }).then(() => {
                             document.getElementById('editBoarding-modal').classList.add('tw-hidden');
                             if (window.BoardingsPage && window.BoardingsPage.boardingsTable) {
-                                window.BoardingsPage.boardingsTable.ajax.reload();
+                                window.BoardingsPage.reloadTable(window.BoardingsPage.boardingsTable, '{{ route("admin.boardings.data") }}');
                             } else {
                                 location.reload();
                             }
