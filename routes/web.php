@@ -85,8 +85,8 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/services/list', [AppointmentsController::class, 'getServicesList'])->name('services.list');
     Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])->name('user.appointments.show');
     Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])->name('user.appointments.edit');
-    Route::post('/appointments/store', [AppointmentsController::class, 'store'])->name('appointments.store');
-    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancel'])->name('user.appointments.cancel');
+    Route::post('/appointments/store', [AppointmentsController::class, 'store'])->middleware('throttle:5,1')->name('appointments.store');
+    Route::post('/appointments/cancel/{id}', [AppointmentsController::class, 'cancel'])->middleware('throttle:10,1')->name('user.appointments.cancel');
     Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])->name('user.appointments.update');
     Route::delete('/appointments/{id}', [ManageController::class, 'deleteAppointment']);
 
@@ -94,9 +94,9 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/boardings/{id}', [BoardingsController::class, 'show'])->name('user.boardings.show');
     Route::put('/boardings/{id}', [BoardingsController::class, 'update'])->name('user.boardings.update');
     Route::delete('/boardings/{id}', [ManageController::class, 'deleteBoarding']);
-    Route::post('/boardings/store', [BoardingsController::class, 'store'])->name('boardings.store');
+    Route::post('/boardings/store', [BoardingsController::class, 'store'])->middleware('throttle:5,1')->name('boardings.store');
     Route::get('/services/boarding', [BoardingsController::class, 'getBoardingServices'])->name('services.boarding');
-    Route::post('/boardings/{id}/cancel', [BoardingsController::class, 'cancel'])->name('user.boardings.cancel');
+    Route::post('/boardings/{id}/cancel', [BoardingsController::class, 'cancel'])->middleware('throttle:10,1')->name('user.boardings.cancel');
     Route::get('/services', [BoardingsController::class, 'getBServices'])->name('user.boardings.services');
 
     // Payments
@@ -129,6 +129,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/upcoming-appointments/data', [AdminController::class, 'getUpcomingAppointmentsData'])->name('admin.upcoming-appointments.data');
     Route::get('/appointments/data', [AdminAppointmentsController::class, 'getAppointmentsData'])->name('admin.appointments.data');
     Route::post('/appointments/{id}/cancel', [AdminAppointmentsController::class, 'cancel'])->name('admin.appointments.cancel');
+    Route::post('/appointments/{id}/mark-paid', [AdminAppointmentsController::class, 'markAsPaid'])->name('admin.appointments.mark-paid');
     Route::get('/appointments/available-times', [AdminAppointmentsController::class, 'getAvailableTimes'])->name('admin.appointments.available-times');
     Route::post('/appointments/store', [AdminAppointmentsController::class, 'store'])->name('admin.appointments.store');
     Route::get('/appointments/{id}', [AdminAppointmentsController::class, 'show'])->name('admin.appointments.show');
@@ -142,6 +143,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('boardings/ongoing-boardings/data', [AdminController::class, 'getOngoingBoardingsData'])->name('boardings.ongoing-boardings.data');
     Route::get('/boardings/data', [AdminBoardingsController::class, 'getBoardingsData'])->name('admin.boardings.data');
     Route::post('/boardings/{id}/cancel', [AdminBoardingsController::class, 'cancel'])->name('admin.boardings.cancel');
+    Route::post('/boardings/{id}/mark-paid', [AdminBoardingsController::class, 'markAsPaid'])->name('admin.boardings.mark-paid');
     Route::get('/boardings/{id}', [AdminBoardingsController::class, 'show'])->name('admin.boardings.show');
     Route::patch('/boardings/{id}/status', [AdminBoardingsController::class, 'updateStatus'])->name('admin.boardings.update-status');
     Route::get('/boardings/{id}/edit', [AdminBoardingsController::class, 'edit'])->name('admin.boardings.edit');

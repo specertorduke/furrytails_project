@@ -13,6 +13,45 @@ use Illuminate\Support\Facades\Cache;
 
 class AdminDashboardController extends AdminController
 {
+    private function dashboardAppointmentsQuery()
+    {
+        $today = now()->format('Y-m-d');
+        $recentThreshold = now()->subDay();
+
+        return Appointment::with(['pet', 'pet.user', 'service', 'payments'])
+            ->where(function ($query) use ($today, $recentThreshold) {
+                $query->where(function ($subQuery) use ($today) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('date', '>=', $today);
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Pending' THEN 0 WHEN status = 'Confirmed' THEN 1 WHEN status = 'Active' THEN 2 WHEN status = 'Cancelled' THEN 3 ELSE 4 END")
+            ->orderBy('date')
+            ->orderBy('time');
+    }
+
+    private function dashboardBoardingsQuery()
+    {
+        $today = now()->format('Y-m-d');
+        $recentThreshold = now()->subDay();
+
+        return Boarding::with(['pet', 'pet.user', 'payments'])
+            ->where(function ($query) use ($today, $recentThreshold) {
+                $query->where(function ($subQuery) use ($today) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('end_date', '>=', $today);
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Pending' THEN 0 WHEN status = 'Confirmed' THEN 1 WHEN status = 'Active' THEN 2 WHEN status = 'Cancelled' THEN 3 ELSE 4 END")
+            ->orderBy('start_date');
+    }
+
     public function index()
     {
         // Count veterinary appointments (where service name doesn't contain "Grooming")
@@ -25,29 +64,37 @@ class AdminDashboardController extends AdminController
         $revenueData      = Cache::remember('admin_revenue_data', 60, fn() => $this->getRevenueData());
 
         // Inline data for dashboard widgets — eliminates extra AJAX roundtrips on load
-        $upcomingAppointmentsJson = Appointment::with(['pet', 'pet.user', 'service'])
-            ->where('date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Confirmed')
-            ->orderBy('date')
-            ->orderBy('time')
+        $upcomingAppointmentsJson = $this->dashboardAppointmentsQuery()
             ->limit(10)
             ->get()
             ->toJson(JSON_HEX_TAG);
 
-        $activeBoardings = Boarding::with(['pet', 'pet.user'])
-            ->where('start_date', '<=', now()->format('Y-m-d'))
-            ->where('end_date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Active')
+        $dashboardBoardings = $this->dashboardBoardingsQuery()
+            ->limit(10)
             ->get();
 
+        $activeBoardingsCount = Boarding::where('start_date', '<=', now()->format('Y-m-d'))
+            ->where('end_date', '>=', now()->format('Y-m-d'))
+            ->where('status', 'Active')
+            ->count();
+
         $ongoingBoardingsJson = json_encode([
-            'active_count' => $activeBoardings->count(),
-            'boardings'    => $activeBoardings->map(fn($b) => [
+            'active_count' => $activeBoardingsCount,
+            'boardings'    => $dashboardBoardings->map(fn($b) => [
                 'boardingID' => $b->boardingID,
                 'start_date' => $b->start_date,
                 'end_date'   => $b->end_date,
+                'status'     => $b->status,
                 'pet'  => ['petID' => $b->pet->petID, 'name' => $b->pet->name, 'type' => $b->pet->species],
                 'user' => ['userID' => $b->pet->user->userID, 'firstName' => $b->pet->user->firstName, 'lastName' => $b->pet->user->lastName],
+                'latest_payment' => optional($b->payments->sortByDesc('paymentID')->first(), function ($payment) {
+                    return [
+                        'paymentID' => $payment->paymentID,
+                        'amount' => $payment->amount,
+                        'status' => $payment->status,
+                        'payment_method' => $payment->payment_method,
+                    ];
+                }),
             ])->values(),
         ], JSON_HEX_TAG);
 

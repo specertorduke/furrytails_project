@@ -243,53 +243,131 @@
                 document.getElementById('appointmentUpdatedBlock').classList.add('tw-hidden');
             }
 
-            // Handle payment information if available
+            // Handle payment information — deposit/balance aware
             if (appointment.payments && appointment.payments.length > 0) {
-                // Filter payments - only show completed cash payments or any non-cash payments
-                const validPayments = appointment.payments.filter(payment => 
-                    payment.payment_method !== 'Cash' || payment.status === 'Completed'
-                );
-                
-                if (validPayments.length > 0) {
-                    document.getElementById('paymentStatusContainer').classList.remove('tw-hidden');
-                    document.getElementById('paymentStatusBadge').classList.remove('tw-hidden');
-                    
-                    // Get the latest valid payment
-                    const latestPayment = validPayments[0];
-                    const paymentStatusEl = document.getElementById('paymentStatusText');
-                    
-                    paymentStatusEl.innerHTML = '<i class="fas fa-credit-card tw-mr-2"></i>' + latestPayment.status;
-                    const paymentStatusBadge = document.getElementById('paymentStatusBadge');
-                    
-                    // Style the payment status badge
-                    const paymentStatusClass = getPaymentStatusClass(latestPayment.status);
-                    paymentStatusBadge.className = `tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium ${paymentStatusClass}`;
-                    
-                    // Populate payment details
-                    document.getElementById('paymentCount').textContent = `${validPayments.length} payment(s)`;
-                    
-                    // Create payment list items
-                    const paymentsContainer = document.getElementById('paymentsListContainer');
-                    paymentsContainer.innerHTML = '';
-                    
-                    validPayments.forEach(payment => {
-                        const paymentItem = document.createElement('div');
-                        paymentItem.className = 'tw-flex tw-justify-between tw-items-center tw-py-1 tw-border-b tw-border-gray-100 tw-text-sm';
-                        
-                        // Parse amount as float before using toFixed
-                        const amount = parseFloat(payment.amount);
-                        
-                        paymentItem.innerHTML = `
-                            <span>${payment.payment_method} - ${formatDateTime(payment.created_at)}</span>
-                            <span class="tw-font-medium">₱${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
-                        `;
-                        
-                        paymentsContainer.appendChild(paymentItem);
-                    });
+                const pmts = appointment.payments;
+                const depositPmt   = pmts.find(p => p.payment_type === 'deposit' && p.status === 'Completed');
+                const balancePmt   = pmts.find(p => p.payment_type === 'balance');
+                const fullPmt      = pmts.find(p => p.payment_type === 'full' && p.status === 'Completed');
+                const pendingGcashPmt = pmts.find(p => p.payment_method === 'GCash' && p.status === 'Pending');
+                const cashPendingPmt = pmts.find(p => p.payment_method === 'Cash' && p.status === 'Pending');
+
+                document.getElementById('paymentStatusContainer').classList.remove('tw-hidden');
+                document.getElementById('paymentStatusBadge').classList.remove('tw-hidden');
+                document.getElementById('paymentCount').textContent = '';
+
+                const paymentsContainer = document.getElementById('paymentsListContainer');
+                paymentsContainer.innerHTML = '';
+
+                let badgeClass = '';
+                let badgeText  = '';
+                let summaryHtml = '';
+
+                if (pendingGcashPmt) {
+                    const submittedAmt = parseFloat(pendingGcashPmt.amount);
+                    const totalCost = parseFloat(pendingGcashPmt.total_cost || (pendingGcashPmt.payment_type === 'deposit' ? (submittedAmt / 0.3) : submittedAmt));
+                    const balanceAmt = Math.max(0, totalCost - submittedAmt);
+                    const isDeposit = pendingGcashPmt.payment_type === 'deposit';
+                    badgeClass = 'tw-bg-yellow-100 tw-text-yellow-800';
+                    badgeText = '<i class="fas fa-clock tw-mr-2"></i>Pending Verification';
+                    summaryHtml = `
+                        <div class="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg tw-p-3 tw-text-sm">
+                            <div class="tw-flex tw-justify-between tw-mb-1">
+                                <span class="tw-text-yellow-700 tw-font-medium">GCash ${isDeposit ? 'Deposit' : 'Payment'} Submitted</span>
+                                <span class="tw-font-semibold tw-text-yellow-800">₱${submittedAmt.toFixed(2)}</span>
+                            </div>
+                            <div class="tw-flex tw-justify-between tw-mb-2">
+                                <span class="tw-text-gray-600">Reference</span>
+                                <span>${pendingGcashPmt.reference_number || 'N/A'}</span>
+                            </div>
+                            <p class="tw-text-xs tw-text-gray-600">Your booking stays pending until staff verifies that the GCash payment went through.</p>
+                            ${isDeposit ? `<p class="tw-text-xs tw-text-amber-700 tw-mt-2">If approved, the remaining balance of ₱${balanceAmt.toFixed(2)} will be collected in cash during your visit.</p>` : ''}
+                        </div>`;
+                } else if (depositPmt && !balancePmt) {
+                    // GCash deposit paid — balance still owed at visit
+                    const depositAmt = parseFloat(depositPmt.amount);
+                    const totalCost  = parseFloat(depositPmt.total_cost || (depositAmt / 0.3));
+                    const balanceAmt = totalCost - depositAmt;
+                    badgeClass  = 'tw-bg-blue-100 tw-text-blue-800';
+                    badgeText   = '<i class="fas fa-credit-card tw-mr-2"></i>Deposit Paid';
+                    summaryHtml = `
+                        <div class="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-lg tw-p-3 tw-text-sm">
+                            <div class="tw-flex tw-justify-between tw-mb-1">
+                                <span class="tw-text-blue-700 tw-font-medium">GCash Deposit (30%)</span>
+                                <span class="tw-font-semibold tw-text-blue-800">₱${depositAmt.toFixed(2)}</span>
+                            </div>
+                            <div class="tw-flex tw-justify-between tw-mb-2">
+                                <span class="tw-text-gray-600">Full Service Price</span>
+                                <span>₱${totalCost.toFixed(2)}</span>
+                            </div>
+                            <div class="tw-border-t tw-border-blue-200 tw-pt-2 tw-flex tw-justify-between">
+                                <span class="tw-font-medium tw-text-amber-700"><i class="fas fa-info-circle tw-mr-1"></i>Balance due at visit (cash):</span>
+                                <span class="tw-font-bold tw-text-amber-700">₱${balanceAmt.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+
+                } else if (depositPmt && balancePmt) {
+                    // Both deposit + balance collected — fully settled
+                    const totalPaid = parseFloat(depositPmt.amount) + parseFloat(balancePmt.amount);
+                    badgeClass  = 'tw-bg-green-100 tw-text-green-800';
+                    badgeText   = '<i class="fas fa-check-circle tw-mr-2"></i>Fully Paid';
+                    summaryHtml = `
+                        <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-lg tw-p-3 tw-text-sm">
+                            <div class="tw-flex tw-justify-between tw-mb-1">
+                                <span class="tw-text-gray-600">GCash Deposit</span>
+                                <span>₱${parseFloat(depositPmt.amount).toFixed(2)}</span>
+                            </div>
+                            <div class="tw-flex tw-justify-between tw-mb-2">
+                                <span class="tw-text-gray-600">Cash Balance Collected</span>
+                                <span>₱${parseFloat(balancePmt.amount).toFixed(2)}</span>
+                            </div>
+                            <div class="tw-border-t tw-border-green-200 tw-pt-2 tw-flex tw-justify-between">
+                                <span class="tw-font-semibold tw-text-green-700">Total Paid</span>
+                                <span class="tw-font-bold tw-text-green-700">₱${totalPaid.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+
+                } else if (fullPmt) {
+                    // Full GCash payment
+                    const amt = parseFloat(fullPmt.amount);
+                    badgeClass  = 'tw-bg-green-100 tw-text-green-800';
+                    badgeText   = '<i class="fas fa-check-circle tw-mr-2"></i>Fully Paid';
+                    summaryHtml = `
+                        <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-lg tw-p-3 tw-text-sm">
+                            <div class="tw-flex tw-justify-between">
+                                <span class="tw-text-gray-600">GCash Payment</span>
+                                <span class="tw-font-bold tw-text-green-700">₱${amt.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+
+                } else if (cashPendingPmt) {
+                    // Cash — awaiting collection at counter
+                    const amt = parseFloat(cashPendingPmt.amount);
+                    badgeClass  = 'tw-bg-yellow-100 tw-text-yellow-800';
+                    badgeText   = '<i class="fas fa-clock tw-mr-2"></i>Pending';
+                    summaryHtml = `
+                        <div class="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg tw-p-3 tw-text-sm">
+                            <div class="tw-flex tw-justify-between tw-items-center">
+                                <span class="tw-text-yellow-700"><i class="fas fa-info-circle tw-mr-1"></i>Cash — bring on your visit:</span>
+                                <span class="tw-font-bold tw-text-yellow-700">₱${amt.toFixed(2)}</span>
+                            </div>
+                            <p class="tw-text-xs tw-text-gray-500 tw-mt-1">Your booking is awaiting staff confirmation once payment is verified.</p>
+                        </div>`;
+
                 } else {
-                    document.getElementById('paymentStatusContainer').classList.add('tw-hidden');
-                    document.getElementById('paymentCount').textContent = 'No valid payments';
+                    // Fallback for any other state
+                    const fallbackPmt = pmts[pmts.length - 1];
+                    const amt = parseFloat(fallbackPmt.amount);
+                    badgeClass  = getPaymentStatusClass(fallbackPmt.status);
+                    badgeText   = '<i class="fas fa-credit-card tw-mr-2"></i>' + fallbackPmt.status;
+                    summaryHtml = `<div class="tw-text-sm tw-text-gray-600">₱${amt.toFixed(2)} via ${fallbackPmt.payment_method}</div>`;
                 }
+
+                document.getElementById('paymentStatusText').innerHTML = badgeText;
+                document.getElementById('paymentStatusBadge').className =
+                    `tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium ${badgeClass}`;
+                paymentsContainer.innerHTML = summaryHtml;
+
             } else {
                 document.getElementById('paymentStatusContainer').classList.add('tw-hidden');
                 document.getElementById('paymentCount').textContent = 'No payments';
@@ -386,29 +464,37 @@
             
             Swal.fire({
                 title: 'Cancel Appointment?',
-                text: 'Are you sure you want to cancel this appointment?',
+                html: '<p style="margin-bottom:10px">Are you sure you want to cancel this appointment? This cannot be undone.</p>' +
+                      '<input type="password" id="cancel-appt-modal-pw" class="swal2-input" placeholder="Enter your password to confirm">',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#24CFF4',
-                cancelButtonColor: '#d33',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, cancel it!',
-                cancelButtonText: 'No, keep it'
+                cancelButtonText: 'No, keep it',
+                preConfirm: () => {
+                    const pw = document.getElementById('cancel-appt-modal-pw').value;
+                    if (!pw) { Swal.showValidationMessage('Please enter your password'); return false; }
+                    return pw;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     
-                    // Call the API to cancel the appointment
                     fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', window.currentAppointmentData.appointmentID), {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken,
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ user_password: result.value })
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Failed to cancel appointment');
+                            return response.json().then(data => {
+                                throw new Error(data.message || 'Failed to cancel appointment');
+                            });
                         }
                         return response.json();
                     })
@@ -420,13 +506,11 @@
                             confirmButtonColor: '#24CFF4'
                         });
                         
-                        // Update status in the current view
                         if (window.currentAppointmentData) {
                             window.currentAppointmentData.status = 'Cancelled';
                             setStatusDisplay('Cancelled');
                         }
                         
-                        // Refresh data tables if they exist
                         if (window.ManagePage && typeof window.ManagePage.refreshTables === 'function') {
                             window.ManagePage.refreshTables();
                         }
@@ -438,7 +522,7 @@
                         console.error('Error cancelling appointment:', error);
                         Swal.fire({
                             title: 'Error',
-                            text: 'Failed to cancel the appointment.',
+                            text: error.message || 'Failed to cancel the appointment.',
                             icon: 'error',
                             confirmButtonColor: '#24CFF4'
                         });

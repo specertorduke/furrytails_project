@@ -94,7 +94,6 @@
                                     <div class="tw-text-xs tw-text-gray-600">30% to secure booking</div>
                                 </div>
                             </label>
-                            
                             <label class="tw-flex tw-items-center tw-p-3 tw-border tw-border-gray-300 tw-rounded-lg tw-cursor-pointer hover:tw-bg-gray-50 tw-transition-colors">
                                 <input type="radio" name="payment_type" value="full" id="payment-type-full" class="tw-w-4 tw-h-4 tw-text-[#24CFF4] tw-bg-gray-50 tw-border-gray-300 focus:tw-ring-[#24CFF4]">
                                 <div class="tw-ml-3">
@@ -104,27 +103,39 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <!-- Payment method -->
-                    <div class="tw-mb-5">
+                    <div class="tw-mb-4">
                         <label for="payment_method" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Payment Method</label>
                         <select id="payment_method" name="payment_method" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                             <option value="">Select payment method</option>
                             <option value="Cash">Cash (Pay at Counter)</option>
                             <option value="GCash">GCash</option>
-                            <option value="Credit Card">Credit Card</option>
-                            <option value="Debit Card">Debit Card</option>
-                            <option value="PayPal">PayPal</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
                         </select>
+                    </div>
+
+                    <!-- Cash info note (shown when Cash is selected) -->
+                    <div id="cash-note" class="tw-hidden tw-mb-4 tw-p-3 tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg">
+                        <div class="tw-flex tw-items-start tw-gap-2">
+                            <svg class="tw-w-5 tw-h-5 tw-text-yellow-600 tw-flex-shrink-0 tw-mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p class="tw-text-sm tw-text-yellow-800">Your booking will be <strong>Pending</strong> until our staff confirms your payment at the counter. Bring <strong>₱<span id="cash-full-amount">0.00</span></strong> on your visit.</p>
+                        </div>
+                    </div>
+
+                    <!-- GCash deposit balance note (shown when GCash + Deposit is selected) -->
+                    <div id="gcash-deposit-note" class="tw-hidden tw-mb-4 tw-p-3 tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-lg">
+                        <div class="tw-flex tw-items-start tw-gap-2">
+                            <svg class="tw-w-5 tw-h-5 tw-text-blue-600 tw-flex-shrink-0 tw-mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p class="tw-text-sm tw-text-blue-800">Your booking will remain <strong>Pending</strong> until staff verifies the GCash deposit. If approved, the remaining balance of <strong>₱<span id="deposit-balance-amount">0.00</span></strong> will be collected in cash when you visit.</p>
+                        </div>
                     </div>
                     
                     <!-- Reference Number -->
                     <div id="reference-number-container" class="tw-mb-5 tw-hidden">
                         <label for="reference_number" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Reference Number</label>
-                        <div class="tw-flex tw-items-center">
-                            <input type="text" id="reference_number" name="reference_number" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Transaction ID or receipt number">
-                            <div class="tw-ml-2" id="reference-info">
+                            <div class="tw-flex tw-items-center tw-gap-2">
+                                <input type="text" id="reference_number" name="reference_number" inputmode="numeric" autocomplete="off" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="13-digit GCash reference number" maxlength="13" pattern="\d{13}">
+                                <div id="reference-info">
                                 <span class="tw-cursor-pointer tw-text-gray-600 hover:tw-text-gray-900">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="tw-h-5 tw-w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -132,7 +143,8 @@
                                 </span>
                             </div>
                         </div>
-                        <p class="tw-mt-1 tw-text-xs tw-text-gray-600">Required for online payment methods</p>
+                            <p class="tw-mt-1 tw-text-xs tw-text-gray-500">Enter the 13-digit number shown in your GCash transaction record.</p>
+                            <p class="tw-mt-1 tw-text-xs tw-text-gray-600">Required for GCash payments only.</p>
                     </div>
                     
                     <!-- GCash QR Code container (hidden by default) -->
@@ -141,7 +153,7 @@
                         <div class="tw-bg-white tw-p-3 tw-rounded-lg tw-inline-block tw-border tw-border-gray-200">
                             <img src="{{ asset('assets/images/gcash-qr.svg') }}" alt="GCash QR Code" class="tw-h-48 tw-w-48 tw-object-contain">
                         </div>
-                        <p class="tw-mt-2 tw-text-sm tw-text-gray-700">After payment, enter your reference number above</p>
+                        <p class="tw-mt-2 tw-text-sm tw-text-gray-700">After payment, enter your reference number above. Staff will verify the transaction before confirming the booking.</p>
                     </div>
                 
                     <div class="tw-flex tw-justify-end tw-mt-4">
@@ -166,6 +178,7 @@ const PaymentModal = {
         modal: null,
         form: null,
         paymentMethod: null,
+        referenceInput: null,
         referenceContainer: null,
         gCashQrContainer: null,
         depositRadio: null,
@@ -198,6 +211,7 @@ const PaymentModal = {
         this.elements.modal = document.getElementById('payment-modal');
         this.elements.form = document.getElementById('paymentForm');
         this.elements.paymentMethod = document.getElementById('payment_method');
+        this.elements.referenceInput = document.getElementById('reference_number');
         this.elements.referenceContainer = document.getElementById('reference-number-container');
         this.elements.gCashQrContainer = document.getElementById('gcash-qr-container');
         this.elements.depositRadio = document.getElementById('payment-type-deposit');
@@ -235,6 +249,12 @@ const PaymentModal = {
         if (this.elements.fullRadio) {
             this.elements.fullRadio.addEventListener('change', this.handlePaymentTypeChange.bind(this));
         }
+
+        if (this.elements.referenceInput) {
+            this.elements.referenceInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 13);
+            });
+        }
         
         // Form submission
         if (this.elements.form) {
@@ -259,7 +279,7 @@ const PaymentModal = {
     
     setupTooltips: function() {
         tippy('#reference-info', {
-            content: 'For online payments, enter the transaction ID or receipt number you received after payment.',
+            content: 'Enter the 13-digit numeric reference from your completed GCash transaction.',
             placement: 'top',
             theme: 'dark',
             animation: 'scale'
@@ -268,48 +288,87 @@ const PaymentModal = {
     
     handlePaymentMethodChange: function() {
         const selectedMethod = this.elements.paymentMethod.value;
-        
-        // Show/hide reference number field based on payment method
-        if (selectedMethod && selectedMethod !== 'Cash') {
+
+        if (selectedMethod === 'GCash') {
+            // Show reference number and QR code
             this.elements.referenceContainer.classList.remove('tw-hidden');
-            
-            // Show GCash QR code if GCash is selected
-            if (selectedMethod === 'GCash') {
-                this.elements.gCashQrContainer.classList.remove('tw-hidden');
-            } else {
-                this.elements.gCashQrContainer.classList.add('tw-hidden');
-            }
-            
-            // Make reference number required for non-cash payments
+            this.elements.gCashQrContainer.classList.remove('tw-hidden');
             document.getElementById('reference_number').setAttribute('required', 'required');
-        } else {
+
+            // Enable the deposit option
+            if (this.elements.depositRadio) {
+                const depositLabel = this.elements.depositRadio.closest('label');
+                if (depositLabel) {
+                    depositLabel.classList.remove('tw-opacity-50', 'tw-pointer-events-none');
+                }
+            }
+
+            // Hide cash note, let deposit note be handled by updatePaymentAmount
+            document.getElementById('cash-note').classList.add('tw-hidden');
+            this.updatePaymentAmount();
+        } else if (selectedMethod === 'Cash') {
+            // Hide reference number and QR code
             this.elements.referenceContainer.classList.add('tw-hidden');
             this.elements.gCashQrContainer.classList.add('tw-hidden');
             document.getElementById('reference_number').removeAttribute('required');
+
+            // Deposit makes no sense for cash — force full payment and disable deposit
+            if (this.elements.fullRadio) this.elements.fullRadio.checked = true;
+            if (this.elements.depositRadio) {
+                this.elements.depositRadio.checked = false;
+                const depositLabel = this.elements.depositRadio.closest('label');
+                if (depositLabel) {
+                    depositLabel.classList.add('tw-opacity-50', 'tw-pointer-events-none');
+                }
+            }
+
+            // Hide deposit note, show cash note
+            document.getElementById('gcash-deposit-note').classList.add('tw-hidden');
+            document.getElementById('cash-note').classList.remove('tw-hidden');
+            this.updatePaymentAmount();
+        } else {
+            // No method selected — reset everything
+            this.elements.referenceContainer.classList.add('tw-hidden');
+            this.elements.gCashQrContainer.classList.add('tw-hidden');
+            document.getElementById('reference_number').removeAttribute('required');
+            document.getElementById('cash-note').classList.add('tw-hidden');
+            document.getElementById('gcash-deposit-note').classList.add('tw-hidden');
         }
     },
     
     handlePaymentTypeChange: function() {
         this.updatePaymentAmount();
+        // Show/hide deposit balance note based on GCash + deposit selection
+        const isDeposit = this.elements.depositRadio && this.elements.depositRadio.checked;
+        const isGCash   = this.elements.paymentMethod && this.elements.paymentMethod.value === 'GCash';
+        const depositNote = document.getElementById('gcash-deposit-note');
+        if (depositNote) {
+            if (isGCash && isDeposit) depositNote.classList.remove('tw-hidden');
+            else depositNote.classList.add('tw-hidden');
+        }
     },
-    
+
     updatePaymentAmount: function() {
-        const isDeposit = this.elements.depositRadio.checked;
+        const isDeposit = this.elements.depositRadio && this.elements.depositRadio.checked;
         let paymentAmount;
-        
+
         if (isDeposit) {
-            // Calculate 30% deposit, rounded to remove cents
-            paymentAmount = Math.round(this.totalServiceCost * 0.3);
+            // 30% deposit, rounded to 2 decimal places
+            paymentAmount = Math.round(this.totalServiceCost * 0.3 * 100) / 100;
         } else {
-            // Full payment
             paymentAmount = this.totalServiceCost;
         }
-        
-        // Update display
+
         this.elements.amount.textContent = `₱${paymentAmount.toFixed(2)}`;
-        
-        // Update hidden form field
         document.getElementById('amount').value = paymentAmount;
+
+        // Update contextual notes with live amounts
+        const balance = Math.round((this.totalServiceCost - paymentAmount) * 100) / 100;
+        const balanceEl = document.getElementById('deposit-balance-amount');
+        if (balanceEl) balanceEl.textContent = balance.toFixed(2);
+
+        const cashEl = document.getElementById('cash-full-amount');
+        if (cashEl) cashEl.textContent = this.totalServiceCost.toFixed(2);
     },
     
     showModal: function(event) {
@@ -336,9 +395,18 @@ const PaymentModal = {
         this.elements.paymentMethod.value = '';
         this.elements.referenceContainer.classList.add('tw-hidden');
         this.elements.gCashQrContainer.classList.add('tw-hidden');
-        
-        // Set deposit as default
-        this.elements.depositRadio.checked = true;
+        document.getElementById('cash-note').classList.add('tw-hidden');
+        document.getElementById('gcash-deposit-note').classList.add('tw-hidden');
+
+        // Default: deposit disabled (no method selected), full payment selected
+        if (this.elements.depositRadio) {
+            this.elements.depositRadio.checked = false;
+            const depositLabel = this.elements.depositRadio.closest('label');
+            if (depositLabel) depositLabel.classList.add('tw-opacity-50', 'tw-pointer-events-none');
+        }
+        if (this.elements.fullRadio) {
+            this.elements.fullRadio.checked = true;
+        }
         this.updatePaymentAmount();
         
         // Show the modal
@@ -490,21 +558,26 @@ const PaymentModal = {
             return;
         }
         
-        // If non-cash payment, require reference number
-        if (this.elements.paymentMethod.value !== 'Cash' && !document.getElementById('reference_number').value) {
-            this.showError('Please enter a reference number for your payment');
-            return;
+        // If GCash, require a valid 13-digit reference number
+        if (this.elements.paymentMethod.value === 'GCash') {
+            const ref = document.getElementById('reference_number').value.trim();
+            if (!ref) {
+                this.showError('Please enter your GCash reference number');
+                return;
+            }
+            if (!/^\d{13}$/.test(ref)) {
+                this.showError('GCash reference number must be exactly 13 digits (numbers only)');
+                return;
+            }
         }
         
         // Get payment type and amount
         const paymentType = document.querySelector('input[name="payment_type"]:checked').value;
         const paymentAmount = document.getElementById('amount').value;
-        
-        // Show confirmation dialog with payment details
-        const paymentText = paymentType === 'deposit' ? 
-            `deposit payment of ₱${parseFloat(paymentAmount).toFixed(2)} (30% of total)` : 
-            `full payment of ₱${parseFloat(paymentAmount).toFixed(2)}`;
-            
+        const paymentText = paymentType === 'deposit'
+            ? `deposit of ₱${parseFloat(paymentAmount).toFixed(2)} (30% — balance due at visit)`
+            : `full payment of ₱${parseFloat(paymentAmount).toFixed(2)}`;
+
         Swal.fire({
             title: 'Confirm Payment',
             text: `Proceed with ${this.elements.paymentMethod.value} ${paymentText} for this ${this.bookingType}?`,

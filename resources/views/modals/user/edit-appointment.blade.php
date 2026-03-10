@@ -177,6 +177,17 @@
             if (!data.success) {
                 throw new Error(data.message || 'Failed to load appointment data');
             }
+
+                if (['Cancelled', 'Completed'].includes(data.appointment.status)) {
+                    document.getElementById('editAppointment-modal').classList.add('tw-hidden');
+                    Swal.fire({
+                        title: 'Editing unavailable',
+                        text: 'Cancelled or completed appointments can only be viewed.',
+                        icon: 'info',
+                        confirmButtonColor: '#24CFF4'
+                    });
+                    return;
+                }
             
             // Store original values for comparison
             originalDate = data.appointment.date;
@@ -193,7 +204,7 @@
             displayCurrentAppointmentDetails(data.appointment, data.pet, data.service);
             
             // Check if editing is allowed and show appropriate warnings
-            checkEditingRestrictions(data.appointment.date);
+            checkEditingRestrictions(data.appointment.date, data.appointment.status);
             
             // Fetch time slots after we have the date
             if (canEdit) {
@@ -249,7 +260,7 @@
     }
     
     // Function to check editing restrictions
-    function checkEditingRestrictions(appointmentDate) {
+    function checkEditingRestrictions(appointmentDate, appointmentStatus) {
         const today = new Date();
         const appointmentDateTime = new Date(appointmentDate);
         
@@ -264,7 +275,21 @@
         const dateInput = document.getElementById('edit-date');
         const timeSelect = document.getElementById('edit-time');
         
-        if (diffDays < 3) {
+        if (['Cancelled', 'Completed'].includes(appointmentStatus)) {
+            canEdit = false;
+            disabledWarning.classList.remove('tw-hidden');
+            restrictionWarning.classList.add('tw-hidden');
+            editableSection.style.opacity = '0.5';
+            editableSection.style.pointerEvents = 'none';
+            saveButton.disabled = true;
+            saveButton.style.opacity = '0.5';
+            dateInput.disabled = true;
+            timeSelect.disabled = true;
+            const disabledMessage = disabledWarning.querySelector('span');
+            if (disabledMessage) {
+                disabledMessage.textContent = 'Cancelled or completed appointments can no longer be edited. You can only view the details.';
+            }
+        } else if (diffDays < 3) {
             // Editing not allowed
             canEdit = false;
             disabledWarning.classList.remove('tw-hidden');

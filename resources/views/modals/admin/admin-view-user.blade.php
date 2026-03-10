@@ -480,7 +480,7 @@
                             
                             // Reload users table or page
                             if (window.UsersPage && window.UsersPage.usersTable) {
-                                window.UsersPage.usersTable.ajax.reload();
+                                window.UsersPage.reloadTable(window.UsersPage.usersTable, '{{ route("admin.users.data") }}');
                             } else {
                                 location.reload();
                             }

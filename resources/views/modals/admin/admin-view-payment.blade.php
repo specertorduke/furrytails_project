@@ -45,6 +45,12 @@
                             <div class="tw-grid tw-grid-cols-2 tw-gap-y-2">
                                 <div class="tw-text-gray-400 tw-text-sm">Payment ID:</div>
                                 <div id="paymentId" class="tw-text-white tw-text-sm tw-font-medium"></div>
+
+                                <div class="tw-text-gray-400 tw-text-sm">Payment Type:</div>
+                                <div id="paymentType" class="tw-text-white tw-text-sm"></div>
+
+                                <div class="tw-text-gray-400 tw-text-sm">Total Cost:</div>
+                                <div id="paymentTotalCost" class="tw-text-white tw-text-sm"></div>
                                 
                                 <div class="tw-text-gray-400 tw-text-sm">Reference Number:</div>
                                 <div id="referenceNumber" class="tw-text-white tw-text-sm"></div>
@@ -239,6 +245,8 @@
             
             // Set basic payment details
             document.getElementById('paymentId').textContent = payment.paymentID || 'N/A';
+            document.getElementById('paymentType').textContent = formatPaymentType(payment.payment_type);
+            document.getElementById('paymentTotalCost').textContent = payment.total_cost ? formatPrice(payment.total_cost) : 'N/A';
             document.getElementById('referenceNumber').textContent = payment.reference_number || 'N/A';
             document.getElementById('paymentDate').textContent = formatDateTime(payment.created_at);
             
@@ -276,6 +284,8 @@
             const serviceDate = document.getElementById('serviceDate');
             const petName = document.getElementById('petName');
             const viewServiceBtn = document.getElementById('viewServiceBtn');
+            const freshViewServiceBtn = viewServiceBtn.cloneNode(true);
+            viewServiceBtn.parentNode.replaceChild(freshViewServiceBtn, viewServiceBtn);
             
             // Extract model name from namespace
             const modelName = payment.payable_type.split('\\').pop();
@@ -293,9 +303,10 @@
                     }
                     
                     // Set up view service button
-                    viewServiceBtn.setAttribute('data-id', payment.service.appointmentID);
-                    viewServiceBtn.setAttribute('data-type', 'appointment');
-                    viewServiceBtn.addEventListener('click', function(e) {
+                    freshViewServiceBtn.style.display = 'inline-flex';
+                    freshViewServiceBtn.setAttribute('data-id', payment.service.appointmentID);
+                    freshViewServiceBtn.setAttribute('data-type', 'appointment');
+                    freshViewServiceBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         const viewPaymentModal = document.getElementById('viewPayment-modal');
                         viewPaymentModal.classList.add('tw-hidden');
@@ -323,9 +334,10 @@
                     }
                     
                     // Set up view service button
-                    viewServiceBtn.setAttribute('data-id', payment.service.boardingID);
-                    viewServiceBtn.setAttribute('data-type', 'boarding');
-                    viewServiceBtn.addEventListener('click', function(e) {
+                    freshViewServiceBtn.style.display = 'inline-flex';
+                    freshViewServiceBtn.setAttribute('data-id', payment.service.boardingID);
+                    freshViewServiceBtn.setAttribute('data-type', 'boarding');
+                    freshViewServiceBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         const viewPaymentModal = document.getElementById('viewPayment-modal');
                         viewPaymentModal.classList.add('tw-hidden');
@@ -345,7 +357,7 @@
                 petName.textContent = 'N/A';
                 
                 // Hide view service button
-                viewServiceBtn.style.display = 'none';
+                freshViewServiceBtn.style.display = 'none';
             }
             
             // Set client information
@@ -497,6 +509,17 @@
                 currencyDisplay: 'symbol',
                 minimumFractionDigits: 2
             }).format(price).replace('PHP', '₱');
+        }
+
+        function formatPaymentType(paymentType) {
+            switch ((paymentType || 'full').toLowerCase()) {
+                case 'deposit':
+                    return 'Deposit';
+                case 'balance':
+                    return 'Balance';
+                default:
+                    return 'Full';
+            }
         }
     });
 });

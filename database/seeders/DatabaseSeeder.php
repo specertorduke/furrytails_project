@@ -277,65 +277,90 @@ class DatabaseSeeder extends Seeder
 
         // PAYMENTS
         DB::table('payments')->insert([
-            // Appointment 1 payments (downpayment + balance)
+            // Appointment 1 (Basic Grooming ₱500): GCash 30% deposit paid online, balance collected at visit
             [
-                'amount' => 250.00, // 50% downpayment
-                'payment_method' => 'Cash',
-                'reference_number' => 'DP-APT1-001',
-                'status' => 'Completed',
-                'payable_id' => 1,
-                'payable_type' => 'App\Models\Appointment',
-                'userID' => 1000,
-                'created_at' => now()->subDays(5),
-                'updated_at' => now()->subDays(5),
+                'amount'           => 150.00,   // 30% of ₱500
+                'total_cost'       => 500.00,
+                'payment_type'     => 'deposit',
+                'payment_method'   => 'GCash',
+                'reference_number' => 'GC2026031000001',
+                'status'           => 'Completed',
+                'payable_id'       => 1,
+                'payable_type'     => 'App\Models\Appointment',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(5),
+                'updated_at'       => now()->subDays(5),
             ],
             [
-                'amount' => 250.00, // remaining balance
-                'payment_method' => 'GCash',
-                'reference_number' => 'GC-APT1-002',
-                'status' => 'Completed',
-                'payable_id' => 1,
-                'payable_type' => 'App\Models\Appointment',
-                'userID' => 1000,
-                'created_at' => now()->subDays(1),
-                'updated_at' => now()->subDays(1),
-            ],
-
-            // Appointment 2 payment (full payment)
-            [
-                'amount' => 1500.00,
-                'payment_method' => 'Credit Card',
-                'reference_number' => 'CC-APT2-001',
-                'status' => 'Completed',
-                'payable_id' => 2,
-                'payable_type' => 'App\Models\Appointment',
-                'userID' => 1000,
-                'created_at' => now()->subDays(2),
-                'updated_at' => now()->subDays(2),
+                'amount'           => 350.00,   // remaining 70%
+                'total_cost'       => 500.00,
+                'payment_type'     => 'balance',
+                'payment_method'   => 'Cash',
+                'reference_number' => null,
+                'status'           => 'Completed',
+                'payable_id'       => 1,
+                'payable_type'     => 'App\Models\Appointment',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(1),
+                'updated_at'       => now()->subDays(1),
             ],
 
-            // Boarding 1 payments (downpayment only, balance pending)
+            // Appointment 2 (Full Grooming ₱1,500): full GCash payment upfront
             [
-                'amount' => 1000.00, // 50% downpayment
-                'payment_method' => 'Bank Transfer',
-                'reference_number' => 'BT-BRD1-001',
-                'status' => 'Completed',
-                'payable_id' => 1,
-                'payable_type' => 'App\Models\Boarding', // Fixed the model name
-                'userID' => 1000,
-                'created_at' => now()->subDays(7),
-                'updated_at' => now()->subDays(7),
+                'amount'           => 1500.00,
+                'total_cost'       => 1500.00,
+                'payment_type'     => 'full',
+                'payment_method'   => 'GCash',
+                'reference_number' => 'GC2026031000002',
+                'status'           => 'Completed',
+                'payable_id'       => 2,
+                'payable_type'     => 'App\Models\Appointment',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(2),
+                'updated_at'       => now()->subDays(2),
+            ],
+
+            // Boarding 1 (Overnight, 2 days × ₱500 = ₱1,000): GCash deposit + balance collected
+            [
+                'amount'           => 300.00,   // 30% of ₱1,000
+                'total_cost'       => 1000.00,
+                'payment_type'     => 'deposit',
+                'payment_method'   => 'GCash',
+                'reference_number' => 'GC2026031000003',
+                'status'           => 'Completed',
+                'payable_id'       => 1,
+                'payable_type'     => 'App\Models\Boarding',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(7),
+                'updated_at'       => now()->subDays(7),
             ],
             [
-                'amount' => 1000.00, // remaining balance
-                'payment_method' => 'Cash',
-                'reference_number' => null, // No reference yet since it's pending
-                'status' => 'Pending',
-                'payable_id' => 1,
-                'payable_type' => 'App\Models\Boarding', // Fixed the model name
-                'userID' => 1000,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'amount'           => 700.00,   // remaining 70%
+                'total_cost'       => 1000.00,
+                'payment_type'     => 'balance',
+                'payment_method'   => 'Cash',
+                'reference_number' => null,
+                'status'           => 'Completed',
+                'payable_id'       => 1,
+                'payable_type'     => 'App\Models\Boarding',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(5),
+                'updated_at'       => now()->subDays(5),
+            ],
+
+            // Boarding 2 (Daycare ₱250): cash — pending collection at counter
+            [
+                'amount'           => 250.00,
+                'total_cost'       => 250.00,
+                'payment_type'     => 'full',
+                'payment_method'   => 'Cash',
+                'reference_number' => null,
+                'status'           => 'Pending',
+                'payable_id'       => 2,
+                'payable_type'     => 'App\Models\Boarding',
+                'userID'           => 1000,
+                'created_at'       => now()->subDays(1),
+                'updated_at'       => now()->subDays(1),
             ],
         ]);
 

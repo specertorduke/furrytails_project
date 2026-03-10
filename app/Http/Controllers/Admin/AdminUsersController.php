@@ -395,6 +395,7 @@ class AdminUsersController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
+            $admin = auth()->user();
             $user = User::findOrFail($id);
             
             // Prevent deleting yourself

@@ -541,8 +541,8 @@ window.DashboardPage = window.DashboardPage || {
                         <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-4">
                             <i class="fas fa-calendar-times tw-text-5xl tw-text-[#24CFF4]"></i>
                         </div>
-                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No upcoming appointments</p>
-                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Schedule your first appointment to get started</p>
+                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No appointments in your queue</p>
+                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Upcoming, pending, and recent activity will appear here</p>
                         <button data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
                             class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-full tw-transition-all tw-duration-300 hover:tw-bg-[#1db8d9] hover:tw-shadow-md">
                             <i class="fas fa-plus tw-mr-2"></i>Schedule Appointment
@@ -584,7 +584,9 @@ window.DashboardPage = window.DashboardPage || {
                     render: function(data) {
                         let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
                                          data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
-                                         'tw-bg-red-100 tw-text-red-800';
+                                         data === 'Active' ? 'tw-bg-blue-100 tw-text-blue-800' :
+                                         data === 'Cancelled' ? 'tw-bg-red-100 tw-text-red-800' :
+                                         'tw-bg-gray-100 tw-text-gray-800';
                         return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                     }
                 },
@@ -592,11 +594,17 @@ window.DashboardPage = window.DashboardPage || {
                     data: null,
                     width: '20%',
                     render: function(data) {
-                        const cancelBtn = data.status !== 'Cancelled' && data.status !== 'Completed' ? 
+                            const canModify = data.status !== 'Cancelled' && data.status !== 'Completed';
+                            const cancelBtn = canModify ? 
                             `<button onclick="DashboardPage.cancelAppointment(${data.appointmentID})" 
                                     class="tw-text-red-500 hover:tw-text-red-700">
                                 <i class="fas fa-ban"></i>
                             </button>` : '';
+                            const editBtn = canModify ? 
+                                `<button onclick="DashboardPage.editAppointment(${data.appointmentID})" 
+                                        class="tw-text-yellow-500 hover:tw-text-yellow-700">
+                                    <i class="fas fa-edit"></i>
+                                </button>` : '';
                             
                         return `
                             <div class="tw-flex tw-gap-2 tw-justify-center">
@@ -604,10 +612,7 @@ window.DashboardPage = window.DashboardPage || {
                                         class="tw-text-blue-500 hover:tw-text-blue-700">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button onclick="DashboardPage.editAppointment(${data.appointmentID})" 
-                                        class="tw-text-yellow-500 hover:tw-text-yellow-700">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                    ${editBtn}
                                 ${cancelBtn}
                             </div>
                         `;
@@ -627,8 +632,8 @@ window.DashboardPage = window.DashboardPage || {
                         <div class="tw-bg-[#f0f8fe] tw-rounded-full tw-p-6 tw-mb-4">
                             <i class="fas fa-home tw-text-5xl tw-text-[#24CFF4]"></i>
                         </div>
-                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No boarding reservations</p>
-                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Book a boarding stay for your pet</p>
+                        <p class="tw-text-gray-700 tw-text-lg tw-font-semibold tw-mb-1">No boardings in your queue</p>
+                        <p class="tw-text-gray-500 tw-text-sm tw-mb-4">Pending stays and recent activity will show up here</p>
                         <button data-modal-target="addBoarding-modal" data-modal-toggle="addBoarding-modal" 
                             class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-full tw-transition-all tw-duration-300 hover:tw-bg-[#1db8d9] hover:tw-shadow-md">
                             <i class="fas fa-plus tw-mr-2"></i>Book Boarding
@@ -669,7 +674,9 @@ window.DashboardPage = window.DashboardPage || {
                     render: function(data) {
                         let colorClass = data === 'Confirmed' ? 'tw-bg-green-100 tw-text-green-800' :
                                          data === 'Pending' ? 'tw-bg-yellow-100 tw-text-yellow-800' :
-                                         'tw-bg-red-100 tw-text-red-800';
+                                         data === 'Active' ? 'tw-bg-blue-100 tw-text-blue-800' :
+                                         data === 'Cancelled' ? 'tw-bg-red-100 tw-text-red-800' :
+                                         'tw-bg-gray-100 tw-text-gray-800';
                         return `<span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm ${colorClass}">${data}</span>`;
                     }
                 },
@@ -677,11 +684,17 @@ window.DashboardPage = window.DashboardPage || {
                     data: null,
                     width: '15%',
                     render: function(data) {
-                        const cancelBtn = data.status !== 'Cancelled' && data.status !== 'Completed' ? 
+                            const canModify = data.status !== 'Cancelled' && data.status !== 'Completed';
+                            const cancelBtn = canModify ? 
                             `<button onclick="DashboardPage.cancelBoarding(${data.boardingID})" 
                                     class="tw-text-red-500 hover:tw-text-red-700">
                                 <i class="fas fa-ban"></i>
                             </button>` : '';
+                            const editBtn = canModify ? 
+                                `<button onclick="DashboardPage.editBoarding(${data.boardingID})" 
+                                        class="tw-text-yellow-500 hover:tw-text-yellow-700">
+                                    <i class="fas fa-edit"></i>
+                                </button>` : '';
                             
                         return `
                             <div class="tw-flex tw-gap-2 tw-justify-center">
@@ -689,10 +702,7 @@ window.DashboardPage = window.DashboardPage || {
                                         class="tw-text-blue-500 hover:tw-text-blue-700">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button onclick="DashboardPage.editBoarding(${data.boardingID})" 
-                                        class="tw-text-yellow-500 hover:tw-text-yellow-700">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                    ${editBtn}
                                 ${cancelBtn}
                             </div>
                         `;
@@ -797,47 +807,49 @@ window.DashboardPage = window.DashboardPage || {
     cancelAppointment: function(id) {
         Swal.fire({
             title: 'Cancel Appointment?',
-            text: "This action cannot be undone.",
+            html: '<p class="swal2-html-container">This action cannot be undone.</p>' +
+                  '<input type="password" id="cancel-appt-pw" class="swal2-input" placeholder="Enter your password to confirm">',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, cancel it!'
+            confirmButtonText: 'Yes, cancel it!',
+            preConfirm: () => {
+                const pw = document.getElementById('cancel-appt-pw').value;
+                if (!pw) { Swal.showValidationMessage('Please enter your password'); return false; }
+                return pw;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send AJAX request to cancel the appointment
                 fetch("{{ route('user.appointments.cancel', ['id' => ':id']) }}".replace(':id', id), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
+                    },
+                    body: JSON.stringify({ user_password: result.value })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => { throw new Error(data.message || 'Failed to cancel'); });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Refresh the datatable
                         this.reloadTable(this.appointmentsTable, '{{ route("dashboard.upcoming-appointments") }}');
-                        
-                        Swal.fire(
-                            'Cancelled!',
-                            'The appointment has been cancelled.',
-                            'success'
-                        );
+                        Swal.fire('Cancelled!', 'The appointment has been cancelled.', 'success');
                     } else {
                         throw new Error(data.message || 'An error occurred');
                     }
                 })
                 .catch(error => {
-                    Swal.fire(
-                        'Error!',
-                        error.message,
-                        'error'
-                    );
+                    Swal.fire('Error!', error.message || 'Failed to cancel appointment.', 'error');
                 });
             }
         });
-},
+    },
 
     // Boarding actions
     viewBoarding: function(id) {
@@ -871,43 +883,45 @@ window.DashboardPage = window.DashboardPage || {
     cancelBoarding: function(id) {
         Swal.fire({
             title: 'Cancel Boarding?',
-            text: "This action cannot be undone.",
+            html: '<p class="swal2-html-container">This action cannot be undone.</p>' +
+                  '<input type="password" id="cancel-boarding-pw" class="swal2-input" placeholder="Enter your password to confirm">',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, cancel it!'
+            confirmButtonText: 'Yes, cancel it!',
+            preConfirm: () => {
+                const pw = document.getElementById('cancel-boarding-pw').value;
+                if (!pw) { Swal.showValidationMessage('Please enter your password'); return false; }
+                return pw;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send AJAX request to cancel the boarding
                 fetch(`{{ route('user.boardings.cancel', ['id' => ':id']) }}`.replace(':id', id), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
+                    },
+                    body: JSON.stringify({ user_password: result.value })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => { throw new Error(data.message || 'Failed to cancel'); });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Refresh the datatable
                         this.reloadTable(this.boardingsTable, '{{ route("dashboard.current-boardings") }}');
-                        
-                        Swal.fire(
-                            'Cancelled!',
-                            'The boarding has been cancelled.',
-                            'success'
-                        );
+                        Swal.fire('Cancelled!', 'The boarding has been cancelled.', 'success');
                     } else {
                         throw new Error(data.message || 'An error occurred');
                     }
                 })
                 .catch(error => {
-                    Swal.fire(
-                        'Error!',
-                        error.message,
-                        'error'
-                    );
+                    Swal.fire('Error!', error.message || 'Failed to cancel boarding.', 'error');
                 });
             }
         });

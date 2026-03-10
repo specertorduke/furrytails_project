@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('pagination.dark');
         Paginator::defaultSimpleView('pagination.dark');
 
+        if ((bool) env('FORCE_HTTPS', false)) {
+            URL::forceScheme('https');
+        }
+
         // Enforce password complexity globally:
         // minimum 8 characters, mixed case, number, symbol, not in known breaches.
         Password::defaults(function () {

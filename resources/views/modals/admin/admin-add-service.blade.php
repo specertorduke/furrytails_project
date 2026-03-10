@@ -161,6 +161,13 @@ const AdminAddServiceModal = {
         if (this.elements.form) {
             this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
         }
+
+        window.openAddServiceModal = () => {
+            if (this.elements.modal) {
+                this.elements.modal.classList.remove('tw-hidden');
+                this.resetForm();
+            }
+        };
     },
     
     resetForm: function() {
@@ -281,10 +288,19 @@ const AdminAddServiceModal = {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+
+            return data;
+        })
         .then(data => {
             this.isSubmitting = false;
             submitButton.disabled = false;
@@ -323,7 +339,12 @@ const AdminAddServiceModal = {
             submitButton.innerHTML = originalButtonText;
             
             console.error('Error adding service:', err);
-            this.showError('Failed to add service. Please try again.');
+            if (err && err.errors) {
+                this.showError(Object.values(err.errors).flat().join('<br>'));
+                return;
+            }
+
+            this.showError(err && err.message ? err.message : 'Failed to add service. Please try again.');
         });
     },
     

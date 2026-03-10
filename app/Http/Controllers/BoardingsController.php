@@ -30,16 +30,10 @@ public function store(Request $request)
         'boardingType' => 'required|in:Daycare,Overnight,Extended',
         'start_date' => 'required|date|after_or_equal:today',
         'end_date' => 'required|date|after_or_equal:start_date',
-        'payment_method' => 'required|in:Cash,Credit Card,Debit Card,PayPal,GCash,Bank Transfer,Other',
-        'payment_reference' => 'nullable|string|max:255',
-        'serviceID' => 'required|exists:services,serviceID'
-    ]);
-
-    // Authorize: ensure the pet belongs to the current user
-    $boardingPet = Pet::findOrFail($request->petID);
-    if ($boardingPet->userID !== Auth::id()) {
-        return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-    }
+        'payment_method'   => 'required|in:Cash,GCash',
+        'reference_number' => $request->payment_method === 'GCash' ? 'required|digits:13' : 'nullable',
+        'payment_type'     => 'nullable|in:deposit,full',
+        ]);
 
     // Begin transaction for concurrency safety
     DB::beginTransaction();
@@ -85,16 +79,28 @@ public function store(Request $request)
         $boarding->boardingType = $request->boardingType;
         $boarding->start_date = $request->start_date;
         $boarding->end_date = $request->end_date;
-        $boarding->status = 'Confirmed';
+        $boarding->status = 'Pending';
         $boarding->save();
 
         // Create payment record
+        // Cash bookings always pay full at the counter (no online deposit for cash).
+        // GCash bookings may choose deposit (30% now) or full.
+        $paymentMethod = $request->payment_method;
+        $paymentType   = ($paymentMethod === 'GCash')
+            ? $request->input('payment_type', 'full')
+            : 'full';
+        $paymentAmount = ($paymentType === 'deposit') ? round($totalPrice * 0.3, 2) : $totalPrice;
+
         $payment = new Payment();
-        $payment->userID = Auth::id();
-        $payment->amount = $totalPrice;
-        $payment->payment_method = $request->payment_method;
-        $payment->reference_number = $request->payment_reference;
-        $payment->status = $request->payment_method === 'Cash' ? 'Pending' : 'Completed';
+        $payment->userID          = Auth::id();
+        $payment->amount          = $paymentAmount;
+        $payment->total_cost      = $totalPrice;
+        $payment->payment_type    = $paymentType;
+        $payment->payment_method  = $paymentMethod;
+        $payment->reference_number = $request->reference_number ?? null;
+
+        // Both Cash and GCash submissions remain pending until staff verification.
+        $payment->status = 'Pending';
         
         // Set polymorphic relationship
         $payment->payable_id = $boarding->boardingID;
@@ -103,6 +109,16 @@ public function store(Request $request)
         $payment->save();
 
         DB::commit();
+
+        // Send booking confirmation email (non-blocking)
+        try {
+            $boarding->load('pet');
+            $emailUser = Auth::user();
+            \Illuminate\Support\Facades\Mail::to($emailUser->email)
+                ->send(new \App\Mail\BookingConfirmation($boarding, 'boarding', $emailUser, $payment));
+        } catch (\Exception $e) {
+            Log::warning('Boarding confirmation email failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -252,6 +268,14 @@ public function store(Request $request)
             $boarding->status = 'Cancelled';
             $boarding->save();
 
+            // Send cancellation email (non-blocking)
+            try {
+                \Illuminate\Support\Facades\Mail::to($user->email)
+                    ->send(new \App\Mail\BookingCancellation($boarding, 'boarding', $user));
+            } catch (\Exception $e) {
+                \Log::warning('Boarding cancellation email failed: ' . $e->getMessage());
+            }
+
             // Log the cancellation action
             ActivityLog::create([
                 'table_name' => 'boardings',
@@ -282,9 +306,12 @@ public function store(Request $request)
 
     public function getBoardingServices()
     {
-        // Get services with "boarding" in the name or "daycare"
-        $services = Service::where('name', 'like', '%boarding%')
-                        ->orWhere('name', 'like', '%daycare%')
+        // Get active services with "boarding" in the name or "daycare"
+        $services = Service::where('isActive', true)
+                        ->where(function($q) {
+                            $q->where('name', 'like', '%boarding%')
+                              ->orWhere('name', 'like', '%daycare%');
+                        })
                         ->get();
                         
         return response()->json($services);
@@ -299,14 +326,13 @@ public function store(Request $request)
     {
         try {
             // Get all active boarding services
-            $services = Service::where(function($query) {
-                    $query->where('type', 'boarding')
-                        ->orWhere('name', 'like', '%boarding%')
-                        ->orWhere('name', 'like', '%daycare%');
-                })
-                ->where('status', 'active')
-                ->orderBy('name')
-                ->get();
+            $services = Service::where('isActive', true)
+                    ->where(function($query) {
+                        $query->where('name', 'like', '%boarding%')
+                              ->orWhere('name', 'like', '%daycare%');
+                    })
+                    ->orderBy('name')
+                    ->get();
                 
             return response()->json([
                 'success' => true,
@@ -346,7 +372,23 @@ public function update(Request $request, $id)
         DB::beginTransaction();
         
         // Get the current boarding
-        $boarding = Boarding::findOrFail($id);
+        $boarding = Boarding::with('pet')->findOrFail($id);
+
+        if (!$boarding->pet || $boarding->pet->userID !== auth()->id()) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        if (in_array($boarding->status, ['Cancelled', 'Completed'])) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Cancelled or completed boardings can no longer be edited.'
+            ], 422);
+        }
         
         // If dates are changing and status is active/confirmed, check capacity
         if (($boarding->start_date != $request->start_date || $boarding->end_date != $request->end_date) &&
@@ -434,7 +476,7 @@ public function update(Request $request, $id)
 private function checkBoardingCapacity($startDate, $endDate, $excludeBoardingId = null)
 {
     // Get maximum capacity from settings
-    $maxCapacity = \App\Models\Setting::where('key', 'boarding_capacity')->first()->value ?? 20;
+    $maxCapacity = (int)(\App\Models\Setting::where('key', 'boarding_capacity')->value('value') ?? 20);
     
     // Query to find overlapping active bookings
     $query = Boarding::where(function($query) use ($startDate, $endDate) {

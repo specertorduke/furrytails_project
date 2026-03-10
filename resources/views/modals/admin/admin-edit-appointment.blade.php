@@ -461,7 +461,7 @@
                         }).then(() => {
                             document.getElementById('editAppointment-modal').classList.add('tw-hidden');
                             if (window.AppointmentsPage && window.AppointmentsPage.appointmentsTable) {
-                                window.AppointmentsPage.appointmentsTable.ajax.reload();
+                                window.AppointmentsPage.reloadTable(window.AppointmentsPage.appointmentsTable, '{{ route("admin.appointments.data") }}');
                             } else {
                                 location.reload();
                             }

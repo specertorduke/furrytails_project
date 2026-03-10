@@ -38,9 +38,9 @@
                     <label for="boarding-type" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Boarding Type</label>
                     <select id="boarding-type" name="boarding-type" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
                         <option value="">Select type</option>
-                        <option value="daycare">Daycare</option>
-                        <option value="overnight">Overnight</option>
-                        <option value="long-term">Long-term Boarding</option>
+                        <option value="Daycare">Daycare</option>
+                        <option value="Overnight">Overnight</option>
+                        <option value="Extended">Long-term Boarding</option>
                     </select>
                 </div>
 

@@ -13,7 +13,7 @@ class ManageController extends Controller
     public function fetchAppointments()
     {
         try {
-            $appointments = Appointment::with(['pet', 'service'])
+            $appointments = Appointment::with(['pet', 'service', 'payments'])
                 ->whereHas('pet', function($query) {
                     $query->where('userID', Auth::id());
                 })
@@ -38,7 +38,7 @@ class ManageController extends Controller
     public function fetchBoardings()
     {
         try {
-            $boardings = Boarding::with('pet')
+            $boardings = Boarding::with(['pet', 'payments'])
                 ->whereHas('pet', function($query) {
                     $query->where('userID', Auth::id());
                 })

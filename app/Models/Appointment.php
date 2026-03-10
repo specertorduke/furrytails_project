@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class Appointment extends Model
 {
@@ -14,6 +15,14 @@ class Appointment extends Model
     protected $primaryKey = 'appointmentID';
 
     protected $fillable = ['date', 'time', 'serviceID', 'petID', 'status'];
+
+    // Status constants used by AdminAppointmentsController::updateStatuses()
+    const STATUS_PENDING   = 'Pending';
+    const STATUS_CONFIRMED = 'Confirmed';
+    const STATUS_ACTIVE    = 'Active';
+    const STATUS_COMPLETED = 'Completed';
+    const STATUS_CANCELLED = 'Cancelled';
+    const STATUS_MISSED    = 'Missed';
 
 
     public function pet()

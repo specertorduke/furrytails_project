@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 
@@ -120,12 +121,58 @@ class AdminReportsController extends Controller
      */
     public function show($id)
     {
-        $log = ActivityLog::with('user')->findOrFail($id);
-        
-        return response()->json([
-            'success' => true,
-            'data' => $log
-        ]);
+        try {
+            $log = ActivityLog::with([
+                'user:userID,firstName,lastName,email,username,role,admin_role,userImage,avatar,created_at,updated_at'
+            ])->find($id);
+
+            if (!$log) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The specified activity log could not be found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'logID' => $log->logID,
+                    'table_name' => $log->table_name,
+                    'record_id' => $log->record_id,
+                    'action' => $log->action,
+                    'old_values' => $log->old_values,
+                    'new_values' => $log->new_values,
+                    'userID' => $log->userID,
+                    'ip_address' => $log->ip_address,
+                    'user_agent' => $log->user_agent,
+                    'created_at' => optional($log->created_at)->toISOString(),
+                    'updated_at' => optional($log->updated_at)->toISOString(),
+                    'user' => $log->user ? [
+                        'userID' => $log->user->userID,
+                        'firstName' => $log->user->firstName,
+                        'lastName' => $log->user->lastName,
+                        'email' => $log->user->email,
+                        'username' => $log->user->username,
+                        'role' => $log->user->role,
+                        'admin_role' => $log->user->admin_role,
+                        'userImage' => $log->user->userImage,
+                        'avatar' => $log->user->avatar,
+                        'created_at' => optional($log->user->created_at)->toISOString(),
+                        'updated_at' => optional($log->user->updated_at)->toISOString(),
+                    ] : null,
+                ],
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Failed to load activity log details', [
+                'log_id' => $id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load activity log details.',
+            ], 500);
+        }
     }
     
     /**

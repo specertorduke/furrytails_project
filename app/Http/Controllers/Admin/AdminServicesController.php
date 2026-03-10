@@ -123,6 +123,7 @@ class AdminServicesController extends Controller
         }
 
         try {
+            $admin = auth()->user();
             // Create service without image first
             $service = new Service();
             $service->name = $request->name;
@@ -206,6 +207,7 @@ class AdminServicesController extends Controller
         }
 
         try {
+            $admin = auth()->user();
             $service = Service::findOrFail($id);
             
             // Store original values for logging
@@ -275,6 +277,7 @@ class AdminServicesController extends Controller
         }
 
         try {
+            $admin = auth()->user();
             $service = Service::findOrFail($id);
             $originalStatus = $service->isActive;
             
@@ -317,6 +320,7 @@ class AdminServicesController extends Controller
         }
 
         try {
+            $admin = auth()->user();
             $service = Service::findOrFail($id);
             
             // Store service data for logging before deletion

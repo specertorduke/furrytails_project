@@ -333,12 +333,21 @@ const AdminEditServiceModal = {
         fetch(`{{ route('admin.services.update', ['id' => ':serviceId']) }}`.replace(':serviceId', this.currentServiceId), {
             method: 'POST', // Using POST with method spoofing for file uploads
             headers: {
-                'X-CSRF-TOKEN': csrfToken
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
                 // Don't set Content-Type for multipart/form-data
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+
+            return data;
+        })
         .then(data => {
             this.isSubmitting = false;
             submitButton.disabled = false;
@@ -376,7 +385,12 @@ const AdminEditServiceModal = {
             submitButton.innerHTML = originalButtonText;
             
             console.error('Error updating service:', err);
-            this.showError('Failed to update service. Please try again.');
+            if (err && err.errors) {
+                this.showError(Object.values(err.errors).flat().join('<br>'));
+                return;
+            }
+
+            this.showError(err && err.message ? err.message : 'Failed to update service. Please try again.');
         });
     },
     

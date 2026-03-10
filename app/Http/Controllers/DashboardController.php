@@ -6,25 +6,59 @@ use Illuminate\Http\Request;
 use App\Models\Pet;
 use App\Models\Appointment;
 use App\Models\Boarding;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    private function visibleAppointmentsQuery(int $userId)
+    {
+        $today = Carbon::today()->toDateString();
+        $recentThreshold = Carbon::now()->subDay();
+
+        return Appointment::with(['pet', 'service'])
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->where(function ($query) use ($today, $recentThreshold) {
+                $query->where(function ($subQuery) use ($today) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('date', '>=', $today);
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END")
+            ->orderBy('date', 'asc')
+            ->orderBy('time', 'asc');
+    }
+
+    private function visibleBoardingsQuery(int $userId)
+    {
+        $today = Carbon::today()->toDateString();
+        $recentThreshold = Carbon::now()->subDay();
+
+        return Boarding::with('pet')
+            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
+            ->where(function ($query) use ($today, $recentThreshold) {
+                $query->where(function ($subQuery) use ($today) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('end_date', '>=', $today);
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END")
+            ->orderBy('start_date', 'asc');
+    }
+
     // Your existing index method stays the same
     public function index(Request $request)
     {
         $userId = Auth::id();
 
-        $appointments = Appointment::with(['pet', 'service'])
-            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
-            ->where('date', '>=', now())
-            ->orderBy('date', 'asc')
-            ->get();
+        $appointments = $this->visibleAppointmentsQuery($userId)->get();
 
-        $boardings = Boarding::with('pet')
-            ->whereHas('pet', fn($q) => $q->where('userID', $userId))
-            ->where('end_date', '>=', now())
-            ->orderBy('start_date', 'asc')
-            ->get();
+        $boardings = $this->visibleBoardingsQuery($userId)->get();
 
         $pets = Pet::where('userID', $userId)->get();
 
@@ -42,13 +76,7 @@ class DashboardController extends Controller
 
     public function getUpcomingAppointments()
     {
-        $appointments = Appointment::with(['pet', 'service'])
-            ->whereHas('pet', function ($query) {
-                $query->where('userID', Auth::id());
-            })
-            ->where('date', '>=', now())
-            ->orderBy('date', 'asc')
-            ->get();
+        $appointments = $this->visibleAppointmentsQuery(Auth::id())->get();
     
         // Return in the format DataTables expects
         return response()->json([
@@ -58,13 +86,7 @@ class DashboardController extends Controller
     
     public function getCurrentBoardings()
     {
-        $boardings = Boarding::with('pet')
-            ->whereHas('pet', function ($query) {
-                $query->where('userID', Auth::id());
-            })
-            ->where('end_date', '>=', now())
-            ->orderBy('start_date', 'asc')
-            ->get();
+        $boardings = $this->visibleBoardingsQuery(Auth::id())->get();
     
         // Return in the format DataTables expects
         return response()->json([

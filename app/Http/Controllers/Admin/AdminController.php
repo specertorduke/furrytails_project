@@ -35,9 +35,19 @@ class AdminController extends Controller
 
     public function getUpcomingAppointmentsData()
     {
-        $upcomingAppointments = Appointment::with(['pet', 'pet.user', 'service'])
-            ->where('date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Confirmed')
+        $recentThreshold = now()->subDay();
+
+        $upcomingAppointments = Appointment::with(['pet', 'pet.user', 'service', 'payments'])
+            ->where(function ($query) use ($recentThreshold) {
+                $query->where(function ($subQuery) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('date', '>=', now()->format('Y-m-d'));
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Pending' THEN 0 WHEN status = 'Confirmed' THEN 1 WHEN status = 'Active' THEN 2 WHEN status = 'Cancelled' THEN 3 ELSE 4 END")
             ->orderBy('date')
             ->orderBy('time')
             ->limit(10)
@@ -50,19 +60,38 @@ class AdminController extends Controller
 
     public function getOngoingBoardingsData()
     {
-        $activeBoardings = Boarding::with(['pet', 'pet.user'])
-            ->where('start_date', '<=', now()->format('Y-m-d'))
-            ->where('end_date', '>=', now()->format('Y-m-d'))
-            ->where('status', 'Active')
+        $recentThreshold = now()->subDay();
+
+        $dashboardBoardings = Boarding::with(['pet', 'pet.user', 'payments'])
+            ->where(function ($query) use ($recentThreshold) {
+                $query->where(function ($subQuery) {
+                    $subQuery->whereIn('status', ['Pending', 'Confirmed', 'Active'])
+                        ->where('end_date', '>=', now()->format('Y-m-d'));
+                })->orWhere(function ($subQuery) use ($recentThreshold) {
+                    $subQuery->where('status', 'Cancelled')
+                        ->where('updated_at', '>=', $recentThreshold);
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'Pending' THEN 0 WHEN status = 'Confirmed' THEN 1 WHEN status = 'Active' THEN 2 WHEN status = 'Cancelled' THEN 3 ELSE 4 END")
+            ->orderBy('start_date')
+            ->limit(10)
             ->get();
 
+        $activeBoardingsCount = Boarding::where('start_date', '<=', now()->format('Y-m-d'))
+            ->where('end_date', '>=', now()->format('Y-m-d'))
+            ->where('status', 'Active')
+            ->count();
+
         return response()->json([
-            'active_count' => $activeBoardings->count(),
-            'boardings' => $activeBoardings->map(function ($boarding) {
+            'active_count' => $activeBoardingsCount,
+            'boardings' => $dashboardBoardings->map(function ($boarding) {
+                $latestPayment = $boarding->payments->sortByDesc('paymentID')->first();
+
                 return [
                     'boardingID' => $boarding->boardingID,
                     'start_date' => $boarding->start_date,
                     'end_date' => $boarding->end_date,
+                    'status' => $boarding->status,
                     'pet' => [
                         'petID' => $boarding->pet->petID,
                         'name' => $boarding->pet->name,
@@ -72,7 +101,13 @@ class AdminController extends Controller
                         'userID' => $boarding->pet->user->userID,
                         'firstName' => $boarding->pet->user->firstName,
                         'lastName' => $boarding->pet->user->lastName
-                    ]
+                    ],
+                    'latest_payment' => $latestPayment ? [
+                        'paymentID' => $latestPayment->paymentID,
+                        'amount' => $latestPayment->amount,
+                        'status' => $latestPayment->status,
+                        'payment_method' => $latestPayment->payment_method,
+                    ] : null,
                 ];
             })
         ]);

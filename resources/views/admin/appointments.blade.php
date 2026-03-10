@@ -108,13 +108,14 @@
 
 @push('scripts')
 <script>
-    const appointmentPerms = {
-        canCreate: {{ auth()->user()->hasPermission('appointments.create') ? 'true' : 'false' }},
-        canEdit:   {{ auth()->user()->hasPermission('appointments.edit')   ? 'true' : 'false' }},
-        canCancel: {{ auth()->user()->hasPermission('appointments.cancel') ? 'true' : 'false' }},
+    var appointmentPerms = {
+        canCreate:    {{ auth()->user()->hasPermission('appointments.create') ? 'true' : 'false' }},
+        canEdit:      {{ auth()->user()->hasPermission('appointments.edit')   ? 'true' : 'false' }},
+        canCancel:    {{ auth()->user()->hasPermission('appointments.cancel') ? 'true' : 'false' }},
+        canMarkPaid:  {{ auth()->user()->hasPermission('appointments.edit')   ? 'true' : 'false' }},
     };
     // Create a namespace for our appointments page functionality
-    window.AppointmentsPage = window.AppointmentsPage || {
+    window.AppointmentsPage = Object.assign(window.AppointmentsPage || {}, {
         appointmentsTable: null,
 
         reloadTable: function(table, url) {
@@ -131,6 +132,53 @@
             } else {
                 console.error('openAppointmentModal function not found');
             }
+        },
+
+        markAppointmentPaid: function(id, actionType, amount) {
+            const isBalance = actionType === 'balance';
+            const isGcashVerification = actionType === 'verify-gcash';
+            const title    = isBalance ? 'Collect Remaining Balance' : (isGcashVerification ? 'Verify GCash Payment' : 'Mark Cash Payment as Collected');
+            const text     = isBalance
+                ? `Confirm collection of ₱${parseFloat(amount).toFixed(2)} cash (remaining balance) from the client?`
+                : (isGcashVerification
+                    ? `Confirm that the submitted GCash payment of ₱${parseFloat(amount).toFixed(2)} has been received?`
+                    : `Confirm receipt of ₱${parseFloat(amount).toFixed(2)} cash from the client?`);
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, confirm',
+                background: '#374151',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{ route('admin.appointments.mark-paid', ['id' => ':id']) }}".replace(':id', id), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.reloadTable(this.appointmentsTable, '{{ route("admin.appointments.data") }}');
+                            Swal.fire({ title: 'Done!', text: data.message, icon: 'success', confirmButtonColor: '#FF9666', background: '#374151', color: '#fff' });
+                        } else {
+                            Swal.fire({ title: 'Error!', text: data.message || 'Failed to process payment.', icon: 'error', confirmButtonColor: '#FF9666', background: '#374151', color: '#fff' });
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire({ title: 'Error!', text: 'An error occurred.', icon: 'error', confirmButtonColor: '#FF9666', background: '#374151', color: '#fff' });
+                    });
+                }
+            });
         },
 
         editAppointment: function(id) {
@@ -424,20 +472,44 @@
                         width: '15%',
                         render: function(data) {
                             const cancelBtn = appointmentPerms.canCancel && data.status !== 'Cancelled' && data.status !== 'Completed' ? 
-                                `<button onclick="AppointmentsPage.cancelAppointment(${data.appointmentID})" class="tw-text-red-500 hover:tw-text-red-300">
+                                `<button onclick="AppointmentsPage.cancelAppointment(${data.appointmentID})" class="tw-text-red-500 hover:tw-text-red-300" title="Cancel">
                                     <i class="fas fa-ban"></i>
                                 </button>` : '';
                             const editBtn = appointmentPerms.canEdit ?
-                                `<button onclick="AppointmentsPage.editAppointment(${data.appointmentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300">
+                                `<button onclick="AppointmentsPage.editAppointment(${data.appointmentID})" class="tw-text-yellow-500 hover:tw-text-yellow-300" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>` : '';
+
+                            // Determine payment action needed
+                            let markPaidBtn = '';
+                            if (appointmentPerms.canMarkPaid && data.status !== 'Cancelled' && data.status !== 'Completed') {
+                                const pmts = data.payments || [];
+                                const latest = pmts.length ? pmts.reduce((a,b) => (a.paymentID > b.paymentID ? a : b)) : null;
+                                const hasBalance = pmts.some(p => p.payment_type === 'balance');
+
+                                if (latest && latest.payment_type === 'deposit' && latest.status === 'Completed' && !hasBalance) {
+                                    // GCash deposit paid — still needs balance collected
+                                    const bal = latest.total_cost
+                                        ? parseFloat(latest.total_cost - latest.amount).toFixed(2)
+                                        : parseFloat(latest.amount / 0.3 * 0.7).toFixed(2);
+                                    markPaidBtn = `<button onclick="AppointmentsPage.markAppointmentPaid(${data.appointmentID},'balance',${bal})" class="tw-text-orange-400 hover:tw-text-orange-200" title="Collect Balance ₱${bal}"><i class="fas fa-hand-holding-usd"></i></button>`;
+                                } else if (latest && latest.status === 'Pending') {
+                                    const amt = parseFloat(latest.amount).toFixed(2);
+                                    const actionType = latest.payment_method === 'GCash' ? 'verify-gcash' : 'cash';
+                                    const title = latest.payment_method === 'GCash'
+                                        ? `Verify GCash Payment ₱${amt}`
+                                        : `Mark Cash Paid ₱${amt}`;
+                                    markPaidBtn = `<button onclick="AppointmentsPage.markAppointmentPaid(${data.appointmentID},'${actionType}',${amt})" class="tw-text-green-500 hover:tw-text-green-300" title="${title}"><i class="fas fa-check-circle"></i></button>`;
+                                }
+                            }
                                 
                             return `
                                 <div class="tw-flex tw-space-x-3 tw-justify-center">
-                                    <button onclick="AppointmentsPage.viewAppointment(${data.appointmentID})" class="tw-text-[#24CFF4] hover:tw-text-blue-300">
+                                    <button onclick="AppointmentsPage.viewAppointment(${data.appointmentID})" class="tw-text-[#24CFF4] hover:tw-text-blue-300" title="View">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     ${editBtn}
+                                    ${markPaidBtn}
                                     ${cancelBtn}
                                 </div>
                             `;
@@ -553,7 +625,7 @@
             $('.dataTables_wrapper .paginate_button.current').addClass('tw-bg-gray-700 !tw-text-white !tw-border-gray-600 hover:!tw-bg-gray-600');
             $('.dataTables_wrapper .paginate_button:not(.current)').addClass('tw-bg-transparent !tw-border-gray-700');
         }
-    };
+    });
 
     // Initialize tables when page loads directly
     $(document).ready(function() {
@@ -572,8 +644,7 @@
         });
     });
 
-    // Handle dynamic content changes
-    document.addEventListener('contentChanged', function() {
+    window.initializeAppointmentsPageTables = function() {
         console.log('Content changed event received');
         // Make sure jQuery and DataTables are available
         if (window.jQuery && $.fn.DataTable) {
@@ -581,15 +652,24 @@
         } else {
             console.error('jQuery or DataTables not available on content change');
         }
-    });
+    };
 
-    // Cleanup when content will change
-    document.addEventListener('contentWillChange', function() {
+    window.destroyAppointmentsPageTables = function() {
         console.log('Content will change event received');
         if (window.jQuery && $.fn.DataTable) {
             AppointmentsPage.destroyTables();
         }
-    });
+    };
+
+    document.removeEventListener('contentChanged', window.initializeAppointmentsPageTables);
+    document.addEventListener('contentChanged', window.initializeAppointmentsPageTables);
+
+    document.removeEventListener('contentWillChange', window.destroyAppointmentsPageTables);
+    document.addEventListener('contentWillChange', window.destroyAppointmentsPageTables);
+
+    if (document.getElementById('appointmentsTable') && window.jQuery && $.fn.DataTable) {
+        AppointmentsPage.initializeTables();
+    }
 </script>
 
 <script>
