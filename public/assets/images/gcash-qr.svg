@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">GCash QR placeholder</title>
+  <desc id="desc">Placeholder image for GCash QR payments.</desc>
+  <rect width="512" height="512" rx="32" fill="#ffffff"/>
+  <rect x="24" y="24" width="464" height="464" rx="24" fill="#f8fafc" stroke="#dbeafe" stroke-width="8"/>
+  <rect x="56" y="56" width="96" height="96" fill="#1d4ed8"/>
+  <rect x="72" y="72" width="64" height="64" fill="#ffffff"/>
+  <rect x="88" y="88" width="32" height="32" fill="#1d4ed8"/>
+  <rect x="360" y="56" width="96" height="96" fill="#1d4ed8"/>
+  <rect x="376" y="72" width="64" height="64" fill="#ffffff"/>
+  <rect x="392" y="88" width="32" height="32" fill="#1d4ed8"/>
+  <rect x="56" y="360" width="96" height="96" fill="#1d4ed8"/>
+  <rect x="72" y="376" width="64" height="64" fill="#ffffff"/>
+  <rect x="88" y="392" width="32" height="32" fill="#1d4ed8"/>
+  <g fill="#0f172a">
+    <rect x="184" y="72" width="24" height="24"/>
+    <rect x="224" y="72" width="24" height="24"/>
+    <rect x="264" y="72" width="24" height="24"/>
+    <rect x="184" y="112" width="24" height="24"/>
+    <rect x="264" y="112" width="24" height="24"/>
+    <rect x="184" y="152" width="24" height="24"/>
+    <rect x="224" y="152" width="24" height="24"/>
+    <rect x="304" y="184" width="24" height="24"/>
+    <rect x="344" y="184" width="24" height="24"/>
+    <rect x="384" y="184" width="24" height="24"/>
+    <rect x="184" y="224" width="24" height="24"/>
+    <rect x="264" y="224" width="24" height="24"/>
+    <rect x="304" y="224" width="24" height="24"/>
+    <rect x="384" y="224" width="24" height="24"/>
+    <rect x="224" y="264" width="24" height="24"/>
+    <rect x="304" y="264" width="24" height="24"/>
+    <rect x="344" y="264" width="24" height="24"/>
+    <rect x="184" y="304" width="24" height="24"/>
+    <rect x="224" y="304" width="24" height="24"/>
+    <rect x="264" y="304" width="24" height="24"/>
+    <rect x="344" y="304" width="24" height="24"/>
+    <rect x="384" y="304" width="24" height="24"/>
+    <rect x="184" y="344" width="24" height="24"/>
+    <rect x="264" y="344" width="24" height="24"/>
+    <rect x="304" y="344" width="24" height="24"/>
+    <rect x="224" y="384" width="24" height="24"/>
+    <rect x="264" y="384" width="24" height="24"/>
+    <rect x="344" y="384" width="24" height="24"/>
+    <rect x="384" y="384" width="24" height="24"/>
+  </g>
+  <text x="256" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#1d4ed8">GCash QR</text>
+</svg>

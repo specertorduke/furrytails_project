@@ -39,6 +39,16 @@ class LoginController extends Controller
                 'role'   => $user->role,
             ]);
 
+            if (
+                str_starts_with((string) config('app.url'), 'https://')
+                && $request->session()->has('url.intended')
+            ) {
+                $request->session()->put(
+                    'url.intended',
+                    preg_replace('/^http:/i', 'https:', (string) $request->session()->get('url.intended'))
+                );
+            }
+
             return redirect()->intended(
                 $user->isAdmin() ? route('admin.dashboard') : route('dashboard')
             );

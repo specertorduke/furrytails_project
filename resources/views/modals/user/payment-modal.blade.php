@@ -139,7 +139,7 @@
                     <div id="gcash-qr-container" class="tw-mb-5 tw-hidden tw-text-center">
                         <p class="tw-mb-2 tw-text-sm tw-text-gray-900">Scan the QR code to pay via GCash</p>
                         <div class="tw-bg-white tw-p-3 tw-rounded-lg tw-inline-block tw-border tw-border-gray-200">
-                            <img src="{{ asset('assets/images/gcash-qr.png') }}" alt="GCash QR Code" class="tw-h-48 tw-w-48 tw-object-contain">
+                            <img src="{{ asset('assets/images/gcash-qr.svg') }}" alt="GCash QR Code" class="tw-h-48 tw-w-48 tw-object-contain">
                         </div>
                         <p class="tw-mt-2 tw-text-sm tw-text-gray-700">After payment, enter your reference number above</p>
                     </div>
