@@ -29,13 +29,11 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Enforce password complexity globally:
-        // minimum 8 characters, mixed case, number, symbol, not in known breaches.
+        // minimum 8 characters, letters, and numbers.
         Password::defaults(function () {
             return Password::min(8)
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-                ->uncompromised();
+                ->letters()
+                ->numbers();
         });
     }
 }

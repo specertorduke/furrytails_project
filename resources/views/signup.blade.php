@@ -180,7 +180,7 @@
                             </div>
                         </div>
                     </div>
-                    <span id="password-requirements" class="tw-text-xs tw-text-gray-500 tw-block tw-mt-1">Use 8+ chars with letters, numbers & symbols</span>
+                    <span id="password-requirements" class="tw-text-xs tw-text-gray-500 tw-block tw-mt-1">Use 8+ chars with letters and numbers</span>
                     <p id="password-match-feedback" class="tw-text-xs tw-mt-1 tw-hidden"></p>
 
                     <div class="tw-flex tw-items-start tw-mt-4">
@@ -376,8 +376,7 @@
             const hasMinLength = password.length >= 8;
             const hasLetter = /[a-zA-Z]/.test(password);
             const hasNumber = /\d/.test(password);
-            const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-            const isPasswordStrong = hasMinLength && hasLetter && hasNumber && hasSymbol;
+            const isPasswordStrong = hasMinLength && hasLetter && hasNumber;
 
             if (password.length > 0) {
                 if (isPasswordStrong) {
@@ -387,13 +386,13 @@
                 } else {
                     passwordRequirements.classList.remove('tw-text-gray-500', 'tw-text-green-500');
                     passwordRequirements.classList.add('tw-text-red-500');
-                    passwordRequirements.innerHTML = 'Password must have 8+ chars, letters, numbers & symbols';
+                    passwordRequirements.innerHTML = 'Password must have 8+ chars, letters and numbers';
                     invalidItems.push('password strength');
                 }
             } else {
                 passwordRequirements.classList.remove('tw-text-green-500', 'tw-text-red-500');
                 passwordRequirements.classList.add('tw-text-gray-500');
-                passwordRequirements.innerHTML = 'Use 8+ chars with letters, numbers & symbols';
+                passwordRequirements.innerHTML = 'Use 8+ chars with letters and numbers';
             }
 
             const doPasswordsMatch = password.length > 0 && passwordConfirmation.length > 0 && password === passwordConfirmation;
@@ -596,24 +595,9 @@
 
                     e.preventDefault();
 
-                    const firstName = document.getElementById('firstName').value;
-                    const lastName = document.getElementById('lastName').value;
-                    const email = document.getElementById('email').value;
-                    const username = document.getElementById('username').value;
-                    const phoneValue = document.getElementById('phone').value.trim();
-
                     Swal.fire({
                         title: 'Confirm Account Creation',
-                        html: `
-                            <div class="tw-text-left tw-space-y-2">
-                                <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-                                <p><strong>Email:</strong> ${email}</p>
-                                <p><strong>Username:</strong> ${username}</p>
-                                <p><strong>Phone:</strong> +63${phoneValue.replace(/\s/g, '')}</p>
-                            </div>
-                            <br>
-                            <p class="tw-text-sm tw-text-gray-600">Please verify your information is correct before proceeding.</p>
-                        `,
+                        text: 'Are you sure you want to create an account?',
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#24CFF4',

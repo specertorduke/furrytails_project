@@ -291,10 +291,10 @@ $(document).ready(function() {
         const pwd  = document.getElementById('password').value;
         const conf = document.getElementById('password_confirmation').value;
         if (pwd.length > 0) {
-            const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd) && /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+            const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
             setFeedback('password-strength',
                 strong ? '<i class="fas fa-check-circle tw-mr-1"></i> Strong password'
-                       : 'Must have 8+ chars, letters, numbers & symbols',
+                       : 'Must have 8+ chars, letters and numbers',
                 strong ? 'success' : 'error');
         } else {
             setFeedback('password-strength', '');
@@ -500,9 +500,9 @@ $(document).ready(function() {
             const pwd  = document.getElementById('password').value;
             const conf = document.getElementById('password_confirmation').value;
             if (pwd) {
-                const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd) && /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+                const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
                 if (!strong) {
-                    Swal.fire({ title: 'Weak password', text: 'Password must have 8+ characters, letters, numbers & symbols.', icon: 'error',
+                    Swal.fire({ title: 'Weak password', text: 'Password must have 8+ characters, letters and numbers.', icon: 'error',
                         confirmButtonColor: '#24CFF4', background: '#1f2937', color: '#f9fafb' });
                     return;
                 }

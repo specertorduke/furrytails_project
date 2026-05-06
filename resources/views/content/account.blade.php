@@ -319,10 +319,10 @@ window.initUserAccountSettings = function() {
         const confirmation = confirmationEl.value;
 
         if (password.length > 0) {
-            const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
             setFeedback(
                 'password-strength',
-                strong ? '<i class="fas fa-check-circle tw-mr-1"></i> Strong password' : 'Must have 8+ chars, letters, numbers & symbols',
+                strong ? '<i class="fas fa-check-circle tw-mr-1"></i> Strong password' : 'Must have 8+ chars, letters and numbers',
                 strong ? 'success' : 'error'
             );
         } else {
@@ -567,12 +567,12 @@ window.initUserAccountSettings = function() {
             const confirmation = passwordConfirmationEl ? passwordConfirmationEl.value : '';
 
             if (password) {
-                const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
 
                 if (!strong) {
                     Swal.fire({
                         title: 'Weak password',
-                        text: 'Password must have 8+ characters, letters, numbers & symbols.',
+                        text: 'Password must have 8+ characters, letters and numbers.',
                         icon: 'error',
                         confirmButtonColor: '#24CFF4'
                     });
