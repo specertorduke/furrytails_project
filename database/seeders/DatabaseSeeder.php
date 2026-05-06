@@ -123,6 +123,16 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'email' => 'test.test@example.com',
+                'username' => 'testtest',
+                'phone' => '987 574 3210',
+                'password' => bcrypt('password123'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         DB::table('users')->insert([
@@ -234,7 +244,7 @@ class DatabaseSeeder extends Seeder
         // APPOINTMENTS
         DB::table('appointments')->insert([
             [
-                'date' => '2025-03-15',
+                'date' => '2027-03-15',
                 'time' => '10:00:00',
                 'serviceID' => 1, 
                 'petID' => 1,
@@ -243,7 +253,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'date' => '2025-03-16',
+                'date' => '2027-03-16',
                 'time' => '10:00:00',
                 'serviceID' => 2, 
                 'petID' => 1,
@@ -257,8 +267,8 @@ class DatabaseSeeder extends Seeder
         DB::table('boardings')->insert([
             [
                 'boardingType' => 'Overnight',
-                'start_date' => '2025-03-15',
-                'end_date' => '2025-03-16',
+                'start_date' => '2027-03-15',
+                'end_date' => '2027-03-16',
                 'petID' => 1,
                 'status' => 'Active',
                 'created_at' => now(),
@@ -266,8 +276,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'boardingType' => 'Daycare',
-                'start_date' => '2025-03-18',
-                'end_date' => '2025-03-18',
+                'start_date' => '2027-03-18',
+                'end_date' => '2027-03-18',
                 'petID' => 1,
                 'status' => 'Active',
                 'created_at' => now(),

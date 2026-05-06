@@ -216,6 +216,12 @@ const AdminAddServiceModal = {
             this.showError('Please select a category');
             return false;
         }
+
+        const description = this.elements.descriptionInput.value.trim();
+        if (!description) {
+            this.showError('Please enter a description');
+            return false;
+        }
         
         const price = parseFloat(this.elements.priceInput.value);
         if (isNaN(price) || price < 0) {

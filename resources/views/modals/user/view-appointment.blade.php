@@ -1,12 +1,12 @@
 <!-- View Appointment Modal -->
 <div id="viewAppointment-modal" tabindex="-1" aria-hidden="true" class="tw-hidden tw-fixed tw-top-0 tw-left-0 tw-right-0 tw-z-50 tw-w-full tw-p-4 tw-overflow-x-hidden tw-overflow-y-auto md:tw-inset-0 tw-h-full tw-max-h-full tw-flex tw-items-center tw-justify-center tw-backdrop-blur-sm tw-bg-black/30">
-    <div class="tw-relative tw-w-full tw-max-w-2xl tw-max-h-full tw-animate-modal-entry">
+    <div class="tw-relative tw-w-full tw-max-w-4xl tw-max-h-full tw-animate-modal-entry">
         <!-- Modal content -->
-        <div class="tw-relative tw-bg-white tw-rounded-2xl tw-shadow-lg tw-transform tw-transition-all">
+        <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-xl tw-transform tw-transition-all">
             <!-- Modal header -->
-            <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t">
-                <h3 class="tw-text-xl tw-font-semibold tw-text-gray-800">Appointment Details</h3>
-                <button type="button" class="tw-bg-white tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 tw-flex tw-justify-center tw-items-center tw-transition-all hover:tw-bg-gray-100" data-modal-toggle="viewAppointment-modal">
+            <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-200">
+                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Appointment Details</h3>
+                <button type="button" class="tw-bg-transparent tw-text-gray-500 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 tw-flex tw-justify-center tw-items-center tw-transition-all hover:tw-bg-gray-100 hover:tw-text-gray-700" data-modal-toggle="viewAppointment-modal">
                     <svg class="tw-w-3 tw-h-3 tw-text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -16,74 +16,100 @@
             
             <!-- Modal body -->
             <div class="tw-p-4 md:tw-p-5">
-                <!-- Appointment Status Badge - Shown at the top for visibility -->
-                <div class="tw-flex tw-justify-center tw-mb-5">
-                    <div id="appointmentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium">
-                        <span id="statusText"></span>
-                    </div>
-                </div>
-
-                <!-- Payment Status Section -->
-                <div class="tw-flex tw-justify-center tw-mb-5" id="paymentStatusContainer">
-                    <div id="paymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
-                        <span id="paymentStatusText"></span>
-                    </div>
-                </div>
-
-                <!-- Appointment Info Section -->
-                <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6">
-                    <!-- Service Info Column -->
-                    <div class="tw-flex tw-flex-col tw-items-center tw-bg-gray-50 tw-p-4 tw-rounded-xl tw-shadow-sm">
-                        <div id="serviceIcon" class="tw-w-16 tw-h-16 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-bg-blue-50 tw-mb-3">
-                            <i class="fas fa-concierge-bell tw-text-5xl tw-text-[#24CFF4]"></i>
-                        </div>
-                        <h4 id="serviceName" class="tw-text-lg tw-font-medium tw-text-gray-800 tw-mb-1">Service Name</h4>
-                        <p id="servicePrice" class="tw-text-[#20b9db] tw-font-bold">₱0.00</p>
-                        
-                        <div class="tw-mt-4 tw-w-full">
-                            <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
-                                <span class="tw-text-sm tw-text-gray-500">Date:</span>
-                                <span id="appointmentDate" class="tw-text-sm tw-font-medium tw-text-gray-700">Not set</span>
+                <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
+                    <!-- Left Column - Appointment Details -->
+                    <div class="lg:tw-col-span-2">
+                        <div class="tw-bg-gray-50 tw-rounded-lg tw-p-5 tw-mb-6 tw-shadow-sm">
+                            <div class="tw-flex tw-justify-between tw-items-center tw-mb-4">
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Appointment ID</h4>
+                                    <p id="appointmentId" class="tw-text-lg tw-font-semibold"></p>
+                                </div>
+                                <div class="tw-text-right">
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Status</h4>
+                                    <span id="appointmentStatusBadge" class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-font-medium tw-inline-flex tw-items-center tw-justify-center tw-mt-1">
+                                        <span id="statusText"></span>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="tw-flex tw-justify-between tw-items-center">
-                                <span class="tw-text-sm tw-text-gray-500">Time:</span>
-                                <span id="appointmentTime" class="tw-text-sm tw-font-medium tw-text-gray-700">Not set</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Pet Details Column -->
-                    <div class="tw-flex-1 tw-bg-gray-50 tw-rounded-xl tw-p-4 tw-shadow-sm">
-                        <h4 class="tw-font-medium tw-text-gray-800 tw-mb-3">Pet Information</h4>
-                        <div class="tw-flex tw-items-center tw-mb-4">
-                            <div id="petImage" class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gray-200 tw-overflow-hidden tw-flex tw-items-center tw-justify-center tw-mr-3">
-                                <i class="fas fa-paw tw-text-gray-400"></i>
+                            <div class="tw-flex tw-items-center tw-gap-4 tw-mb-4">
+                                <div id="serviceIcon" class="tw-w-16 tw-h-16 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-bg-blue-50">
+                                    <i class="fas fa-concierge-bell tw-text-5xl tw-text-[#24CFF4]"></i>
+                                </div>
+                                <div>
+                                    <h4 id="serviceName" class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-1">Service Name</h4>
+                                    <p id="servicePrice" class="tw-text-[#20b9db] tw-font-bold">₱0.00</p>
+                                </div>
                             </div>
-                            <div>
-                                <p id="petName" class="tw-font-medium tw-text-gray-800">Pet Name</p>
-                                <div class="tw-flex tw-items-center tw-gap-2">
-                                    <span id="petSpecies" class="tw-text-xs tw-px-2 tw-py-1 tw-rounded-full tw-bg-blue-100 tw-text-blue-800">Species</span>
-                                    <span id="petBreed" class="tw-text-xs tw-text-gray-500">Breed</span>
+
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Appointment Date</h4>
+                                    <p id="appointmentDate" class="tw-font-medium tw-text-gray-800">Not set</p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Appointment Time</h4>
+                                    <p id="appointmentTime" class="tw-font-medium tw-text-gray-800">Not set</p>
+                                </div>
+                            </div>
+
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Created</h4>
+                                    <p id="appointmentCreatedAt" class="tw-font-medium tw-text-gray-800">Unknown</p>
+                                </div>
+                                <div id="appointmentUpdatedBlock" class="tw-hidden">
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Last Updated</h4>
+                                    <p id="appointmentUpdatedAt" class="tw-font-medium tw-text-gray-800">Unknown</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Payment Details -->
-                        <div id="paymentDetailsContainer" class="tw-border-t tw-border-gray-200 tw-pt-3 tw-mt-3">
-                            <h5 class="tw-font-medium tw-text-gray-800 tw-mb-2">Payment Information</h5>
-                            <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
-                                <span class="tw-text-sm tw-text-gray-500">Payment Status:</span>
-                                <span id="paymentCount" class="tw-text-sm tw-font-medium tw-text-gray-700">Loading...</span>
+
+                        <div class="tw-bg-gray-50 tw-rounded-lg tw-p-5 tw-mb-6 tw-shadow-sm">
+                            <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+                                <h3 class="tw-text-lg tw-font-medium tw-flex tw-items-center">
+                                    <svg class="tw-w-5 tw-h-5 tw-mr-2 tw-text-[#24CFF4]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                        <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Payment Details
+                                </h3>
+                                <div id="paymentStatusContainer">
+                                    <div id="paymentStatusBadge" class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-hidden">
+                                        <span id="paymentStatusText"></span>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <!-- Payments List -->
-                            <div id="paymentsListContainer" class="tw-mt-2 tw-max-h-32 tw-overflow-y-auto"></div>
+
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mb-3">
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Payment Method</h4>
+                                    <p id="view-payment-method" class="tw-font-medium"></p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Payment Status</h4>
+                                    <p id="paymentCount" class="tw-font-medium tw-text-gray-800">Loading...</p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Total Amount</h4>
+                                    <p id="appointmentTotalAmount" class="tw-font-semibold tw-text-[#24CFF4]">₱0.00</p>
+                                </div>
+                            </div>
+
+                            <div id="paymentDetailsContainer" class="tw-border-t tw-border-gray-200 tw-pt-3 tw-mt-3">
+                                <div id="paymentsListContainer" class="tw-mt-2 tw-max-h-32 tw-overflow-y-auto"></div>
+                            </div>
                         </div>
-                        
-                        <!-- Before/After Images for Grooming -->
-                        <div id="groomingSection" class="tw-hidden tw-border-t tw-border-gray-200 tw-pt-3 tw-mt-3">
-                            <h5 class="tw-font-medium tw-text-gray-800 tw-mb-2">Grooming Photos</h5>
-                            <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+
+                        <div id="groomingSection" class="tw-hidden tw-bg-gray-50 tw-rounded-lg tw-p-5 tw-shadow-sm">
+                            <h3 class="tw-text-lg tw-font-medium tw-mb-3 tw-flex tw-items-center">
+                                <svg class="tw-w-5 tw-h-5 tw-mr-2 tw-text-[#24CFF4]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Grooming Photos
+                            </h3>
+                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
                                 <div id="beforeImageContainer" class="tw-text-center">
                                     <span class="tw-text-xs tw-text-gray-500 tw-block tw-mb-1">Before</span>
                                     <div class="tw-h-24 tw-bg-gray-100 tw-rounded tw-flex tw-items-center tw-justify-center">
@@ -98,33 +124,67 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Timestamps -->
-                        <div class="tw-text-xs tw-text-gray-500 tw-mt-4">
-                            <div>Created: <span id="appointmentCreatedAt">Unknown</span></div>
-                            <div id="appointmentUpdatedBlock" class="tw-hidden">
-                                Last updated: <span id="appointmentUpdatedAt">Unknown</span>
+                    </div>
+
+                    <!-- Right Column - Pet Info -->
+                    <div class="lg:tw-col-span-1">
+                        <div class="tw-bg-gray-50 tw-rounded-lg tw-p-5 tw-shadow-sm">
+                            <h3 class="tw-text-lg tw-font-medium tw-mb-3 tw-flex tw-items-center">
+                                <svg class="tw-w-5 tw-h-5 tw-mr-2 tw-text-[#24CFF4]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M6.56 1.14a.75.75 0 01.7-.09l7 3a.75.75 0 01.44.69v9.25a.75.75 0 01-1.5 0V5.23l-5.5-2.36V16.5a.75.75 0 01-1.5 0V2.5c0-.27.18-.51.44-.59l.01-.01z" clip-rule="evenodd" />
+                                    <path d="M17.5 12a1 1 0 01-.75-.34l-2.5-2.67a1 1 0 01-.03-1.3l2.5-3a1 1 0 111.53 1.28l-1.89 2.26L17.8 9.8a1 1 0 01-.16 1.4.94.94 0 01-.14.04z" clip-rule="evenodd" />
+                                </svg>
+                                Pet Information
+                            </h3>
+
+                            <div class="tw-flex tw-justify-center tw-mb-4">
+                                <div id="petImage" class="tw-w-32 tw-h-32 tw-rounded-full tw-overflow-hidden tw-border-4 tw-border-[#24CFF4]/30 tw-bg-gray-200 tw-flex tw-items-center tw-justify-center">
+                                    <i class="fas fa-paw tw-text-gray-400 tw-text-3xl"></i>
+                                </div>
+                            </div>
+
+                            <div class="tw-text-center tw-mb-4">
+                                <h4 id="petName" class="tw-text-xl tw-font-semibold tw-mb-1"></h4>
+                                <div class="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-flex-wrap">
+                                    <span id="petSpecies" class="tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-bg-blue-100 tw-text-blue-800"></span>
+                                    <span id="petBreed" class="tw-text-sm tw-text-gray-500"></span>
+                                </div>
+                            </div>
+
+                            <div class="tw-grid tw-grid-cols-2 tw-gap-3 tw-mt-4">
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Age</h4>
+                                    <p id="petAge" class="tw-font-medium"></p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Gender</h4>
+                                    <p id="petGender" class="tw-font-medium"></p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Weight</h4>
+                                    <p id="petWeight" class="tw-font-medium"></p>
+                                </div>
+                                <div>
+                                    <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Breed</h4>
+                                    <p id="petBreed" class="tw-font-medium"></p>
+                                </div>
+                            </div>
+
+                            <div class="tw-mt-4">
+                                <h4 class="tw-text-gray-500 tw-text-sm tw-font-medium">Special Notes</h4>
+                                <p id="petNotes" class="tw-font-medium tw-bg-white tw-p-3 tw-rounded tw-mt-1 tw-text-sm tw-h-24 tw-overflow-y-auto"></p>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Actions Section -->
-                <div class="tw-flex tw-justify-between tw-mt-6 tw-pt-4 tw-border-t tw-border-gray-200">
-                    <div>
-                        <!-- Empty space to keep flex layout balanced -->
-                    </div>
-                    
-                    <div class="tw-flex tw-gap-2">
-                        <!-- Edit button -->
-                        <button id="editAppointmentBtn" class="tw-bg-gray-100 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-transition-all hover:tw-bg-gray-200">
-                            <i class="fas fa-edit tw-mr-2"></i>Edit
-                        </button>
-                        
-                        <!-- Cancel button -->
-                        <button id="cancelAppointmentBtn" class="tw-bg-red-50 tw-text-red-600 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-transition-all hover:tw-bg-red-100 tw-hidden">
-                            <i class="fas fa-times-circle tw-mr-2"></i>Cancel Booking
-                        </button>
+
+                        <div class="tw-mt-4 tw-space-y-3">
+                            <button id="editAppointmentBtn" class="tw-w-full tw-bg-gray-100 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-transition-all hover:tw-bg-gray-200">
+                                <i class="fas fa-edit tw-mr-2"></i>Edit
+                            </button>
+
+                            <button id="cancelAppointmentBtn" class="tw-hidden tw-w-full tw-bg-red-50 tw-text-red-600 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-transition-all hover:tw-bg-red-100">
+                                <i class="fas fa-times-circle tw-mr-2"></i>Cancel Booking
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,6 +246,8 @@
         // Function to populate appointment data in the modal
         function populateAppointmentData(appointment) {
             console.log("Populating appointment data:", appointment);
+
+            document.getElementById('appointmentId').textContent = '#' + (appointment.appointmentID || appointment.id || 'N/A');
             
             // Set appointment date and time
             document.getElementById('appointmentDate').textContent = formatDate(appointment.date);
@@ -203,6 +265,10 @@
                 document.getElementById('petName').textContent = appointment.pet.name;
                 document.getElementById('petSpecies').textContent = appointment.pet.species;
                 document.getElementById('petBreed').textContent = appointment.pet.breed;
+                document.getElementById('petAge').textContent = formatPetAge(appointment.pet.birthDate || appointment.pet.birthdate);
+                document.getElementById('petGender').textContent = appointment.pet.gender || 'Not specified';
+                document.getElementById('petWeight').textContent = appointment.pet.weight ? `${appointment.pet.weight} kg` : 'Not specified';
+                document.getElementById('petNotes').textContent = appointment.pet.petNotes || appointment.pet.special_notes || 'No special notes provided.';
                 
                 // Set pet image if available
                 const petImage = document.getElementById('petImage');
@@ -251,6 +317,8 @@
                 const fullPmt      = pmts.find(p => p.payment_type === 'full' && p.status === 'Completed');
                 const pendingGcashPmt = pmts.find(p => p.payment_method === 'GCash' && p.status === 'Pending');
                 const cashPendingPmt = pmts.find(p => p.payment_method === 'Cash' && p.status === 'Pending');
+                const paymentMethodEl = document.getElementById('view-payment-method');
+                const totalAmountEl = document.getElementById('appointmentTotalAmount');
 
                 document.getElementById('paymentStatusContainer').classList.remove('tw-hidden');
                 document.getElementById('paymentStatusBadge').classList.remove('tw-hidden');
@@ -270,6 +338,9 @@
                     const isDeposit = pendingGcashPmt.payment_type === 'deposit';
                     badgeClass = 'tw-bg-yellow-100 tw-text-yellow-800';
                     badgeText = '<i class="fas fa-clock tw-mr-2"></i>Pending Verification';
+                    paymentMethodEl.innerHTML = `GCash <span class="tw-text-xs tw-text-gray-400">(${isDeposit ? 'deposit submitted' : 'payment submitted'})</span>`;
+                    totalAmountEl.textContent = '₱' + totalCost.toFixed(2);
+                    document.getElementById('paymentCount').textContent = 'Pending Verification';
                     summaryHtml = `
                         <div class="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg tw-p-3 tw-text-sm">
                             <div class="tw-flex tw-justify-between tw-mb-1">
@@ -290,6 +361,9 @@
                     const balanceAmt = totalCost - depositAmt;
                     badgeClass  = 'tw-bg-blue-100 tw-text-blue-800';
                     badgeText   = '<i class="fas fa-credit-card tw-mr-2"></i>Deposit Paid';
+                    paymentMethodEl.innerHTML = 'GCash <span class="tw-text-xs tw-text-gray-400">(deposit)</span>';
+                    totalAmountEl.textContent = '₱' + totalCost.toFixed(2);
+                    document.getElementById('paymentCount').textContent = 'Deposit Paid';
                     summaryHtml = `
                         <div class="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded-lg tw-p-3 tw-text-sm">
                             <div class="tw-flex tw-justify-between tw-mb-1">
@@ -311,6 +385,9 @@
                     const totalPaid = parseFloat(depositPmt.amount) + parseFloat(balancePmt.amount);
                     badgeClass  = 'tw-bg-green-100 tw-text-green-800';
                     badgeText   = '<i class="fas fa-check-circle tw-mr-2"></i>Fully Paid';
+                    paymentMethodEl.textContent = 'GCash + Cash';
+                    totalAmountEl.textContent = '₱' + totalPaid.toFixed(2);
+                    document.getElementById('paymentCount').textContent = 'Fully Paid';
                     summaryHtml = `
                         <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-lg tw-p-3 tw-text-sm">
                             <div class="tw-flex tw-justify-between tw-mb-1">
@@ -332,6 +409,9 @@
                     const amt = parseFloat(fullPmt.amount);
                     badgeClass  = 'tw-bg-green-100 tw-text-green-800';
                     badgeText   = '<i class="fas fa-check-circle tw-mr-2"></i>Fully Paid';
+                    paymentMethodEl.textContent = 'GCash';
+                    totalAmountEl.textContent = '₱' + amt.toFixed(2);
+                    document.getElementById('paymentCount').textContent = 'Fully Paid';
                     summaryHtml = `
                         <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-rounded-lg tw-p-3 tw-text-sm">
                             <div class="tw-flex tw-justify-between">
@@ -345,6 +425,9 @@
                     const amt = parseFloat(cashPendingPmt.amount);
                     badgeClass  = 'tw-bg-yellow-100 tw-text-yellow-800';
                     badgeText   = '<i class="fas fa-clock tw-mr-2"></i>Pending';
+                    paymentMethodEl.innerHTML = 'Cash <span class="tw-text-xs tw-text-gray-400">(pay at counter)</span>';
+                    totalAmountEl.textContent = '₱' + amt.toFixed(2);
+                    document.getElementById('paymentCount').textContent = 'Pending';
                     summaryHtml = `
                         <div class="tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg tw-p-3 tw-text-sm">
                             <div class="tw-flex tw-justify-between tw-items-center">
@@ -360,6 +443,9 @@
                     const amt = parseFloat(fallbackPmt.amount);
                     badgeClass  = getPaymentStatusClass(fallbackPmt.status);
                     badgeText   = '<i class="fas fa-credit-card tw-mr-2"></i>' + fallbackPmt.status;
+                    paymentMethodEl.textContent = fallbackPmt.payment_method || 'N/A';
+                    totalAmountEl.textContent = '₱' + amt.toFixed(2);
+                    document.getElementById('paymentCount').textContent = fallbackPmt.status || 'Unknown';
                     summaryHtml = `<div class="tw-text-sm tw-text-gray-600">₱${amt.toFixed(2)} via ${fallbackPmt.payment_method}</div>`;
                 }
 
@@ -371,6 +457,8 @@
             } else {
                 document.getElementById('paymentStatusContainer').classList.add('tw-hidden');
                 document.getElementById('paymentCount').textContent = 'No payments';
+                document.getElementById('view-payment-method').textContent = 'Not yet paid';
+                document.getElementById('appointmentTotalAmount').textContent = appointment.service ? `₱${parseFloat(appointment.service.price || 0).toFixed(2)}` : '₱0.00';
             }
 
             // Show grooming images if available
@@ -611,6 +699,28 @@
                 minute: '2-digit',
                 hour12: true
             });
+        }
+
+        function formatPetAge(birthDateString) {
+            if (!birthDateString) return 'Not specified';
+
+            const birthDate = new Date(birthDateString);
+            if (Number.isNaN(birthDate.getTime())) return 'Not specified';
+
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 1) {
+                const months = Math.max(1, Math.floor((today - birthDate) / (1000 * 60 * 60 * 24 * 30)));
+                return months + ' month' + (months !== 1 ? 's' : '');
+            }
+
+            return age + ' year' + (age !== 1 ? 's' : '');
         }
     });
 });

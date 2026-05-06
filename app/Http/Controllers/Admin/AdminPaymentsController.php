@@ -240,7 +240,7 @@ class AdminPaymentsController extends Controller
     }
     
     /**
-     * Store a new payment record
+     * Complete an existing pending payment record
      */
     public function store(Request $request)
     {
@@ -251,7 +251,6 @@ class AdminPaymentsController extends Controller
             'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:Cash,GCash',
             'reference_number' => 'nullable|string',
-            'status' => 'required|in:Pending,Completed,Failed,Refunded',
             'payment_type' => 'nullable|in:deposit,full,balance'
         ]);
 
@@ -261,18 +260,10 @@ class AdminPaymentsController extends Controller
             ]);
         }
 
-        if ($validated['payable_type'] === 'App\\Models\\Appointment') {
-            $payable = Appointment::with(['service', 'payments' => function ($query) {
-                $query->where('status', 'Completed');
-            }])->findOrFail($validated['payable_id']);
-
-            $totalCost = $this->resolveAppointmentTotalCost($payable);
-        } elseif ($validated['payable_type'] === 'App\\Models\\Boarding') {
-            $payable = Boarding::with(['payments' => function ($query) {
-                $query->where('status', 'Completed');
-            }])->findOrFail($validated['payable_id']);
-
-            $totalCost = $this->resolveBoardingTotalCost($payable);
+        if ($validated['payable_type'] === 'App\Models\Appointment') {
+            $payable = Appointment::with(['service', 'payments'])->findOrFail($validated['payable_id']);
+        } elseif ($validated['payable_type'] === 'App\Models\Boarding') {
+            $payable = Boarding::with('payments')->findOrFail($validated['payable_id']);
         } else {
             return response()->json([
                 'success' => false,
@@ -280,23 +271,90 @@ class AdminPaymentsController extends Controller
             ], 422);
         }
 
-        $completedPaid = (float) $payable->payments->sum('amount');
-        $validated['total_cost'] = $totalCost;
-        $validated['payment_type'] = $validated['payment_type']
-            ?? ($completedPaid > 0 ? 'balance' : 'full');
+        $payment = $payable->payments()
+            ->where('status', 'Pending')
+            ->latest('paymentID')
+            ->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending payment record was found for this booking.'
+            ], 422);
+        }
+
+        $originalValues = $payment->toArray();
+        $payment->status = 'Completed';
+        $payment->save();
         
-        $payment = Payment::create($validated);
-        
-        // Log the creation
+        // Log the update
         ActivityLog::create([
             'table_name' => 'payments',
             'record_id' => $payment->paymentID,
-            'action' => 'create',
+            'action' => 'update',
+            'old_values' => json_encode($originalValues),
             'new_values' => json_encode($payment->toArray()),
             'userID' => auth()->id(),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
+
+        // Update booking status based on when payment was recorded vs booking date/time
+        $now = Carbon::now();
+        $newStatus = null;
+
+        if ($validated['payable_type'] === 'App\Models\Appointment') {
+            // For appointments: combine date and time
+            $appointmentDateTime = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $payable->date . ' ' . $payable->time
+            );
+
+            if ($now->lt($appointmentDateTime)) {
+                // Payment recorded before appointment time
+                $newStatus = 'Confirmed';
+            } else {
+                // Payment recorded after appointment time
+                $newStatus = 'Completed';
+            }
+        } elseif ($validated['payable_type'] === 'App\Models\Boarding') {
+            // For boardings: check if before, during, or after
+            $boardingStart = Carbon::parse($payable->start_date);
+            $boardingEnd = Carbon::parse($payable->end_date)->endOfDay();
+
+            if ($now->lt($boardingStart)) {
+                // Payment recorded before boarding starts
+                $newStatus = 'Confirmed';
+            } elseif ($now->lte($boardingEnd)) {
+                // Payment recorded during boarding (including end date)
+                $newStatus = 'Active';
+            } else {
+                // Payment recorded after boarding ends
+                $newStatus = 'Completed';
+            }
+        }
+
+        // Update booking status if determined
+        if ($newStatus && $payable->status !== $newStatus) {
+            $oldStatus = $payable->status;
+            $payable->status = $newStatus;
+            $payable->save();
+
+            // Log the status change
+            $bookingTable = $validated['payable_type'] === 'App\Models\Appointment' ? 'appointments' : 'boardings';
+            $bookingId = $validated['payable_type'] === 'App\Models\Appointment' ? $payable->appointmentID : $payable->boardingID;
+
+            ActivityLog::create([
+                'table_name' => $bookingTable,
+                'record_id' => $bookingId,
+                'action' => 'update',
+                'old_values' => json_encode(['status' => $oldStatus]),
+                'new_values' => json_encode(['status' => $newStatus]),
+                'userID' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
         
         return response()->json([
             'success' => true,
@@ -306,7 +364,7 @@ class AdminPaymentsController extends Controller
     }
 
     /**
-     * Get all unpaid or partially paid bookings for a specific user
+     * Get all fully unpaid bookings for a specific user
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -333,11 +391,11 @@ class AdminPaymentsController extends Controller
                 ->where('status', '!=', 'Cancelled')
                 ->get();
             
-            // Filter to only unpaid or partially paid appointments
+            // Filter to only fully unpaid appointments so the admin action completes the existing pending payment.
             $unpaidAppointments = $appointments->filter(function($appointment) {
                 $totalPrice = $this->resolveAppointmentTotalCost($appointment);
                 $totalPaid = $appointment->payments->sum('amount');
-                return $totalPaid < $totalPrice;
+                return $totalPaid == 0;
             })->values();
             
             // Get boardings for user
@@ -350,11 +408,11 @@ class AdminPaymentsController extends Controller
                 ->where('status', '!=', 'Cancelled')
                 ->get();
             
-            // Filter to only unpaid or partially paid boardings
+            // Filter to only fully unpaid boardings so the admin action completes the existing pending payment.
             $unpaidBoardings = $boardings->filter(function($boarding) {
                 $totalPrice = $this->resolveBoardingTotalCost($boarding);
                 $totalPaid = $boarding->payments->sum('amount');
-                return $totalPaid < $totalPrice;
+                return $totalPaid == 0;
             })->values();
             
             // Add remaining balance to each item
@@ -363,7 +421,7 @@ class AdminPaymentsController extends Controller
                 $totalPaid = $appointment->payments->sum('amount');
                 $appointment->price = $totalPrice;
                 $appointment->remaining_balance = max(0, $totalPrice - $totalPaid);
-                $appointment->is_partially_paid = $totalPaid > 0;
+                $appointment->is_partially_paid = false;
             }
             
             foreach ($unpaidBoardings as $boarding) {
@@ -371,7 +429,7 @@ class AdminPaymentsController extends Controller
                 $totalPaid = $boarding->payments->sum('amount');
                 $boarding->price = $totalPrice;
                 $boarding->remaining_balance = max(0, $totalPrice - $totalPaid);
-                $boarding->is_partially_paid = $totalPaid > 0;
+                $boarding->is_partially_paid = false;
             }
                 
             // Return combined data

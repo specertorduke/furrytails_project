@@ -59,15 +59,11 @@
                     <p class="tw-mt-1 tw-text-xs tw-text-gray-400">Required for GCash payments. Cash payments can leave this blank.</p>
                 </div>
 
-                <!-- Status -->
-                <div class="tw-mb-4">
-                    <label for="payment-status" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Status</label>
-                    <select id="payment-status" name="payment-status" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
-                        <option value="Pending">Pending</option>
-                        <option value="Completed" selected>Completed</option>
-                        <option value="Failed">Failed</option>
-                        <option value="Refunded">Refunded</option>
-                    </select>
+                <!-- Status note -->
+                <div class="tw-mb-4 tw-rounded-lg tw-border tw-border-gray-700 tw-bg-gray-700/40 tw-p-3">
+                    <p class="tw-text-xs tw-text-gray-300">
+                        New payments recorded for unpaid bookings are marked as Completed automatically.
+                    </p>
                 </div>
                 
                 <button type="submit" class="tw-text-black tw-inline-flex tw-items-center tw-bg-green-600 hover:tw-bg-green-500 focus:tw-outline-none focus:tw-bg-green-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
@@ -89,7 +85,6 @@ const AdminPaymentModal = {
         amountInput: null,
         methodSelect: null,
         referenceInput: null,
-        statusSelect: null,
         form: null,
         modal: null
     },
@@ -105,7 +100,6 @@ const AdminPaymentModal = {
         this.elements.amountInput = document.getElementById('payment-amount');
         this.elements.methodSelect = document.getElementById('payment-method');
         this.elements.referenceInput = document.getElementById('payment-reference');
-        this.elements.statusSelect = document.getElementById('payment-status');
         this.elements.form = document.getElementById('addPaymentForm');
         this.elements.modal = document.getElementById('addPayment-modal');
         
@@ -363,12 +357,6 @@ const AdminPaymentModal = {
             return false;
         }
         
-        const status = this.elements.statusSelect.value;
-        if (!status) {
-            this.showError('Please select a status');
-            return false;
-        }
-        
         return true;
     },
     
@@ -407,7 +395,7 @@ const AdminPaymentModal = {
             amount: this.elements.amountInput.value,
             payment_method: this.elements.methodSelect.value,
             reference_number: this.elements.referenceInput.value,
-            status: this.elements.statusSelect.value,
+            status: 'Completed',
             payment_type: selectedOption && selectedOption.dataset.partial === 'true' ? 'balance' : 'full'
         };
         
