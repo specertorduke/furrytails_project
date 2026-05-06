@@ -103,7 +103,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Extended Boarding',
                 'category' => 'Boarding',
-                'price' => 3000.00,
+                'price' => 1000.00,
                 'description' => 'Long-term boarding with overnight amenities plus additional activities. Special care for extended stays.',
                 'isActive' => true,
                 'created_at' => now(),

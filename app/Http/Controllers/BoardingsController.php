@@ -513,29 +513,29 @@ private function checkBoardingCapacity($startDate, $endDate, $excludeBoardingId 
 /**
  * Check capacity for given dates (for frontend preview)
  */
-public function checkAvailability(Request $request)
-{
-    $request->validate([
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after_or_equal:start_date'
-    ]);
-    
-    try {
-        $capacityCheck = $this->checkBoardingCapacity($request->start_date, $request->end_date);
-        
-        return response()->json([
-            'success' => true,
-            'available' => $capacityCheck['hasCapacity'],
-            'currentCount' => $capacityCheck['currentCount'],
-            'maxCapacity' => $capacityCheck['maxCapacity'],
-            'remainingSpots' => $capacityCheck['maxCapacity'] - $capacityCheck['currentCount']
+    public function checkAvailability(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
         ]);
-    } catch (\Exception $e) {
-        \Log::error('Error checking boarding availability: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to check availability',
-        ], 500);
+        
+        try {
+            $capacityCheck = $this->checkBoardingCapacity($request->start_date, $request->end_date);
+            
+            return response()->json([
+                'success' => true,
+                'available' => $capacityCheck['hasCapacity'],
+                'currentCount' => $capacityCheck['currentCount'],
+                'maxCapacity' => $capacityCheck['maxCapacity'],
+                'remainingSpots' => $capacityCheck['maxCapacity'] - $capacityCheck['currentCount']
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error checking boarding availability: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check availability',
+            ], 500);
+        }
     }
-}
 }

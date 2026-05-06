@@ -80,7 +80,7 @@ return new class extends Migration
             $table->foreign('petID')->references('petID')->on('pets')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['Confirmed','Active', 'Completed', 'Cancelled'])->default('Active');
+            $table->enum('status', ['Confirmed','Pending','Active', 'Completed', 'Cancelled'])->default('Active');
             $table->timestamps();
         });
 
