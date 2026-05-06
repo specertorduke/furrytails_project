@@ -5,7 +5,7 @@
 @section('content')
 @php $user = Auth::user(); @endphp
 
-<div class="tw-p-6 tw-min-h-screen tw-bg-gradient-to-br tw-from-white tw-to-[#e0f9fd]">
+<div id="user-account-settings" class="tw-p-6 tw-min-h-screen tw-bg-gradient-to-br tw-from-white tw-to-[#e0f9fd]">
 
     <!-- Page Header -->
     <div class="tw-mb-6">
@@ -27,6 +27,7 @@
                         <div class="tw-w-28 tw-h-28 tw-rounded-full tw-overflow-hidden tw-ring-4 tw-ring-[#24CFF4]/25">
                             <img id="profile-preview"
                                 src="{{ $user->profile_image_url }}"
+                                data-original-src="{{ $user->profile_image_url }}"
                                 alt="Profile"
                                 class="tw-w-full tw-h-full tw-object-cover">
                         </div>
@@ -221,7 +222,15 @@
 
 @push('scripts')
 <script>
-    // -- Real-time validation ------------------------------------------------
+window.initUserAccountSettings = function() {
+    const accountRoot = document.getElementById('user-account-settings');
+    const accountForm = document.getElementById('accountupdate');
+
+    if (!accountRoot || !accountForm || accountForm.dataset.initialized === 'true') {
+        return;
+    }
+
+    accountForm.dataset.initialized = 'true';
     const validateFieldUrl = "{{ route('account.validate-field') }}";
     const fieldState = {
         username: { available: null, pending: false },
@@ -230,34 +239,68 @@
     };
     const debounceTimers = {};
 
+    accountForm.reset();
+
+    const previewImage = document.getElementById('profile-preview');
+    if (previewImage && previewImage.dataset.originalSrc) {
+        previewImage.src = previewImage.dataset.originalSrc;
+    }
+
     function setFeedback(id, message, type) {
         const el = document.getElementById(id);
         if (!el) return;
-        el.classList.remove('tw-hidden','tw-text-gray-500','tw-text-red-500','tw-text-green-600','tw-text-amber-600');
-        if (!message) { el.classList.add('tw-hidden'); el.innerHTML = ''; return; }
-        const colorMap = { error: 'tw-text-red-500', success: 'tw-text-green-600', warning: 'tw-text-amber-600' };
+
+        el.classList.remove('tw-hidden', 'tw-text-gray-500', 'tw-text-red-500', 'tw-text-green-600', 'tw-text-amber-600');
+
+        if (!message) {
+            el.classList.add('tw-hidden');
+            el.innerHTML = '';
+            return;
+        }
+
+        const colorMap = {
+            error: 'tw-text-red-500',
+            success: 'tw-text-green-600',
+            warning: 'tw-text-amber-600',
+        };
+
         el.classList.add(colorMap[type] || 'tw-text-gray-500');
         el.innerHTML = message;
     }
 
     function queueCheck(field, value, delay) {
         clearTimeout(debounceTimers[field]);
-        debounceTimers[field] = setTimeout(function() { checkAvailability(field, value); }, delay || 350);
+        debounceTimers[field] = setTimeout(function() {
+            checkAvailability(field, value);
+        }, delay || 350);
     }
 
     async function checkAvailability(field, value) {
         fieldState[field].pending = true;
         const feedbackId = field + '-feedback';
+
         try {
-            const res = await fetch(validateFieldUrl + '?' + new URLSearchParams({ field: field, value: value }), {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            const query = new URLSearchParams({ field: field, value: value }).toString();
+            const response = await fetch(validateFieldUrl + '?' + query, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
             });
-            const data = await res.json();
+
+            if (!response.ok) {
+                throw new Error('Validation request failed.');
+            }
+
+            const data = await response.json();
             fieldState[field].available = !!data.available;
             fieldState[field].pending = false;
+
             const icon = data.available ? 'fa-check-circle' : 'fa-exclamation-circle';
-            setFeedback(feedbackId, '<i class="fas ' + icon + ' tw-mr-1"></i>' + data.message, data.available ? 'success' : 'error');
-        } catch (e) {
+            setFeedback(
+                feedbackId,
+                '<i class="fas ' + icon + ' tw-mr-1"></i>' + data.message,
+                data.available ? 'success' : 'error'
+            );
+        } catch (error) {
             fieldState[field].available = false;
             fieldState[field].pending = false;
             setFeedback(feedbackId, '<i class="fas fa-exclamation-circle tw-mr-1"></i> Unable to validate right now.', 'warning');
@@ -265,47 +308,81 @@
     }
 
     function validatePasswords() {
-        const pwd  = document.getElementById('password').value;
-        const conf = document.getElementById('password_confirmation').value;
-        if (pwd.length > 0) {
-            const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd) && /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-            setFeedback('password-strength',
-                strong ? '<i class="fas fa-check-circle tw-mr-1"></i> Strong password'
-                       : 'Must have 8+ chars, letters, numbers & symbols',
-                strong ? 'success' : 'error');
+        const passwordEl = document.getElementById('password');
+        const confirmationEl = document.getElementById('password_confirmation');
+
+        if (!passwordEl || !confirmationEl) {
+            return;
+        }
+
+        const password = passwordEl.value;
+        const confirmation = confirmationEl.value;
+
+        if (password.length > 0) {
+            const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            setFeedback(
+                'password-strength',
+                strong ? '<i class="fas fa-check-circle tw-mr-1"></i> Strong password' : 'Must have 8+ chars, letters, numbers & symbols',
+                strong ? 'success' : 'error'
+            );
         } else {
             setFeedback('password-strength', '');
         }
-        if (pwd.length > 0 && conf.length > 0) {
-            if (pwd === conf) setFeedback('password-match', '<i class="fas fa-check-circle tw-mr-1"></i> Passwords match', 'success');
-            else              setFeedback('password-match', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Passwords do not match', 'error');
+
+        if (password.length > 0 && confirmation.length > 0) {
+            setFeedback(
+                'password-match',
+                password === confirmation
+                    ? '<i class="fas fa-check-circle tw-mr-1"></i> Passwords match'
+                    : '<i class="fas fa-exclamation-circle tw-mr-1"></i> Passwords do not match',
+                password === confirmation ? 'success' : 'error'
+            );
         } else {
             setFeedback('password-match', '');
         }
     }
 
-    // -- Tab switching -------------------------------------------------------
-    function switchTab(tab) {
-        ['profile', 'security'].forEach(function(t) {
-            const panel = document.getElementById('panel-' + t);
-            const btn   = document.getElementById('tab-' + t);
-            if (t === tab) {
-                panel.classList.remove('tw-hidden');
-                btn.classList.add('tw-border-[#24CFF4]', 'tw-text-[#24CFF4]');
-                btn.classList.remove('tw-border-transparent', 'tw-text-gray-400');
-            } else {
-                panel.classList.add('tw-hidden');
-                btn.classList.remove('tw-border-[#24CFF4]', 'tw-text-[#24CFF4]');
-                btn.classList.add('tw-border-transparent', 'tw-text-gray-400');
-            }
+    function hasErrors(feedbackIds) {
+        return feedbackIds.some(function(id) {
+            const el = document.getElementById(id);
+            return el && !el.classList.contains('tw-hidden') && el.classList.contains('tw-text-red-500');
         });
-        document.getElementById('active_tab').value = tab;
     }
 
-    // -- Password visibility toggle ------------------------------------------
-    function togglePwd(fieldId) {
+    window.switchTab = function(tab) {
+        ['profile', 'security'].forEach(function(section) {
+            const panel = document.getElementById('panel-' + section);
+            const button = document.getElementById('tab-' + section);
+
+            if (!panel || !button) {
+                return;
+            }
+
+            if (section === tab) {
+                panel.classList.remove('tw-hidden');
+                button.classList.add('tw-border-[#24CFF4]', 'tw-text-[#24CFF4]');
+                button.classList.remove('tw-border-transparent', 'tw-text-gray-400');
+            } else {
+                panel.classList.add('tw-hidden');
+                button.classList.remove('tw-border-[#24CFF4]', 'tw-text-[#24CFF4]');
+                button.classList.add('tw-border-transparent', 'tw-text-gray-400');
+            }
+        });
+
+        const activeTab = document.getElementById('active_tab');
+        if (activeTab) {
+            activeTab.value = tab;
+        }
+    };
+
+    window.togglePwd = function(fieldId) {
         const input = document.getElementById(fieldId);
-        const icon  = document.getElementById('eye-' + fieldId);
+        const icon = document.getElementById('eye-' + fieldId);
+
+        if (!input || !icon) {
+            return;
+        }
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.replace('fa-eye-slash', 'fa-eye');
@@ -313,30 +390,47 @@
             input.type = 'password';
             icon.classList.replace('fa-eye', 'fa-eye-slash');
         }
-    }
+    };
 
-    // -- Field listeners -----------------------------------------------------
     const usernameEl = document.getElementById('username');
     if (usernameEl) {
         usernameEl.addEventListener('input', function() {
-            const val = this.value.trim();
+            const value = this.value.trim();
             fieldState.username.available = null;
-            if (!val) { setFeedback('username-feedback', ''); return; }
-            if (val.length < 5) { setFeedback('username-feedback', 'Username must be at least 5 characters.', 'error'); return; }
+
+            if (!value) {
+                setFeedback('username-feedback', '');
+                return;
+            }
+
+            if (value.length < 5) {
+                setFeedback('username-feedback', 'Username must be at least 5 characters.', 'error');
+                return;
+            }
+
             setFeedback('username-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking...', 'warning');
-            queueCheck('username', val);
+            queueCheck('username', value);
         });
     }
 
     const emailEl = document.getElementById('email');
     if (emailEl) {
         emailEl.addEventListener('input', function() {
-            const val = this.value.trim();
+            const value = this.value.trim();
             fieldState.email.available = null;
-            if (!val) { setFeedback('email-feedback', ''); return; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setFeedback('email-feedback', 'Please enter a valid email address.', 'error'); return; }
+
+            if (!value) {
+                setFeedback('email-feedback', '');
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                setFeedback('email-feedback', 'Please enter a valid email address.', 'error');
+                return;
+            }
+
             setFeedback('email-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking...', 'warning');
-            queueCheck('email', val);
+            queueCheck('email', value);
         });
     }
 
@@ -354,106 +448,144 @@
         });
     }
 
-    document.getElementById('password').addEventListener('input', validatePasswords);
-    document.getElementById('password_confirmation').addEventListener('input', validatePasswords);
+    const passwordEl = document.getElementById('password');
+    const passwordConfirmationEl = document.getElementById('password_confirmation');
 
-    // -- Phone formatting & validation ---------------------------------------
+    if (passwordEl) {
+        passwordEl.addEventListener('input', validatePasswords);
+    }
+
+    if (passwordConfirmationEl) {
+        passwordConfirmationEl.addEventListener('input', validatePasswords);
+    }
+
     const phoneInput = document.getElementById('phoneNumber');
     if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            let val = e.target.value.replace(/\D/g, '');
-            if (val.length > 10) val = val.slice(0, 10);
-            if (val.length > 6)      val = val.slice(0, 3) + ' ' + val.slice(3, 6) + ' ' + val.slice(6);
-            else if (val.length > 3) val = val.slice(0, 3) + ' ' + val.slice(3);
-            e.target.value = val;
+        phoneInput.addEventListener('input', function(event) {
+            let value = event.target.value.replace(/\D/g, '');
+
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+
+            if (value.length > 6) {
+                value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + ' ' + value.slice(3);
+            }
+
+            event.target.value = value;
             fieldState.phone.available = null;
-            if (!val) { setFeedback('phone-feedback', ''); return; }
-            if (!/^9\d{2}\s?\d{3}\s?\d{4}$/.test(val)) {
+
+            if (!value) {
+                setFeedback('phone-feedback', '');
+                return;
+            }
+
+            if (!/^9\d{2}\s?\d{3}\s?\d{4}$/.test(value)) {
                 setFeedback('phone-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Invalid format. Use 9XX XXX XXXX.', 'error');
                 return;
             }
+
             setFeedback('phone-feedback', '<i class="fas fa-spinner fa-spin tw-mr-1"></i> Checking phone...', 'warning');
-            queueCheck('phone', val);
+            queueCheck('phone', value);
         });
     }
 
-    // -- Profile image preview -----------------------------------------------
-    document.getElementById('profile_image').addEventListener('change', function(e) {
-        if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                document.getElementById('profile-preview').src = ev.target.result;
-                const h = document.createElement('input');
-                h.type = 'hidden'; h.name = 'image_changed'; h.value = '1';
-                document.getElementById('accountupdate').appendChild(h);
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-
-    // -- Confirm update -------------------------------------------------------
-    function hasErrors(feedbackIds) {
-        return feedbackIds.some(function(id) {
-            const el = document.getElementById(id);
-            return el && !el.classList.contains('tw-hidden') && el.classList.contains('tw-text-red-500');
+    const profileImageInput = document.getElementById('profile_image');
+    if (profileImageInput) {
+        profileImageInput.addEventListener('change', function(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(loadEvent) {
+                    if (previewImage) {
+                        previewImage.src = loadEvent.target.result;
+                    }
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
         });
     }
 
-    function confirmUpdate() {
+    window.confirmUpdate = function() {
         const activeTab = document.getElementById('active_tab').value;
 
-        // Block while async checks are running
         if (fieldState.username.pending || fieldState.email.pending || fieldState.phone.pending) {
-            Swal.fire({ title: 'Please wait', text: 'Still validating your inputs, try again in a moment.', icon: 'info',
-                confirmButtonColor: '#24CFF4' });
+            Swal.fire({
+                title: 'Please wait',
+                text: 'Still validating your inputs, try again in a moment.',
+                icon: 'info',
+                confirmButtonColor: '#24CFF4'
+            });
             return;
         }
 
         if (activeTab === 'profile') {
-            // Required fields
-            const fn = document.getElementById('firstName').value.trim();
-            const ln = document.getElementById('lastName').value.trim();
-            const un = document.getElementById('username').value.trim();
-            const em = document.getElementById('email').value.trim();
-            if (!fn || !ln || !un || !em) {
-                Swal.fire({ title: 'Missing fields', text: 'Please fill in all required fields.', icon: 'error',
-                    confirmButtonColor: '#24CFF4' });
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!firstName || !lastName || !username || !email) {
+                Swal.fire({
+                    title: 'Missing fields',
+                    text: 'Please fill in all required fields.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4'
+                });
                 return;
             }
-            // Any red feedback visible
-            if (hasErrors(['firstName-feedback','lastName-feedback','username-feedback','email-feedback','phone-feedback'])) {
-                Swal.fire({ title: 'Fix errors first', text: 'Please correct the highlighted fields before saving.', icon: 'error',
-                    confirmButtonColor: '#24CFF4' });
+
+            if (hasErrors(['firstName-feedback', 'lastName-feedback', 'username-feedback', 'email-feedback', 'phone-feedback'])) {
+                Swal.fire({
+                    title: 'Fix errors first',
+                    text: 'Please correct the highlighted fields before saving.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4'
+                });
                 return;
             }
-            // Uniqueness failures
+
             if (fieldState.username.available === false || fieldState.email.available === false || fieldState.phone.available === false) {
-                Swal.fire({ title: 'Fix errors first', text: 'Username, email or phone is already taken.', icon: 'error',
-                    confirmButtonColor: '#24CFF4' });
+                Swal.fire({
+                    title: 'Fix errors first',
+                    text: 'Username, email or phone is already taken.',
+                    icon: 'error',
+                    confirmButtonColor: '#24CFF4'
+                });
                 return;
             }
-            // Phone format
-            const pInput = document.getElementById('phoneNumber');
-            const pValue = pInput ? pInput.value.trim() : '';
-            if (pValue && !/^9\d{2}\s?\d{3}\s?\d{4}$/.test(pValue)) {
+
+            const phoneValue = phoneInput ? phoneInput.value.trim() : '';
+            if (phoneValue && !/^9\d{2}\s?\d{3}\s?\d{4}$/.test(phoneValue)) {
                 setFeedback('phone-feedback', '<i class="fas fa-exclamation-circle tw-mr-1"></i> Invalid format. Use 9XX XXX XXXX.', 'error');
-                pInput.focus();
+                phoneInput.focus();
                 return;
             }
         } else {
-            // Security tab
-            const pwd  = document.getElementById('password').value;
-            const conf = document.getElementById('password_confirmation').value;
-            if (pwd) {
-                const strong = pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd) && /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+            const password = passwordEl ? passwordEl.value : '';
+            const confirmation = passwordConfirmationEl ? passwordConfirmationEl.value : '';
+
+            if (password) {
+                const strong = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
                 if (!strong) {
-                    Swal.fire({ title: 'Weak password', text: 'Password must have 8+ characters, letters, numbers & symbols.', icon: 'error',
-                        confirmButtonColor: '#24CFF4' });
+                    Swal.fire({
+                        title: 'Weak password',
+                        text: 'Password must have 8+ characters, letters, numbers & symbols.',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4'
+                    });
                     return;
                 }
-                if (pwd !== conf) {
-                    Swal.fire({ title: 'Passwords do not match', text: 'Please make sure both password fields match.', icon: 'error',
-                        confirmButtonColor: '#24CFF4' });
+
+                if (password !== confirmation) {
+                    Swal.fire({
+                        title: 'Passwords do not match',
+                        text: 'Please make sure both password fields match.',
+                        icon: 'error',
+                        confirmButtonColor: '#24CFF4'
+                    });
                     return;
                 }
             }
@@ -470,13 +602,25 @@
             cancelButtonText: 'Cancel'
         }).then(function(result) {
             if (result.isConfirmed) {
-                document.getElementById('accountupdate').submit();
+                accountForm.setAttribute('data-confirmed', 'true');
+                accountForm.submit();
             }
+        });
+    };
+
+    if (accountForm) {
+        accountForm.addEventListener('submit', function(event) {
+            if (!this.hasAttribute('data-confirmed')) {
+                event.preventDefault();
+                window.confirmUpdate();
+                return;
+            }
+
+            this.removeAttribute('data-confirmed');
         });
     }
 
-    // -- Account deletion ----------------------------------------------------
-    function confirmAccountDeletion() {
+    window.confirmAccountDeletion = function() {
         Swal.fire({
             title: 'Confirm Account Deletion',
             text: 'This action cannot be undone. Enter your password to confirm.',
@@ -489,7 +633,11 @@
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'Delete my account',
             cancelButtonText: 'Cancel',
-            inputValidator: function(val) { if (!val) return 'Password is required.'; }
+            inputValidator: function(value) {
+                if (!value) {
+                    return 'Password is required.';
+                }
+            }
         }).then(function(result) {
             if (result.isConfirmed) {
                 fetch('{{ route('account.delete') }}', {
@@ -498,6 +646,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ password: result.value })
                 }).then(function(response) {
                     return response.json();
@@ -512,9 +661,8 @@
                 });
             }
         });
-    }
+    };
 
-    // -- Session flash -------------------------------------------------------
     @if(session('success'))
         Swal.fire({ title: 'Success!', text: "{{ session('success') }}", icon: 'success', confirmButtonColor: '#24CFF4' });
     @endif
@@ -522,6 +670,9 @@
     @if($errors->any())
         Swal.fire({ title: 'Error!', html: {!! json_encode(implode('<br>', $errors->all()), JSON_HEX_TAG) !!}, icon: 'error', confirmButtonColor: '#24CFF4' });
     @endif
+};
+
+window.initUserAccountSettings();
 </script>
 @endpush
 
