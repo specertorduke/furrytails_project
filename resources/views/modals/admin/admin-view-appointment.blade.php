@@ -873,3 +873,5 @@ function initializeAdminViewAppointmentModal() {
 initializeAdminViewAppointmentModal();
 document.addEventListener('contentChanged', initializeAdminViewAppointmentModal);
 </script>
+
+

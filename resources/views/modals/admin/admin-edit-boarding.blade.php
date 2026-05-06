@@ -29,7 +29,7 @@
                             <!-- Client Selection -->
                             <div>
                                 <label for="edit-boarding-userID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Client</label>
-                                <select id="edit-boarding-userID" name="userID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
+                                <select id="edit-boarding-userID" name="userID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                                     <option value="">Select a client</option>
                                     <!-- Will be populated via JavaScript -->
                                 </select>
@@ -38,7 +38,7 @@
                             <!-- Pet Selection -->
                             <div>
                                 <label for="edit-boarding-petID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Pet</label>
-                                <select id="edit-boarding-petID" name="petID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
+                                <select id="edit-boarding-petID" name="petID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                                     <option value="">Select a pet</option>
                                     <!-- Will be populated via JavaScript -->
                                 </select>
@@ -53,7 +53,7 @@
                         <!-- Boarding Type -->
                         <div class="tw-mb-4">
                             <label for="edit-boardingType" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Boarding Type</label>
-                            <select id="edit-boardingType" name="boardingType" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
+                            <select id="edit-boardingType" name="boardingType" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                                 <option value="">Select boarding type</option>
                                 <option value="Daycare">Daycare</option>
                                 <option value="Overnight">Overnight</option>
@@ -66,13 +66,13 @@
                             <!-- Start Date -->
                             <div>
                                 <label for="edit-start_date" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Start Date</label>
-                                <input type="date" id="edit-start_date" name="start_date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
+                                <input type="date" id="edit-start_date" name="start_date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                             </div>
                             
                             <!-- End Date -->
                             <div>
                                 <label for="edit-end_date" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">End Date</label>
-                                <input type="date" id="edit-end_date" name="end_date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
+                                <input type="date" id="edit-end_date" name="end_date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#66FF8F] focus:tw-ring-[#66FF8F]" required>
                             </div>
                         </div>
                         
@@ -521,3 +521,5 @@
 });
 });
 </script>
+
+

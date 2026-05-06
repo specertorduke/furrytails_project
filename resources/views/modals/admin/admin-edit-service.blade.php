@@ -23,13 +23,13 @@
                 <!-- Service Name -->
                 <div class="tw-mb-4">
                     <label for="edit-service-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Service Name</label>
-                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400" required maxlength="100" placeholder="Enter service name">
+                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60"100" placeholder="Enter service name">
                 </div>
 
                 <!-- Service Category -->
                 <div class="tw-mb-4">
                     <label for="edit-service-category" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Category</label>
-                    <select id="edit-service-category" name="category" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="edit-service-category" name="category" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select category</option>
                         <option value="Grooming">Grooming</option>
                         <option value="Boarding">Boarding</option>
@@ -43,7 +43,7 @@
                     <label for="edit-service-price" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Price (₱)</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-pointer-events-none tw-text-gray-400">₱</span>
-                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400" required min="0" step="0.01" placeholder="0.00">
+                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60"0" step="0.01" placeholder="0.00">
                     </div>
                 </div>
 
@@ -416,3 +416,5 @@ document.addEventListener('contentChanged', function() {
     AdminEditServiceModal.init();
 });
 </script>
+
+

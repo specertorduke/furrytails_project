@@ -82,13 +82,13 @@
                             <!-- Date Selection -->
                             <div>
                                 <label for="edit-date" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">New Date</label>
-                                <input type="date" id="edit-date" name="date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
+                                <input type="date" id="edit-date" name="date" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
                             </div>
                             
                             <!-- Time Selection -->
                             <div>
                                 <label for="edit-time" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">New Time</label>
-                                <select id="edit-time" name="time" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
+                                <select id="edit-time" name="time" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#FF9666] focus:tw-ring-[#FF9666]" required>
                                     <option value="">Select a time</option>
                                     <!-- Will be populated via JavaScript -->
                                 </select>
@@ -591,3 +591,5 @@
     });
 });
 </script>
+
+

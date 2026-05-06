@@ -21,26 +21,26 @@
                     <!-- First Name field -->
                     <div>
                         <label for="first-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">First Name</label>
-                        <input type="text" name="first-name" id="first-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <input type="text" name="first-name" id="first-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                     </div>
 
                     <!-- Last Name field -->
                     <div>
                         <label for="last-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Last Name</label>
-                        <input type="text" name="last-name" id="last-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <input type="text" name="last-name" id="last-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                     </div>
                 </div>
 
                 <!-- Email field - Single row -->
                 <div class="tw-mb-4">
                     <label for="email" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Email</label>
-                    <input type="email" name="email" id="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <input type="email" name="email" id="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                 </div>
 
                 <!-- Username field - Single row -->
                 <div class="tw-mb-4">
                     <label for="username" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Username</label>
-                    <input type="text" name="username" id="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <input type="text" name="username" id="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                 </div>
 
                 <!-- Phone field - Single row -->
@@ -48,7 +48,7 @@
                     <label for="phone" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Phone</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400">+63</span>
-                        <input type="tel" name="phone" id="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-12 tw-p-2.5" placeholder="9XX XXX XXXX" required>
+                        <input type="tel" name="phone" id="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-12 tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="9XX XXX XXXX" required>
                     </div>
                     <div class="tw-flex tw-justify-between tw-items-center tw-mt-1">
                         <span class="tw-text-xs tw-text-gray-400">Format: 9XX XXX XXXX</span>
@@ -59,19 +59,19 @@
                 <!-- Password field - Single row -->
                 <div class="tw-mb-4">
                     <label for="password" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Password</label>
-                    <input type="password" name="password" id="a-password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <input type="password" name="password" id="a-password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                 </div>
 
                 <!-- Confirm Password field - Single row -->
                 <div class="tw-mb-4">
                     <label for="password-confirm" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Confirm Password</label>
-                    <input type="password" name="password-confirm" id="password-confirm" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <input type="password" name="password-confirm" id="password-confirm" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                 </div>
 
                 <!-- Role field - Single row -->
                 <div class="tw-mb-4">
                     <label for="role" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Role</label>
-                    <select id="role" name="role" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="role" name="role" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="user" selected>User</option>
                         <option value="admin">Admin</option>
                     </select>
@@ -420,3 +420,5 @@
     }
 });
 </script>
+
+

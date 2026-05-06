@@ -1,4 +1,4 @@
-﻿@extends('admin.adminLayout')
+@extends('admin.adminLayout')
 
 @section('title', 'Account Settings')
 
@@ -15,7 +15,7 @@
 
     <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
 
-        <!-- â”€â”€ Left: Profile Card â”€â”€ -->
+        <!-- ── Left: Profile Card ── -->
         <div class="lg:tw-col-span-1 tw-space-y-4">
 
             <!-- Avatar + Info Card -->
@@ -58,7 +58,7 @@
                         <div class="tw-w-7 tw-h-7 tw-rounded-lg tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
                             <i class="fas fa-phone tw-text-gray-400 tw-text-xs"></i>
                         </div>
-                        <span class="tw-text-gray-300 tw-text-sm">{{ $user->phone ?: 'â€”' }}</span>
+                        <span class="tw-text-gray-300 tw-text-sm">{{ $user->phone ?: '—' }}</span>
                     </div>
                     <div class="tw-flex tw-items-center tw-gap-3">
                         <div class="tw-w-7 tw-h-7 tw-rounded-lg tw-bg-gray-700 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <!-- â”€â”€ Right: Settings Tabs â”€â”€ -->
+        <!-- ── Right: Settings Tabs ── -->
         <div class="lg:tw-col-span-2">
             <div class="tw-bg-gray-800 tw-rounded-2xl tw-border tw-border-gray-700 tw-overflow-hidden">
 
@@ -102,7 +102,7 @@
                     <input type="hidden" name="cropped_image" id="cropped_image_data">
                     <input type="hidden" name="active_tab" id="active_tab" value="profile">
 
-                    <!-- â”€â”€ Profile Panel â”€â”€ -->
+                    <!-- ── Profile Panel ── -->
                     <div id="panel-profile" class="tw-p-6">
                         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-5">
 
@@ -167,7 +167,7 @@
                         </div>
                     </div>
 
-                    <!-- â”€â”€ Security Panel â”€â”€ -->
+                    <!-- ── Security Panel ── -->
                     <div id="panel-security" class="tw-p-6 tw-hidden">
                         <p class="tw-text-sm tw-text-gray-400 tw-mb-5">Leave the password fields blank to keep your current password.</p>
 
@@ -349,7 +349,7 @@ $(document).ready(function() {
     document.getElementById('password').addEventListener('input', validatePasswords);
     document.getElementById('password_confirmation').addEventListener('input', validatePasswords);
 
-    // â”€â”€ Tab switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Tab switching ──────────────────────────────────────────
     window.switchTab = function(tab) {
         ['profile', 'security'].forEach(function(t) {
             const panel = document.getElementById('panel-' + t);
@@ -367,7 +367,7 @@ $(document).ready(function() {
         document.getElementById('active_tab').value = tab;
     };
 
-    // â”€â”€ Password visibility toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Password visibility toggle ─────────────────────────────
     window.togglePwd = function(fieldId) {
         const input = document.getElementById(fieldId);
         const icon  = document.getElementById('eye-' + fieldId);
@@ -380,7 +380,7 @@ $(document).ready(function() {
         }
     };
 
-    // â”€â”€ Phone formatting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Phone formatting ───────────────────────────────────────
     // -- Phone formatting & validation -------------------------------------
     const phoneInput = document.getElementById('phoneNumber');
     if (phoneInput) {
@@ -401,7 +401,7 @@ $(document).ready(function() {
         });
     }
 
-    // â”€â”€ Profile image â†’ Cropper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Profile image → Cropper ────────────────────────────────
     const cropperModal = document.getElementById('cropperModal');
     const cropperImage = document.getElementById('cropperImage');
 
@@ -436,7 +436,7 @@ $(document).ready(function() {
         closeCropper();
     });
 
-    // â”€â”€ Confirm update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Confirm update ─────────────────────────────────────────
     // -- Confirm update -------------------------------------------------------
     function hasErrors(feedbackIds, errorClass) {
         return feedbackIds.some(function(id) {
@@ -543,7 +543,7 @@ $(document).ready(function() {
         }
     });
 
-    // â”€â”€ Logout all devices â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Logout all devices ─────────────────────────────────────
     window.confirmAdminLogout = function() {
         Swal.fire({
             title: 'Log Out From All Devices?',
@@ -563,7 +563,7 @@ $(document).ready(function() {
         });
     };
 
-    // â”€â”€ Session flash â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Session flash ──────────────────────────────────────────
     // -- Session flash -------------------------------------------------------
     @if(session('success'))
         Swal.fire({ title: 'Success!', text: "{{ session('success') }}", icon: 'success',

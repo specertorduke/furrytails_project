@@ -19,7 +19,7 @@
                 <!-- User selection field - Admin specific -->
                 <div class="tw-mb-4">
                     <label for="boarding-user" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Select User</label>
-                    <select id="boarding-user" name="boarding-user" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="boarding-user" name="boarding-user" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select a user</option>
                         <!-- User options will be populated via AJAX -->
                     </select>
@@ -28,7 +28,7 @@
                 <!-- Pet selection field - will be populated based on selected user -->
                 <div class="tw-mb-4">
                     <label for="boarding-pet" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Pet</label>
-                    <select id="boarding-pet" name="boarding-pet" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required disabled>
+                    <select id="boarding-pet" name="boarding-pet" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required disabled>
                         <option value="">Select a user first</option>
                     </select>
                 </div>
@@ -36,7 +36,7 @@
                 <!-- Boarding type selection -->
                 <div class="tw-mb-4">
                     <label for="boarding-type" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Boarding Type</label>
-                    <select id="boarding-type" name="boarding-type" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="boarding-type" name="boarding-type" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select type</option>
                         <option value="Daycare">Daycare</option>
                         <option value="Overnight">Overnight</option>
@@ -51,13 +51,13 @@
                             <label for="boarding-start" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Start Date</label>
                             <input type="date" name="boarding-start" id="boarding-start" 
                                 min="{{ date('Y-m-d') }}" 
-                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         </div>
                         <div>
                             <label for="boarding-end" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">End Date</label>
                             <input type="date" name="boarding-end" id="boarding-end"
                                 min="{{ date('Y-m-d', strtotime('+1 day')) }}" 
-                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         </div>
                     </div>
                 </div>
@@ -483,3 +483,5 @@ document.addEventListener('contentChanged', function() {
     AdminBoardingModal.init();
 });
 </script>
+
+

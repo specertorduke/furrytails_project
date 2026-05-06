@@ -19,7 +19,7 @@
                 <!-- Pet selection field -->
                 <div class="tw-mb-4">
                     <label for="selected-pet" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Pet</label>
-                    <select id="selected-pet" name="selected-pet" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="selected-pet" name="selected-pet" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select your pet</option>
                     </select>
                 </div>
@@ -31,11 +31,11 @@
                         <input type="date" name="appointment-date" id="appointment-date" 
                             value="" 
                             min="{{ date('Y-m-d', strtotime('+1 day')) }}" 
-                            class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                            class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                     </div>
                     <div>
                         <label for="appointment-time" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Time</label>
-                        <select id="appointment-time" name="appointment-time" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required disabled>
+                        <select id="appointment-time" name="appointment-time" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required disabled>
                             <option value="">Select date first</option>
                         </select>
                     </div>
@@ -44,7 +44,7 @@
                 <!-- Service selection -->
                 <div class="tw-mb-4">
                     <label for="service" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Service</label>
-                    <select id="service" name="service" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="service" name="service" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select service</option>
                     </select>
                 </div>
@@ -376,3 +376,5 @@ document.addEventListener('contentChanged', function() {
     AppointmentModal.init();
 });
 </script>
+
+

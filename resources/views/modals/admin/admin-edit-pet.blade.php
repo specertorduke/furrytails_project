@@ -44,13 +44,13 @@
                             <!-- Name -->
                             <div>
                                 <label for="name" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Pet Name</label>
-                                <input type="text" id="name" name="name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="text" id="name" name="name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Species -->
                             <div>
                                 <label for="species" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Species</label>
-                                <select id="species" name="species" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <select id="species" name="species" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                                     <option value="Dog">Dog</option>
                                     <option value="Cat">Cat</option>
                                     <option value="Rabbit">Rabbit</option>
@@ -66,13 +66,13 @@
                             <!-- Breed -->
                             <div>
                                 <label for="breed" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Breed</label>
-                                <input type="text" id="breed" name="breed" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500">
+                                <input type="text" id="breed" name="breed" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500">
                             </div>
                             
                             <!-- Gender -->
                             <div>
                                 <label for="gender" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Gender</label>
-                                <select id="gender" name="gender" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <select id="gender" name="gender" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
@@ -81,19 +81,19 @@
                             <!-- Birth Date -->
                             <div>
                                 <label for="birthDate" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Birth Date</label>
-                                <input type="date" id="birthDate" name="birthDate" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="date" id="birthDate" name="birthDate" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Weight -->
                             <div>
                                 <label for="weight" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Weight (kg)</label>
-                                <input type="number" step="0.01" id="weight" name="weight" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500">
+                                <input type="number" step="0.01" id="weight" name="weight" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500">
                             </div>
                             
                             <!-- Owner -->
                             <div class="tw-col-span-2">
                                 <label for="userID" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Owner</label>
-                                <select id="userID" name="userID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <select id="userID" name="userID" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                                     <!-- Will be populated via JavaScript -->
                                 </select>
                             </div>
@@ -110,25 +110,25 @@
                             <!-- Last Vaccination Date -->
                             <div>
                                 <label for="lastVaccinationDate" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Last Vaccination Date</label>
-                                <input type="date" id="lastVaccinationDate" name="lastVaccinationDate" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500">
+                                <input type="date" id="lastVaccinationDate" name="lastVaccinationDate" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500">
                             </div>
                             
                             <!-- Medical History -->
                             <div class="tw-col-span-2">
                                 <label for="medicalHistory" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Medical History</label>
-                                <textarea id="medicalHistory" name="medicalHistory" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
+                                <textarea id="medicalHistory" name="medicalHistory" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
                             </div>
                             
                             <!-- Allergies -->
                             <div class="tw-col-span-2">
                                 <label for="allergies" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Allergies</label>
-                                <textarea id="allergies" name="allergies" rows="2" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
+                                <textarea id="allergies" name="allergies" rows="2" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
                             </div>
                             
                             <!-- Notes -->
                             <div class="tw-col-span-2">
                                 <label for="petNotes" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Notes</label>
-                                <textarea id="petNotes" name="petNotes" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
+                                <textarea id="petNotes" name="petNotes" rows="3" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500"></textarea>
                             </div>
                         </div>
                     </div>
@@ -488,3 +488,5 @@
         openEditPetModal(petId);
  };
 </script>
+
+

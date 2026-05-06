@@ -19,7 +19,7 @@
                 <!-- User selection field -->
                 <div class="tw-mb-4">
                     <label for="payment-user" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Select User</label>
-                    <select id="payment-user" name="payment-user" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="payment-user" name="payment-user" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select a user</option>
                         <!-- User options will be populated via AJAX -->
                     </select>
@@ -28,7 +28,7 @@
                 <!-- Unpaid booking selection field -->
                 <div class="tw-mb-4">
                     <label for="payment-booking" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Select Unpaid Booking</label>
-                    <select id="payment-booking" name="payment-booking" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required disabled>
+                    <select id="payment-booking" name="payment-booking" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required disabled>
                         <option value="">Select a user first</option>
                     </select>
                 </div>
@@ -38,14 +38,14 @@
                     <label for="payment-amount" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Amount (₱)</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-pointer-events-none tw-text-gray-400">₱</span>
-                        <input type="number" name="payment-amount" id="payment-amount" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5" required min="0" step="0.01" placeholder="0.00">
+                        <input type="number" name="payment-amount" id="payment-amount" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" required min="0" step="0.01" placeholder="0.00">
                     </div>
                 </div>
 
                 <!-- Payment Method -->
                 <div class="tw-mb-4">
                     <label for="payment-method" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Payment Method</label>
-                    <select id="payment-method" name="payment-method" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="payment-method" name="payment-method" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="">Select payment method</option>
                         <option value="Cash">Cash</option>
                         <option value="GCash">GCash</option>
@@ -55,14 +55,14 @@
                 <!-- Reference Number -->
                 <div class="tw-mb-4">
                     <label for="payment-reference" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Reference Number</label>
-                    <input type="text" name="payment-reference" id="payment-reference" inputmode="numeric" autocomplete="off" maxlength="13" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="13-digit GCash reference number">
+                    <input type="text" name="payment-reference" id="payment-reference" inputmode="numeric" autocomplete="off" maxlength="13" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="13-digit GCash reference number">
                     <p class="tw-mt-1 tw-text-xs tw-text-gray-400">Required for GCash payments. Cash payments can leave this blank.</p>
                 </div>
 
                 <!-- Status -->
                 <div class="tw-mb-4">
                     <label for="payment-status" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Status</label>
-                    <select id="payment-status" name="payment-status" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                    <select id="payment-status" name="payment-status" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                         <option value="Pending">Pending</option>
                         <option value="Completed" selected>Completed</option>
                         <option value="Failed">Failed</option>
@@ -482,3 +482,5 @@ document.addEventListener('contentChanged', function() {
     AdminPaymentModal.init();
 });
 </script>
+
+

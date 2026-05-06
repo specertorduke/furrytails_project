@@ -406,3 +406,11 @@ html.smart-dark-mode [style*="background-color:#24cff4" i] {
     color: #000000 !important;
 }
 
+
+/* Force placeholders to be distinct from user input text */
+@layer base {
+    input::placeholder, textarea::placeholder {
+        color: #9ca3af !important;
+        opacity: 0.6 !important;
+    }
+}

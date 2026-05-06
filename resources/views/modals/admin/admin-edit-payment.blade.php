@@ -109,7 +109,7 @@
                         <div class="tw-mt-4">
                             <label for="edit-admin-notes" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Admin Notes (Optional)</label>
                             <textarea id="edit-admin-notes" name="admin_notes" rows="3" 
-                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" 
+                                class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" 
                                 placeholder="Add notes about this status change..."></textarea>
                         </div>
                     </div>
@@ -482,3 +482,5 @@
     });
 });
 </script>
+
+

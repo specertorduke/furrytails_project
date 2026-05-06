@@ -44,37 +44,37 @@
                             <!-- First Name -->
                             <div>
                                 <label for="firstName" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">First Name</label>
-                                <input type="text" id="firstName" name="firstName" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="text" id="firstName" name="firstName" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Last Name -->
                             <div>
                                 <label for="lastName" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Last Name</label>
-                                <input type="text" id="lastName" name="lastName" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="text" id="lastName" name="lastName" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Email -->
                             <div>
                                 <label for="email" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Email</label>
-                                <input type="email" id="email-edit" name="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="email" id="email-edit" name="email" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Username -->
                             <div>
                                 <label for="username" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Username</label>
-                                <input type="text" id="username-edit" name="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="text" id="username-edit" name="username" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Phone -->
                             <div>
                                 <label for="phone" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Phone</label>
-                                <input type="tel" id="phone-edit" name="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <input type="tel" id="phone-edit" name="phone" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                             </div>
                             
                             <!-- Role -->
                             <div>
                                 <label for="role" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Role</label>
-                                <select id="role" name="role" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
+                                <select id="role" name="role" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500" required>
                                     <option value="user">User</option>
                                     <option value="admin">Admin</option>
                                 </select>
@@ -83,7 +83,7 @@
                             <!-- Password (optional) -->
                             <div class="tw-col-span-2">
                                 <label for="password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-400 tw-mb-1">Password (leave blank to keep current)</label>
-                                <input type="password" id="password" name="password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 focus:tw-border-blue-500 focus:tw-ring-blue-500">
+                                <input type="password" id="password" name="password" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-blue-500 focus:tw-ring-blue-500">
                             </div>
                         </div>
                     </div>
@@ -365,4 +365,6 @@
         }
     }());
 </script>
+
+
 

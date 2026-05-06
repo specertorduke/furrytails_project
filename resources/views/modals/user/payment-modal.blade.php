@@ -107,7 +107,7 @@
                     <!-- Payment method -->
                     <div class="tw-mb-4">
                         <label for="payment_method" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Payment Method</label>
-                        <select id="payment_method" name="payment_method" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <select id="payment_method" name="payment_method" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                             <option value="">Select payment method</option>
                             <option value="Cash">Cash (Pay at Counter)</option>
                             <option value="GCash">GCash</option>
@@ -134,7 +134,7 @@
                     <div id="reference-number-container" class="tw-mb-5 tw-hidden">
                         <label for="reference_number" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">Reference Number</label>
                             <div class="tw-flex tw-items-center tw-gap-2">
-                                <input type="text" id="reference_number" name="reference_number" inputmode="numeric" autocomplete="off" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="13-digit GCash reference number" maxlength="13" pattern="\d{13}">
+                                <input type="text" id="reference_number" name="reference_number" inputmode="numeric" autocomplete="off" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw:ring-[#24CFF4] tw-focus:tw:border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="13-digit GCash reference number" maxlength="13" pattern="\d{13}">
                                 <div id="reference-info">
                                 <span class="tw-cursor-pointer tw-text-gray-600 hover:tw-text-gray-900">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="tw-h-5 tw-w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -706,3 +706,5 @@ document.addEventListener('contentChanged', function() {
     PaymentModal.init();
 });
 </script>
+
+

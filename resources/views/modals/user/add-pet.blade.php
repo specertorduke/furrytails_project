@@ -20,14 +20,14 @@
                 <!-- Pet name field -->
                 <div class="tw-mb-4">
                     <label for="pet-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Name</label>
-                    <input type="text" id="pet-name" name="name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required placeholder="Pet name">
+                    <input type="text" id="pet-name" name="name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required placeholder="Pet name">
                 </div>
 
                 <!-- Pet species and breed -->
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
                         <label for="pet-species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Species</label>
-                        <select id="pet-species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <select id="pet-species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                             <option value="">Select species</option>
                             <option value="Dog">Dog</option>
                             <option value="Cat">Cat</option>
@@ -38,7 +38,7 @@
                     </div>
                     <div>
                         <label for="pet-breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed</label>
-                        <input type="text" id="pet-breed" name="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required placeholder="Breed/Type">
+                        <input type="text" id="pet-breed" name="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required placeholder="Breed/Type">
                     </div>
                 </div>
                 
@@ -46,7 +46,7 @@
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
                         <label for="pet-gender" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Gender</label>
-                        <select id="pet-gender" name="gender" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <select id="pet-gender" name="gender" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                             <option value="">Select gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -54,7 +54,7 @@
                     </div>
                     <div>
                         <label for="pet-birthdate" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Birth Date</label>
-                        <input type="date" id="pet-birthdate" name="birthDate" max="{{ date('Y-m-d') }}" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" required>
+                        <input type="date" id="pet-birthdate" name="birthDate" max="{{ date('Y-m-d') }}" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                     </div>
                 </div>
                 
@@ -62,7 +62,7 @@
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
                         <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Weight (kg)</label>
-                        <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="0.0">
+                        <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="0.0">
                     </div>
                     <div>
                         <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Vaccination Status</label>
@@ -78,25 +78,25 @@
                 <!-- Vaccination date - initially hidden -->
                 <div id="vaccination-date-container" class="tw-hidden tw-mb-4">
                     <label for="pet-vaccination-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Last Vaccination Date</label>
-                    <input type="date" id="pet-vaccination-date" name="lastVaccinationDate" max="{{ date('Y-m-d') }}" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
+                    <input type="date" id="pet-vaccination-date" name="lastVaccinationDate" max="{{ date('Y-m-d') }}" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400">
                 </div>
                 
                 <!-- Allergies -->
                 <div class="tw-mb-4">
                     <label for="pet-allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Allergies</label>
-                    <input type="text" id="pet-allergies" name="allergies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="List any known allergies (optional)">
+                    <input type="text" id="pet-allergies" name="allergies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="List any known allergies (optional)">
                 </div>
                 
                 <!-- Medical history -->
                 <div class="tw-mb-4">
                     <label for="pet-medical-history" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Medical History</label>
-                    <textarea id="pet-medical-history" name="medicalHistory" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Any relevant medical history (optional)"></textarea>
+                    <textarea id="pet-medical-history" name="medicalHistory" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="Any relevant medical history (optional)"></textarea>
                 </div>
                 
                 <!-- Notes -->
                 <div class="tw-mb-4">
                     <label for="pet-notes" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Additional Notes</label>
-                    <textarea id="pet-notes" name="petNotes" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5" placeholder="Any additional information (optional)"></textarea>
+                    <textarea id="pet-notes" name="petNotes" rows="2" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="Any additional information (optional)"></textarea>
                 </div>
 
                 <!-- Pet image upload -->
@@ -439,3 +439,5 @@
     PetModal.init();
 }());
 </script>
+
+

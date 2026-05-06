@@ -84,13 +84,13 @@
                             <!-- Date Picker -->
                             <div>
                                 <label for="edit-date" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">New Date</label>
-                                <input type="date" id="edit-date" name="date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-700 tw-text-sm tw-rounded-lg focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
+                                <input type="date" id="edit-date" name="date" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-700 tw-text-sm tw-rounded-lg focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400">
                             </div>
 
                             <!-- Time Select -->
                             <div>
                                 <label for="edit-time" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-700">New Time</label>
-                                <select id="edit-time" name="time" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-700 tw-text-sm tw-rounded-lg focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5">
+                                <select id="edit-time" name="time" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-700 tw-text-sm tw-rounded-lg focus:tw-ring-[#24CFF4] focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400">
                                     <option value="">Select date first</option>
                                 </select>
                             </div>
@@ -586,3 +586,5 @@
 });
 });
 </script>
+
+
