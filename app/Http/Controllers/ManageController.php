@@ -18,6 +18,7 @@ class ManageController extends Controller
                     $query->where('userID', Auth::id());
                 })
                 ->select('appointments.*')
+                ->orderBy('appointmentID', 'desc')
                 ->get();
 
             return response()->json([
@@ -43,6 +44,7 @@ class ManageController extends Controller
                     $query->where('userID', Auth::id());
                 })
                 ->select('boardings.*')
+                ->orderBy('boardingID', 'desc')
                 ->get();
 
             return response()->json([

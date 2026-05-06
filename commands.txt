@@ -39,3 +39,7 @@ php artisan migrate:rollback
 for both tabs
 completed is gray, confirmed is green
 pending is yellow, active is orange
+
+to update statuses:
+php artisan appointments:update-status
+php artisan boarding:update-status

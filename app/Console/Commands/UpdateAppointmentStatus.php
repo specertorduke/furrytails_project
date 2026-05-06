@@ -18,7 +18,7 @@ class UpdateAppointmentStatus extends Command
         $currentTime = $now->format('H:i:s');
         
         // 1. Update appointments to "Active" when their time arrives
-        $activated = Appointment::where('status', 'Pending')
+        $activated = Appointment::whereIn('status', ['Pending', 'Confirmed'])
             ->where('date', $today)
             ->where('time', '<=', $currentTime)
             ->update(['status' => 'Active']);
@@ -33,13 +33,19 @@ class UpdateAppointmentStatus extends Command
             $completed = 0;
         }
         
-        // 3. Mark yesterday's pending appointments as "Missed"
-        $yesterday = Carbon::yesterday()->toDateString();
+        // 3. Mark past pending appointments as "Missed"
         $missed = Appointment::where('status', 'Pending')
             ->where('date', '<', $today)
             ->update(['status' => 'Missed']);
             
-        $this->info("Updated {$activated} to Active, {$completed} to Completed, {$missed} to Missed");
+        // 4. Mark past confirmed or active appointments as "Completed"
+        $completedPast = Appointment::whereIn('status', ['Confirmed', 'Active'])
+            ->where('date', '<', $today)
+            ->update(['status' => 'Completed']);
+            
+        $totalCompleted = $completed + $completedPast;
+            
+        $this->info("Updated {$activated} to Active, {$totalCompleted} to Completed, {$missed} to Missed");
         
         return Command::SUCCESS;
     }
