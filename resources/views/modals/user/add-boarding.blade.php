@@ -108,6 +108,8 @@ const BoardingModal = {
     price: 0,
     services: [],
     selectedService: null,
+    pendingServiceId: null,
+    customEventsBound: false,
     isDaycare: false,
     isOvernight: false,
     isExtended: false,
@@ -165,10 +167,16 @@ const BoardingModal = {
         const modalToggleBtn = document.querySelector('[data-modal-target="addBoarding-modal"]');
         if (modalToggleBtn) {
             modalToggleBtn.addEventListener('click', () => {
-                this.loadPets();
-                this.loadBoardingServices();
-                this.resetForm();
+                this.openWithService(null);
             });
+        }
+
+        if (!this.customEventsBound) {
+            document.addEventListener('openBoardingModalWithService', (event) => {
+                const serviceId = event.detail ? event.detail.serviceId : null;
+                this.openWithService(serviceId);
+            });
+            this.customEventsBound = true;
         }
         
         // Setup close button
@@ -203,6 +211,34 @@ resetForm: function() {
 
     this.elements.startDateInput.removeEventListener('change', this.boundOvernightListener);
 },
+
+    openWithService: function(serviceId) {
+        this.pendingServiceId = serviceId ? String(serviceId) : null;
+        this.loadPets();
+        this.loadBoardingServices();
+        this.resetForm();
+
+        const modal = document.getElementById('addBoarding-modal');
+        if (modal) {
+            modal.classList.remove('tw-hidden');
+        }
+    },
+
+    applyPendingServiceSelection: function() {
+        if (!this.pendingServiceId || !this.elements.boardingTypeSelect) {
+            return;
+        }
+
+        const serviceExists = this.services.some(service => String(service.serviceID) === String(this.pendingServiceId));
+        if (!serviceExists) {
+            this.pendingServiceId = null;
+            return;
+        }
+
+        this.elements.boardingTypeSelect.value = this.pendingServiceId;
+        this.handleServiceChange();
+        this.pendingServiceId = null;
+    },
     
     loadPets: function() {
         // Set loading state
@@ -282,6 +318,8 @@ resetForm: function() {
                     this.elements.boardingTypeSelect.innerHTML += `<option value="${service.serviceID}">${service.name} - ₱${service.price}</option>`;
                 });
             }
+
+            this.applyPendingServiceSelection();
         })
         .catch(err => {
             console.error('Error loading boarding services:', err);

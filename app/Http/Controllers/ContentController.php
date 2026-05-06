@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Appointment;
 use App\Models\Boarding;
+use App\Models\Service;
 
 class ContentController extends Controller
 {
@@ -53,5 +54,16 @@ class ContentController extends Controller
     public function aboutContent()
     {
         return view('content.about');
+    }
+
+    public function servicesContent()
+    {
+        $services = Service::query()
+            ->where('isActive', true)
+            ->orderBy('category')
+            ->orderBy('name')
+            ->get(['serviceID', 'name', 'description', 'category', 'price', 'serviceImage']);
+
+        return view('content.services', compact('services'));
     }
 }

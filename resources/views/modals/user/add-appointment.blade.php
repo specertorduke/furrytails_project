@@ -106,6 +106,8 @@ const AppointmentModal = {
     petData: null,
     serviceData: null,
     servicesById: {},
+    pendingServiceId: null,
+    customEventsBound: false,
     
     // Submission state tracking
     isSubmitting: false,
@@ -155,10 +157,46 @@ const AppointmentModal = {
         const modalToggleBtn = document.querySelector('[data-modal-target="addAppointment-modal"]');
         if (modalToggleBtn) {
             modalToggleBtn.addEventListener('click', () => {
-                this.loadPets();
-                this.loadServices();
+                this.openWithService(null);
             });
         }
+
+        if (!this.customEventsBound) {
+            document.addEventListener('openAppointmentModalWithService', (event) => {
+                const serviceId = event.detail ? event.detail.serviceId : null;
+                this.openWithService(serviceId);
+            });
+            this.customEventsBound = true;
+        }
+    },
+
+    openWithService: function(serviceId) {
+        this.pendingServiceId = serviceId ? String(serviceId) : null;
+        this.loadPets();
+        this.loadServices();
+
+        const modal = document.getElementById('addAppointment-modal');
+        if (modal) {
+            modal.classList.remove('tw-hidden');
+        }
+    },
+
+    applyPendingServiceSelection: function() {
+        if (!this.pendingServiceId || !this.elements.serviceSelect) {
+            return;
+        }
+
+        const serviceExists = Object.prototype.hasOwnProperty.call(this.servicesById, this.pendingServiceId)
+            || Object.prototype.hasOwnProperty.call(this.servicesById, Number(this.pendingServiceId));
+
+        if (!serviceExists) {
+            this.pendingServiceId = null;
+            return;
+        }
+
+        this.elements.serviceSelect.value = this.pendingServiceId;
+        this.handleServiceChange();
+        this.pendingServiceId = null;
     },
     
     loadPets: function() {
@@ -273,6 +311,7 @@ const AppointmentModal = {
                 this.elements.serviceSelect.innerHTML += `<option value="${service.serviceID}">${service.name} - ₱${service.price}</option>`;
             });
             this.clearServiceDetails();
+            this.applyPendingServiceSelection();
         })
         .catch(err => {
             console.error('Error loading services:', err);

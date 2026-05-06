@@ -58,6 +58,7 @@ Route::middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/content/pets', [PetController::class, 'index'])->name('content.pets');
     Route::get('/content/history', [HistoryController::class, 'index'])->name('content.history');    
     Route::get('/content/account', [AccountController::class, 'index'])->name('content.account');
+    Route::get('/content/services', [ContentController::class, 'servicesContent'])->name('content.services');
     Route::get('/content/about', [ContentController::class, 'aboutContent'])->name('content.about');
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
     Route::delete('/account/delete', [AccountController::class, 'deleteAccount'])->name('account.delete');

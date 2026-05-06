@@ -185,6 +185,11 @@
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.services') }}" onclick="loadContent(event, '{{ route('content.services') }}')">
+                                <i class="fas fa-store nav-i tw-mr-2"></i> <span>Services</span>
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link nav-a tw-flex tw-items-center tw-px-4 tw-py-3 tw-rounded-md tw-text-gray-500" href="{{ route('content.account') }}" onclick="loadContent(event, '{{ route('content.account') }}')">
                                 <i class="fas fa-user nav-i tw-mr-2"></i> <span>Account</span>
                             </a>
