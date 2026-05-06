@@ -304,7 +304,7 @@ class PetController extends Controller
             $pet = \App\Models\Pet::with('user')->findOrFail($id);
 
             // Authorize: ensure the pet belongs to the current user
-            if ($pet->userID !== auth()->id()) {
+            if ($pet->userID != auth()->id()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized'

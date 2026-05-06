@@ -334,10 +334,11 @@
         if (months < 1) {
             return 'Less than 1 month';
         } else if (months < 12) {
+            months = Math.floor(months);
             return `${months} month${months > 1 ? 's' : ''}`;
         } else {
             const years = Math.floor(months / 12);
-            const remainingMonths = months % 12;
+            const remainingMonths = Math.floor(months % 12);
             
             if (remainingMonths === 0) {
                 return `${years} year${years > 1 ? 's' : ''}`;

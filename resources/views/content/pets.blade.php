@@ -145,6 +145,11 @@
     </div>
 </div>
 
+@include('modals.user.edit-pet')
+@include('modals.user.view-pet')
+@include('modals.user.add-pet')
+@include('modals.user.add-appointment')
+
 <script>
     
     window.deletePet = function(petId) {
@@ -163,7 +168,7 @@
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
                 // Send request to delete pet
-                fetch(`{{ url('/pets') }}/${petId}`, { // Changed from /pets/ to /user/pets/
+                fetch(`{{ route('pets.delete', ['id' => ':id']) }}`.replace(':id', petId), { // Changed from /pets/ to /user/pets/
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -262,8 +267,8 @@ function initializePetsPage() {
 
 // Global functions for pet actions
 window.editPet = function(petId) {
-    // Use the full URL path with proper prefix
-    fetch(`{{ url('/pets') }}/${petId}`, {
+    // Use the route helper
+    fetch(`{{ route('user.pets.show', ['id' => ':id']) }}`.replace(':id', petId), {
         method: 'GET',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -332,8 +337,5 @@ document.addEventListener('click', function(event) {
 });
 </script>
 
-@include('modals.user.edit-pet')
-@include('modals.user.view-pet')
-@include('modals.user.add-pet')
-@include('modals.user.add-appointment') 
+ 
 @endsection

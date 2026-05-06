@@ -51,7 +51,7 @@ class Pet extends Model
             return $years . ($years == 1 ? ' year' : ' years') . 
                 ($months > 0 ? ' ' . $months . ($months == 1 ? ' month' : ' months') : '');
         } else {
-            $months = $birthDate->diffInMonths($now);
+            $months = floor($birthDate->diffInMonths($now));
             return $months . ($months == 1 ? ' month' : ' months');
         }
     }
