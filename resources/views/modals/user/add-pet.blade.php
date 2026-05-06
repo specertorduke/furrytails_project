@@ -6,7 +6,7 @@
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-200">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900">Add Pet</h3>
-                <button type="button" class="tw-text-gray-500 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="addPet-modal">
+                <button type="button" id="addPet-close-btn" class="tw-text-gray-500 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -175,14 +175,8 @@
             // Setup event listeners
             this.setupEventListeners();
             
-            // Setup modal toggle button
-            const modalToggleBtn = document.querySelector('[data-modal-target="addPet-modal"]');
-            if (modalToggleBtn) {
-                modalToggleBtn.addEventListener('click', this.openModal.bind(this));
-            }
-
-            // Setup modal close button
-            const modalCloseBtn = document.querySelector('[data-modal-toggle="addPet-modal"]');
+            // Setup modal close button scoped to this modal
+            const modalCloseBtn = document.getElementById('addPet-close-btn');
             if (modalCloseBtn) {
                 modalCloseBtn.addEventListener('click', this.closeModal.bind(this));
             }
@@ -437,6 +431,15 @@
 
     // Initialize the Pet Modal
     PetModal.init();
+
+    // Expose explicit modal controls to avoid data-attribute toggle conflicts.
+    window.openAddPetModal = function() {
+        PetModal.openModal();
+    };
+
+    window.closeAddPetModal = function() {
+        PetModal.closeModal();
+    };
 }());
 </script>
 

@@ -7,7 +7,7 @@
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-200">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900">Edit Pet</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="editPet-modal">
+                <button type="button" id="editPet-close-btn" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -73,7 +73,7 @@
                             <!-- Weight -->
                             <div>
                                 <label for="edit_weight" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Weight (kg)</label>
-                                <input type="number" id="edit_weight" name="weight" step="0.01" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]>
+                                <input type="number" id="edit_weight" name="weight" step="0.01" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]">
                             </div>
                         </div>
                     </div>
@@ -93,19 +93,19 @@
                         <!-- Vaccination Date (conditionally displayed) -->
                         <div id="vaccinationDateContainer" class="tw-mb-4 tw-hidden">
                             <label for="edit_lastVaccinationDate" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Last Vaccination Date</label>
-                            <input type="date" id="edit_lastVaccinationDate" name="lastVaccinationDate" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]>
+                            <input type="date" id="edit_lastVaccinationDate" name="lastVaccinationDate" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]">
                         </div>
                         
                         <!-- Medical History -->
                         <div class="tw-mb-4">
                             <label for="edit_medicalHistory" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Medical History</label>
-                            <textarea id="edit_medicalHistory" name="medicalHistory" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] placeholder="Enter medical history..."></textarea>
+                            <textarea id="edit_medicalHistory" name="medicalHistory" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" placeholder="Enter medical history..."></textarea>
                         </div>
                         
                         <!-- Allergies -->
                         <div>
                             <label for="edit_allergies" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Allergies</label>
-                            <textarea id="edit_allergies" name="allergies" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] placeholder="List any allergies..."></textarea>
+                            <textarea id="edit_allergies" name="allergies" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" placeholder="List any allergies..."></textarea>
                         </div>
                     </div>
                     
@@ -116,7 +116,7 @@
                         <!-- Notes -->
                         <div>
                             <label for="edit_petNotes" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Notes</label>
-                            <textarea id="edit_petNotes" name="petNotes" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] placeholder="Enter additional notes..."></textarea>
+                            <textarea id="edit_petNotes" name="petNotes" rows="3" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" placeholder="Enter additional notes..."></textarea>
                         </div>
                     </div>
                     
@@ -141,7 +141,7 @@
                     
                     <!-- Actions Section -->
                     <div class="tw-flex tw-justify-between tw-mt-8 tw-pt-4 tw-border-t tw-border-gray-200">
-                        <button type="button" data-modal-toggle="editPet-modal" class="tw-text-gray-700 tw-bg-gray-100 hover:tw-bg-gray-200 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
+                        <button type="button" id="editPet-cancel-btn" class="tw-text-gray-700 tw-bg-gray-100 hover:tw-bg-gray-200 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                             Cancel
                         </button>
                         <button type="submit" id="savePetChangesBtn" class="tw-text-white tw-bg-[#24CFF4] hover:tw-bg-[#00b8dd] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center">
@@ -186,6 +186,11 @@
 <script>
 ['DOMContentLoaded', 'contentChanged'].forEach(eventName => {
     document.addEventListener(eventName, function() {    
+    if (window.editPetModalInitialized) {
+        return;
+    }
+    window.editPetModalInitialized = true;
+
     // Initialize variables for cropper
     let cropper = null;
     let currentPetImage = null;
@@ -429,12 +434,19 @@
         });
     }
     
-    // Close modal handler
-    const modalToggle = document.querySelector('[data-modal-toggle="editPet-modal"]');
-    if (modalToggle) {
-        modalToggle.addEventListener('click', function() {
-            document.getElementById('editPet-modal').classList.add('tw-hidden');
-        });
+    // Close modal handlers
+    const closeEditModal = function() {
+        document.getElementById('editPet-modal').classList.add('tw-hidden');
+    };
+
+    const closeBtn = document.getElementById('editPet-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeEditModal);
+    }
+
+    const cancelBtn = document.getElementById('editPet-cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeEditModal);
     }
             // Any initialization code needed for the edit pet modal
             console.log('Edit pet modal initialized');

@@ -11,7 +11,7 @@
             <h1 class="tw-text-2xl tw-font-bold">Registered Pets</h1>
         </div>
         <div class="tw-flex tw-items-center tw-gap-4">
-            <button type="button" data-modal-target="addPet-modal" data-modal-toggle="addPet-modal" 
+            <button type="button" onclick="window.openAddPetModal()" 
                 class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold">
                 <i class="fas fa-plus tw-mr-2"></i> Register New Pet
             </button>
@@ -135,7 +135,7 @@
             <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-bg-white tw-rounded-2xl tw-p-8 tw-shadow-sm">
                 <i class="fas fa-paw tw-text-5xl tw-text-gray-300 tw-mb-4"></i>
                 <p class="tw-text-gray-500 tw-mb-4">No pets registered yet</p>
-                <button type="button" data-modal-target="addPet-modal" data-modal-toggle="addPet-modal" 
+                <button type="button" onclick="window.openAddPetModal()" 
                         class="tw-bg-[#24CFF4] tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90">
                     <i class="fas fa-plus tw-mr-2"></i>Add Pet
                 </button>
@@ -144,11 +144,6 @@
         @endforelse
     </div>
 </div>
-
-@include('modals.user.edit-pet')
-@include('modals.user.view-pet')
-@include('modals.user.add-pet')
-@include('modals.user.add-appointment')
 
 <script>
     
@@ -337,5 +332,9 @@ document.addEventListener('click', function(event) {
 });
 </script>
 
- 
+@include('modals.user.view-pet')
+@include('modals.user.edit-pet')
+@include('modals.user.add-pet')
+@include('modals.user.add-appointment')
+
 @endsection

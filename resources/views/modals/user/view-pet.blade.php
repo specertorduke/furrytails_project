@@ -7,7 +7,7 @@
             <!-- Modal header -->
             <div class="tw-flex tw-items-center tw-justify-between tw-p-4 md:tw-p-5 tw-border-b tw-rounded-t tw-border-gray-200">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900">Pet Profile</h3>
-                <button type="button" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center" data-modal-toggle="viewPet-modal">
+                <button type="button" id="viewPet-close-btn" class="tw-text-gray-400 tw-bg-transparent tw-hover:tw-bg-gray-100 tw-hover:tw-text-gray-900 tw-rounded-lg tw-text-sm tw-w-8 tw-h-8 ms-auto tw-inline-flex tw-justify-center tw-items-center">
                     <svg class="tw-w-3 tw-h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -268,7 +268,7 @@
         // Book appointment button
         const bookAppointmentBtn = document.getElementById('bookAppointmentBtn');
         if (bookAppointmentBtn) {
-            bookAppointmentBtn.addEventListener('click', function() {
+            bookAppointmentBtn.onclick = function() {
                 // Close the modal
                 document.getElementById('viewPet-modal').classList.add('tw-hidden');
                 
@@ -279,13 +279,13 @@
                     // If the function doesn't exist, navigate to the appointment page
                     window.location.href = "{{ route('dashboard') }}";
                 }
-            });
+            };
         }
         
         // Edit pet button
         const editPetBtn = document.getElementById('editPetBtn');
         if (editPetBtn) {
-            editPetBtn.addEventListener('click', function() {
+            editPetBtn.onclick = function() {
                 if (window.currentPetData) {
                     // Close this modal
                     document.getElementById('viewPet-modal').classList.add('tw-hidden');
@@ -295,28 +295,28 @@
                         window.editPet(window.currentPetData.petID);
                     }
                 }
-            });
+            };
         }
         
         // Delete pet button
         const deletePetBtn = document.getElementById('deletePetBtn');
         if (deletePetBtn) {
-            deletePetBtn.addEventListener('click', function() {
+            deletePetBtn.onclick = function() {
                 if (window.currentPetData) {
                     // Call the delete function if it exists
                     if (typeof window.deletePet === 'function') {
                         window.deletePet(window.currentPetData.petID);
                     }
                 }
-            });
+            };
         }
         
         // Close modal handler
-        const modalToggle = document.querySelector('[data-modal-toggle="viewPet-modal"]');
-        if (modalToggle) {
-            modalToggle.addEventListener('click', function() {
+        const closeBtn = document.getElementById('viewPet-close-btn');
+        if (closeBtn) {
+            closeBtn.onclick = function() {
                 document.getElementById('viewPet-modal').classList.add('tw-hidden');
-            });
+            };
         }
     }
     
