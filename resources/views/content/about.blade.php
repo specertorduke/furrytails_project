@@ -3,29 +3,30 @@
 @section('title', 'About Us')
 
 @section('content')
-<div class="tw-bg-gradient-to-br tw-from-white tw-to-[#e8fbff] tw-min-h-screen">
-
-    <!-- Hero Section -->
-    <div class="tw-relative tw-overflow-hidden tw-bg-gradient-to-r tw-from-[#0da8c5] tw-to-[#24CFF4] tw-py-20">
-        <div class="container-fluid tw-text-center tw-relative tw-z-10">
-            <img src="{{ asset('images/business-logo/logo.png') }}" alt="FurryTails Logo"
-                 class="tw-w-28 tw-h-28 tw-rounded-full tw-shadow-2xl tw-mx-auto tw-mb-6 tw-border-4 tw-border-white">
-            <h1 class="tw-text-5xl tw-font-extrabold tw-text-white tw-mb-4">
-                FurryTails
-            </h1>
-            <p class="tw-text-xl tw-text-white/90 tw-max-w-2xl tw-mx-auto">
-                Where every tail wags with joy — professional pet grooming &amp; boarding services tailored for your furry family.
-            </p>
-        </div>
-        <!-- Wave -->
-        <div class="tw-absolute tw-bottom-0 tw-left-0 tw-right-0">
-            <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" class="tw-w-full tw-h-14">
-                <path d="M0 60L60 50C120 40 240 20 360 15C480 10 600 20 720 25C840 30 960 30 1080 25C1200 20 1320 10 1380 5L1440 0V60H0Z" fill="#f0fdff"/>
-            </svg>
+<div class="container-fluid tw-min-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd] tw-p-6 font-poppins">
+    <div class="tw-overflow-hidden tw-rounded-3xl tw-bg-gradient-to-r tw-from-[#1cb8d8] tw-to-[#24CFF4] tw-p-6 tw-text-white tw-shadow-lg tw-mb-5">
+        <div class="row g-4 tw-items-center">
+            <div class="col-12 col-lg-8">
+                <p class="tw-mb-2 tw-text-sm tw-uppercase tw-tracking-[0.2em] tw-text-white/80">About FurryTails</p>
+                <h1 class="tw-mb-2 tw-text-3xl tw-font-bold md:tw-text-4xl">Care, comfort, and convenience for every pet family</h1>
+                <p class="tw-mb-0 tw-max-w-2xl tw-text-white/90">Professional grooming and boarding support with an online experience that keeps everything simple, clear, and easy to manage.</p>
+            </div>
+            <div class="col-12 col-lg-4 tw-flex tw-justify-start lg:tw-justify-end tw-mt-2 lg:tw-mt-0">
+                <div class="tw-rounded-2xl tw-bg-white/15 tw-p-4 tw-backdrop-blur-sm tw-w-full lg:tw-max-w-sm">
+                    <div class="tw-flex tw-items-center tw-gap-3">
+                        <img src="{{ asset('images/business-logo/logo.png') }}" alt="FurryTails Logo" class="tw-h-14 tw-w-14 tw-rounded-full tw-object-cover tw-ring-2 tw-ring-white/40">
+                        <div>
+                            <p class="tw-mb-0 tw-text-sm tw-font-semibold">FurryTails</p>
+                            <p class="tw-mb-0 tw-text-xs tw-text-white/80">Fluff & Co</p>
+                        </div>
+                    </div>
+                    <p class="tw-mt-3 tw-mb-0 tw-text-sm tw-text-white/90">A friendlier way to learn what we do, why we do it, and how to get started.</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="tw-px-6 tw-pt-10 tw-pb-4">
+    <div class="tw-px-0 tw-pt-4 tw-pb-4">
 
         <!-- Mission & Story -->
         <div class="container-fluid tw-mb-16">

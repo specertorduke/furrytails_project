@@ -8,29 +8,36 @@
     $appointments = $appointments ?? collect([]);
     $pets = $pets ?? collect([]);
 @endphp
-<div class="container-fluid tw-min-h-screen tw-p-6 tw-overflow-y-auto tw-bg-[#f4fbfd] font-poppins">    <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-6">
-            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Dashboard</p> -->
-            <h1 class="tw-text-2xl tw-font-bold">Dashboard</h1>
-        </div>
-        <div class="col-12 col-md-6 d-flex justify-content-md-end tw-justify-end align-items-center mt-3 mt-md-0">
-            <div class="tw-flex tw-items-center tw-justify-end tw-bg-white tw-py-1 tw-px-4 tw-rounded-full tw-shadow-md tw-gap-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
-                <!-- Theme Toggle Button -->
-                <button onclick="toggleSmartDarkMode()" class="keep-original tw-border-none tw-bg-transparent tw-cursor-pointer tw-flex tw-items-center tw-justify-center tw-w-8 tw-h-8 tw-rounded-full hover:tw-bg-gray-100 tw-transition-all tw-duration-300" title="Toggle Dark Mode">
-                    <i id="dark-mode-icon" class="fas fa-moon tw-text-blue-500 tw-text-lg tw-transition-all tw-duration-300" style="transition: transform 0.3s ease, opacity 0.3s ease;"></i>
-                </button>
-                <!--    user's first name -->
-                <span class="tw-text-gray-700 tw-font-medium">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</span>
-                <!-- Profile dropdown -->
-                <div class="tw-relative">
-                    <img src="{{ Auth::user()->profile_image_url }}" alt="User Avatar" class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer tw-transition-all tw-duration-300 hover:tw-brightness-75 tw-object-cover" onclick="toggleDropdown()">
-                    <div id="dropdown" class="tw-absolute tw-rounded-3xl tw-z-20 tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-hidden">
-                        <a href="{{ route('content.account') }}" class="tw-block tw-no-underline tw-px-4 tw-py-2 tw-text-gray-700 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-gray-100" onclick="loadContent(event, '{{ route('content.account') }}')">Account Settings</a>
-                        <form class="tw-m-0" method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="tw-block tw-text-left tw-no-underline tw-w-full tw-px-4 tw-py-2 tw-text-gray-700 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-bg-gray-100" id="logout-button">Logout</button>
-                        </form>
+<div class="container-fluid tw-min-h-screen tw-p-6 tw-overflow-y-auto tw-bg-[#f4fbfd] font-poppins">
+    <div class="tw-rounded-3xl tw-bg-gradient-to-r tw-from-[#1cb8d8] tw-to-[#24CFF4] tw-p-6 tw-text-white tw-shadow-lg tw-mb-5">
+        <div class="row g-4 tw-items-center">
+            <div class="col-12 col-lg-8">
+                <p class="tw-mb-2 tw-text-sm tw-uppercase tw-tracking-[0.2em] tw-text-white/80">Overview</p>
+                <h1 class="tw-mb-2 tw-text-3xl tw-font-bold md:tw-text-4xl">Welcome back, {{ Auth::user()->firstName }}!</h1>
+                <p class="tw-mb-0 tw-max-w-2xl tw-text-white/90">Here’s a quick view of your pets, upcoming bookings, and account activity.</p>
+            </div>
+            <div class="col-12 col-lg-4 tw-flex tw-justify-start lg:tw-justify-end tw-mt-2 lg:tw-mt-0">
+                <div class="tw-rounded-2xl tw-bg-white/15 tw-p-4 tw-backdrop-blur-sm tw-w-full lg:tw-max-w-sm">
+                    <p class="tw-mb-2 tw-text-xs tw-uppercase tw-tracking-wider tw-text-white/80">Account Controls</p>
+                    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
+                        <button onclick="toggleSmartDarkMode()" class="keep-original tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-border tw-border-white/25 tw-bg-white/10 tw-px-4 tw-py-2 tw-text-sm tw-font-semibold tw-text-white tw-transition-all hover:tw-bg-white/20" title="Toggle Dark Mode">
+                            <i id="dark-mode-icon" class="fas fa-moon tw-text-lg tw-transition-all tw-duration-300" style="transition: transform 0.3s ease, opacity 0.3s ease;"></i>
+                            Theme
+                        </button>
+                        <div class="tw-relative tw-flex tw-items-center tw-gap-3">
+                            <img src="{{ Auth::user()->profile_image_url }}" alt="User Avatar" class="tw-h-11 tw-w-11 tw-rounded-full tw-object-cover tw-ring-2 tw-ring-white/40 tw-cursor-pointer" onclick="toggleDropdown()">
+                            <div>
+                                <p class="tw-mb-0 tw-text-sm tw-font-semibold">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</p>
+                                <p class="tw-mb-0 tw-text-xs tw-text-white/80">Account dashboard</p>
+                            </div>
+                            <div id="dropdown" class="tw-absolute tw-z-30 tw-right-0 tw-top-[calc(100%+0.5rem)] tw-w-48 tw-rounded-xl tw-bg-white tw-shadow-lg tw-hidden tw-overflow-hidden">
+                                <a href="{{ route('content.account') }}" class="tw-block tw-no-underline tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100" onclick="loadContent(event, '{{ route('content.account') }}')">Account Settings</a>
+                                <form class="tw-m-0" method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="tw-block tw-w-full tw-border-0 tw-bg-transparent tw-text-left tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100">Logout</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -40,8 +47,8 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="tw-bg-white tw-rounded-2xl tw-p-6 tw-shadow-md tw-transition-all tw-duration-300 hover:tw-shadow-lg">
-                <h2 class="tw-text-2xl tw-font-bold tw-mb-2">Welcome back, {{ Auth::user()->firstName }}! 👋</h2>
-                <p class="tw-text-gray-600">Here's what's happening with your pets today</p>
+                <h2 class="tw-text-2xl tw-font-bold tw-mb-2">Today’s overview</h2>
+                <p class="tw-text-gray-600">Here’s what’s happening with your pets today</p>
                 
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mt-4">
                     <!-- Upcoming Appointments Card -->

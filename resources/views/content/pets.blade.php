@@ -3,36 +3,21 @@
 @section('title', 'Pets')
 
 @section('content')
-<div class="tw-p-6 tw-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd]">
-    <!-- Header with Profile -->
-    <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
-        <div>
-            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Pets</p> -->
-            <h1 class="tw-text-2xl tw-font-bold">Registered Pets</h1>
-        </div>
-        <div class="tw-flex tw-items-center tw-gap-4">
-            <button type="button" onclick="window.openAddPetModal()" 
-                class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold">
-                <i class="fas fa-plus tw-mr-2"></i> Register New Pet
-            </button>
-            <div class="tw-flex tw-items-center tw-justify-end tw-bg-white tw-py-1 tw-px-4 tw-rounded-full tw-shadow-md tw-gap-4 tw-transition-all tw-duration-300 tw-ease-in-out hover:tw-shadow-lg">
-                <span class="tw-text-gray-700 tw-font-medium">{{ Auth::user()->firstName }} {{ Auth::user()->lastName }}</span>
-                <div class="tw-relative">
-                    <img src="{{ Auth::user()->profile_image_url }}" alt="User Avatar" 
-                        class="tw-w-10 tw-h-10 tw-rounded-full tw-cursor-pointer tw-transition-all tw-duration-300 hover:tw-brightness-75 tw-object-cover" 
-                        onclick="toggleDropdown()">
-                    <div id="dropdown" class="tw-absolute tw-rounded-3xl tw-right-0 tw-z-20 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-hidden">
-                        <a href="{{ route('content.account') }}" class="tw-block tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100">Account Settings</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100">Logout</button>
-                        </form>
-                    </div>
-                </div>
+<div class="container-fluid tw-min-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd] tw-p-6 font-poppins">
+    <div class="tw-overflow-hidden tw-rounded-3xl tw-bg-gradient-to-r tw-from-[#1cb8d8] tw-to-[#24CFF4] tw-p-6 tw-text-white tw-shadow-lg tw-mb-5">
+        <div class="row g-4 tw-items-center">
+            <div class="col-12 col-lg-8">
+                <p class="tw-mb-2 tw-text-sm tw-uppercase tw-tracking-[0.2em] tw-text-white/80">Pet Registry</p>
+                <h1 class="tw-mb-2 tw-text-3xl tw-font-bold md:tw-text-4xl">Your Pets, Beautifully Organized</h1>
+                <p class="tw-mb-0 tw-max-w-2xl tw-text-white/90">Browse, filter, and manage each pet profile from a cleaner, more visual card layout.</p>
+            </div>
+            <div class="col-12 col-lg-4 tw-flex tw-justify-start lg:tw-justify-end tw-mt-2 lg:tw-mt-0">
+                <button type="button" onclick="window.openAddPetModal()" class="tw-rounded-2xl tw-bg-white tw-px-5 tw-py-3 tw-font-semibold tw-text-[#159cbb] tw-shadow-md tw-transition-all hover:tw-shadow-lg">
+                    <i class="fas fa-plus tw-mr-2"></i>Register New Pet
+                </button>
             </div>
         </div>
     </div>
-
     <!-- Filter Section -->
     <div class="tw-bg-white tw-rounded-2xl tw-p-4 tw-mb-6 tw-shadow-sm">
         <div class="row tw-items-center">

@@ -3,21 +3,27 @@
 @section('title', 'Manage')
 
 @section('content')
-<div class="tw-p-6 tw-min-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd]">
-    <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
-        <div>
-            <!-- <p class="tw-text-sm tw-text-gray-500">Pages / Manage</p> -->
-            <h1 class="tw-text-2xl tw-font-bold">Manage</h1>
-        </div>
-        <div class="tw-flex tw-gap-2">
-            <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" 
-                class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
-                <i class="fas fa-plus"></i> New Appointment
-            </button>
-            <button type="button" data-modal-target="addBoarding-modal" data-modal-toggle="addBoarding-modal" 
-                class="tw-bg-[#24CFF4] tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-blue-400">
-                <i class="fas fa-plus"></i> New Boarding
-            </button>
+<div class="container-fluid tw-min-h-screen tw-overflow-y-auto tw-bg-[#f4fbfd] tw-p-6 font-poppins">
+    <div class="tw-overflow-hidden tw-rounded-3xl tw-bg-gradient-to-r tw-from-[#1cb8d8] tw-to-[#24CFF4] tw-p-6 tw-text-white tw-shadow-lg tw-mb-5">
+        <div class="row g-4 tw-items-center">
+            <div class="col-12 col-lg-8">
+                <p class="tw-mb-2 tw-text-sm tw-uppercase tw-tracking-[0.2em] tw-text-white/80">Bookings Hub</p>
+                <h1 class="tw-mb-2 tw-text-3xl tw-font-bold md:tw-text-4xl">Manage Your Appointments and Boardings</h1>
+                <p class="tw-mb-0 tw-max-w-2xl tw-text-white/90">Keep track of your bookings in one place, or create a new reservation when you are ready.</p>
+            </div>
+            <div class="col-12 col-lg-4 tw-flex tw-justify-start lg:tw-justify-end tw-mt-2 lg:tw-mt-0">
+                <div class="tw-rounded-2xl tw-bg-white/15 tw-p-4 tw-backdrop-blur-sm tw-w-full lg:tw-max-w-sm">
+                    <p class="tw-mb-1 tw-text-xs tw-uppercase tw-tracking-wider tw-text-white/80">Quick Actions</p>
+                    <div class="tw-flex tw-flex-wrap tw-gap-2">
+                        <button type="button" data-modal-target="addAppointment-modal" data-modal-toggle="addAppointment-modal" class="tw-rounded-full tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-semibold tw-text-[#159cbb] tw-transition-all hover:tw-bg-[#f3feff]">
+                            <i class="fas fa-plus tw-mr-2"></i>New Appointment
+                        </button>
+                        <button type="button" data-modal-target="addBoarding-modal" data-modal-toggle="addBoarding-modal" class="tw-rounded-full tw-bg-white/15 tw-border tw-border-white/30 tw-px-4 tw-py-2 tw-text-sm tw-font-semibold tw-text-white tw-transition-all hover:tw-bg-white/20">
+                            <i class="fas fa-plus tw-mr-2"></i>New Boarding
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
