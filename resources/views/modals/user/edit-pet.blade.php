@@ -29,13 +29,13 @@
                             <!-- Pet Name -->
                             <div>
                                 <label for="edit_name" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Pet Name</label>
-                                <input type="text" id="edit_name" name="name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] required>
+                                <input type="text" id="edit_name" name="name" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" required>
                             </div>
                             
                             <!-- Species Selection -->
                             <div>
                                 <label for="edit_species" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Species</label>
-                                <select id="edit_species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] required>
+                                <select id="edit_species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" required>
                                     <option value="">Select species</option>
                                     <option value="Dog">Dog</option>
                                     <option value="Cat">Cat</option>
@@ -51,25 +51,27 @@
                             <!-- Breed -->
                             <div>
                                 <label for="edit_breed" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Breed</label>
-                                <input type="text" id="edit_breed" name="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] required>
+                                <input type="text" id="edit_breed" name="breed" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" required>
                             </div>
                             
                             <!-- Gender -->
                             <div>
                                 <label for="edit_gender" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Gender</label>
-                                <select id="edit_gender" name="gender" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] required>
+                                <select id="edit_gender" name="gender" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" required>
                                     <option value="">Select gender</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
                             </div>
-                            
+                        </div>
+
+                        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
                             <!-- Birth Date -->
                             <div>
                                 <label for="edit_birthDate" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Birth Date</label>
-                                <input type="date" id="edit_birthDate" name="birthDate" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4] required>
+                                <input type="date" id="edit_birthDate" name="birthDate" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400 focus:tw-border-[#24CFF4] focus:tw-ring-[#24CFF4]" required>
                             </div>
-                            
+
                             <!-- Weight -->
                             <div>
                                 <label for="edit_weight" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Weight (kg)</label>
