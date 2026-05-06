@@ -62,7 +62,7 @@
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
                         <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Weight (kg)</label>
-                        <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="0.0">
+                        <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="0.0" required>
                     </div>
                     <div>
                         <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Vaccination Status</label>
@@ -390,7 +390,7 @@
                 }
                 return response.json();
             })
-            .then(data => {
+                .then(data => {
                 // Show success message
                 Swal.fire({
                     title: 'Success!',
@@ -410,6 +410,19 @@
                     } else {
                         // Close modal
                         this.closeModal();
+
+                        // If user is on dashboard (or the dashboard widgets are present), reload page
+                        // so server-rendered dashboard reflects the new pet. This is intentionally
+                        // conservative: only reload when a dashboard pets table exists.
+                        try {
+                            const hasDashboardPetsTable = !!document.getElementById('petsTable');
+                            if (hasDashboardPetsTable) {
+                                // small delay to ensure modal DOM cleanup
+                                setTimeout(() => { location.reload(); }, 150);
+                            }
+                        } catch (err) {
+                            console.error('Error checking dashboard presence for reload:', err);
+                        }
                     }
                 });
             })
