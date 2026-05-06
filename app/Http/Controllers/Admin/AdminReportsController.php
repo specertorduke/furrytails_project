@@ -147,6 +147,8 @@ class AdminReportsController extends Controller
                     'user_agent' => $log->user_agent,
                     'created_at' => optional($log->created_at)->toISOString(),
                     'updated_at' => optional($log->updated_at)->toISOString(),
+                                    'can_restore' => $this->isLogRestoreable($log),
+                                    'restore_reason' => $this->getRestoreRestrictionReason($log),
                     'user' => $log->user ? [
                         'userID' => $log->user->userID,
                         'firstName' => $log->user->firstName,
@@ -200,6 +202,15 @@ class AdminReportsController extends Controller
 
         // Verify admin password
         $admin = auth()->user();
+        
+        // Debug: Check if password field exists and is not null
+        if (!$admin || empty($admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to verify password. Please ensure your admin account is properly configured.'
+            ], 401);
+        }
+        
         if (!Hash::check($validated['password'], $admin->password)) {
             return response()->json([
                 'success' => false,
@@ -372,6 +383,59 @@ class AdminReportsController extends Controller
      * Export records as CSV.
      * ?type=payments|appointments|boardings|logs
      */
+    /**
+     * Check if a log entry is eligible for restore based on industry standards
+     *
+     * Restore is NOT allowed if:
+     * 1. The log itself is a restore action (circular restoration)
+     * 2. There are restore actions recorded AFTER this log (would break continuity)
+     * 3. The log is in the future (can't restore to future)
+     */
+    private function isLogRestoreable(ActivityLog $log): bool
+    {
+        if ($log->action === 'restore') {
+            return false;
+        }
+
+        $hasRestoreAfter = ActivityLog::where('action', 'restore')
+            ->where('created_at', '>', $log->created_at)
+            ->exists();
+
+        if ($hasRestoreAfter) {
+            return false;
+        }
+
+        if ($log->created_at > now()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the reason why a log cannot be restored to
+     */
+    private function getRestoreRestrictionReason(ActivityLog $log): ?string
+    {
+        if ($log->action === 'restore') {
+            return 'Cannot restore to a restore action (circular restoration)';
+        }
+
+        $hasRestoreAfter = ActivityLog::where('action', 'restore')
+            ->where('created_at', '>', $log->created_at)
+            ->exists();
+
+        if ($hasRestoreAfter) {
+            return 'Cannot restore past a restoration point. The database has been restored after this log.';
+        }
+
+        if ($log->created_at > now()) {
+            return 'Cannot restore to a future timestamp';
+        }
+
+        return null;
+    }
+
     public function exportCsv(Request $request)
     {
         $type     = $request->input('type', 'payments');

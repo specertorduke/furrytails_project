@@ -71,7 +71,7 @@ class RestoreDatabaseCommand extends Command
         }
     }
     
-    protected function revertChange(ActivityLog $log)
+    protected function revertChange($log)
     {
         try {
             $table = $log->table_name;
@@ -89,6 +89,15 @@ class RestoreDatabaseCommand extends Command
                     if ($log->old_values) {
                         $oldValues = $log->old_values;
                         
+                        // Ensure we have an array
+                        if (is_string($oldValues)) {
+                            $oldValues = json_decode($oldValues, true);
+                        }
+                        
+                        if (!is_array($oldValues)) {
+                            return 'skipped';
+                        }
+                        
                         // Remove timestamps from update
                         unset($oldValues['updated_at']);
                         unset($oldValues['created_at']);
@@ -101,7 +110,18 @@ class RestoreDatabaseCommand extends Command
                 case 'delete':
                     // To revert a deletion, recreate the record
                     if ($log->old_values) {
-                        DB::table($table)->insert($log->old_values);
+                        $oldValues = $log->old_values;
+                        
+                        // Ensure we have an array
+                        if (is_string($oldValues)) {
+                            $oldValues = json_decode($oldValues, true);
+                        }
+                        
+                        if (!is_array($oldValues)) {
+                            return 'skipped';
+                        }
+                        
+                        DB::table($table)->insert($oldValues);
                         return 'restored';
                     }
                     return 'skipped';

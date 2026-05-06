@@ -11,11 +11,7 @@
             <h1 class="tw-text-2xl tw-font-bold tw-text-white">System Reports & Audit Logs</h1>
         </div>
         <div class="tw-mt-4 md:tw-mt-0">
-            @if(auth()->user()->hasPermission('reports.restore'))
-            <button type="button" id="restoreDatabaseBtn" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-xl tw-transition-all tw-duration-300 hover:tw-shadow-lg hover:tw-opacity-90 tw-font-semibold active:tw-bg-red-700">
-                <i class="fas fa-history tw-mr-2"></i> Restore Database
-            </button>
-            @endif
+            <!-- Restore button removed - use manual restore if needed via modal view -->
         </div>
     </div>
 
@@ -178,7 +174,7 @@
         <div class="tw-flex tw-justify-end tw-mt-6">
             <button type="button" class="close-modal tw-bg-gray-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg">Close</button>
             @if(auth()->user()->hasPermission('reports.restore'))
-            <button type="button" id="restoreToPointBtn" class="tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-ml-3">
+            <button type="button" id="restoreToPointBtn" class="tw-hidden tw-bg-red-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-ml-3">
                 <i class="fas fa-history tw-mr-2"></i> Restore To This Point
             </button>
             @endif
@@ -322,16 +318,19 @@
                             d.date_from = $('#date-from').val();
                             d.date_to = $('#date-to').val();
                         },
-                        error: function(xhr) {
-                            console.error('Ajax error:', xhr);
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Failed to load activity logs. Please try again.',
-                                icon: 'error',
-                                confirmButtonColor: '#24CFF4',
-                                background: '#374151',
-                                color: '#fff'
-                            });
+                        error: function(xhr, status, error) {
+                            // Only show error if it's a real HTTP error, not normal network operations
+                            if (xhr.status >= 400 && xhr.status < 600) {
+                                console.error('Ajax error:', xhr);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Failed to load activity logs. Please try again.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#24CFF4',
+                                    background: '#374151',
+                                    color: '#fff'
+                                });
+                            }
                         }
                     },
                     columns: [
@@ -363,7 +362,17 @@
                                 return `<span><i class="fas ${iconClass} tw-mr-2"></i>${formattedTable}</span>`;
                             }
                         },
-                        { data: 'record_id', width: '8%' },
+                        { 
+                            data: 'record_id',
+                            width: '8%',
+                            render: function(data, type, row) {
+                                // Hide record ID for restore actions since they affect the whole system
+                                if (row.action === 'restore') {
+                                    return '<span class="tw-text-gray-500 tw-italic">System-wide</span>';
+                                }
+                                return data || '<span class="tw-text-gray-500">-</span>';
+                            }
+                        },
                         { 
                             data: 'action',
                             width: '8%',
@@ -374,6 +383,8 @@
                                     return '<span class="tw-px-2 tw-py-1 tw-bg-yellow-900 tw-text-yellow-300 tw-rounded tw-text-xs">Update</span>';
                                 } else if (data === 'delete') {
                                     return '<span class="tw-px-2 tw-py-1 tw-bg-red-900 tw-text-red-300 tw-rounded tw-text-xs">Delete</span>';
+                                } else if (data === 'restore') {
+                                    return '<span class="tw-px-2 tw-py-1 tw-bg-purple-900 tw-text-purple-300 tw-rounded tw-text-xs"><i class="fas fa-history tw-mr-1"></i>Restore</span>';
                                 }
                                 return data;
                             }
@@ -506,45 +517,7 @@
                             const logDate = moment(log.created_at).format('MMM DD, YYYY h:mm:ss A');
                             const userName = log.user ? `${log.user.firstName} ${log.user.lastName}` : 'System';
                             
-                            // Construct log details HTML
-                            const detailsHtml = `
-                                <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">Log ID</p>
-                                        <p class="tw-font-medium">${log.logID}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">Date & Time</p>
-                                        <p class="tw-font-medium">${logDate}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">Table</p>
-                                        <p class="tw-font-medium">${log.table_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">Record ID</p>
-                                        <p class="tw-font-medium">${log.record_id}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">Action</p>
-                                        <p class="tw-font-medium">${log.action.charAt(0).toUpperCase() + log.action.slice(1)}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">User</p>
-                                        <p class="tw-font-medium">${userName}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">IP Address</p>
-                                        <p class="tw-font-medium">${log.ip_address || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <p class="tw-text-sm tw-text-gray-400">User Agent</p>
-                                        <p class="tw-font-medium tw-truncate" title="${log.user_agent || 'N/A'}">${log.user_agent || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            // Parse old and new values for comparison
+                            // Parse old and new values for comparison first
                             let oldValues = {};
                             let newValues = {};
                             
@@ -564,10 +537,120 @@
                                 console.error('Error parsing values:', e);
                             }
                             
+                            // Construct log details HTML - handle restore action specially
+                            let detailsHtml = '';
+                            
+                            if (log.action === 'restore') {
+                                // Special handling for restore actions
+                                detailsHtml = `
+                                    <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Log ID</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.logID}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Date & Time</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${logDate}</p>
+                                        </div>
+                                        <div class="tw-col-span-2">
+                                            <p class="tw-text-sm tw-text-gray-400">Action Type</p>
+                                            <p class="tw-font-medium tw-text-yellow-300"><i class="fas fa-history tw-mr-2"></i>Database Restoration</p>
+                                        </div>
+                                        <div class="tw-col-span-2">
+                                            <p class="tw-text-sm tw-text-gray-400">Restored By</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${userName}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">IP Address</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.ip_address || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Restoration Method</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${newValues.method === 'log_id' ? 'Activity Log ID' : 'Date & Time'}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                // Regular log details
+                                detailsHtml = `
+                                    <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Log ID</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.logID}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Date & Time</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${logDate}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Table</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.table_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Record ID</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.record_id}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">Action</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.action.charAt(0).toUpperCase() + log.action.slice(1)}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">User</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${userName}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">IP Address</p>
+                                            <p class="tw-font-medium tw-text-gray-200">${log.ip_address || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p class="tw-text-sm tw-text-gray-400">User Agent</p>
+                                            <p class="tw-font-medium tw-truncate tw-text-gray-200" title="${log.user_agent || 'N/A'}">${log.user_agent || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
                             // Create comparison table
                             let comparisonHtml = '';
                             
-                            if (log.action === 'create') {
+                            if (log.action === 'restore') {
+                                // Special handling for restore actions
+                                comparisonHtml = `
+                                    <div class="tw-col-span-2">
+                                        <div class="tw-bg-gray-700 tw-rounded-lg tw-p-4">
+                                            <h5 class="tw-text-white tw-font-medium tw-mb-2"><i class="fas fa-info-circle tw-mr-2"></i>Restoration Details</h5>
+                                            <div class="tw-overflow-x-auto">
+                                                <table class="tw-w-full tw-text-sm">
+                                                    <thead>
+                                                        <tr class="tw-border-b tw-border-gray-600">
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Property</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Value</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="tw-border-b tw-border-gray-600">
+                                                            <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">Restore To Timestamp</td>
+                                                            <td class="tw-py-2 tw-px-2 tw-text-yellow-300">${moment(newValues.timestamp).format('MMM DD, YYYY h:mm:ss A')}</td>
+                                                        </tr>
+                                                        <tr class="tw-border-b tw-border-gray-600">
+                                                            <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">Method</td>
+                                                            <td class="tw-py-2 tw-px-2 tw-text-gray-200">${newValues.method === 'log_id' ? 'Activity Log ID #' + newValues.source_log_id : 'Direct Timestamp'}</td>
+                                                        </tr>
+                                                        ${newValues.source_log_id ? `<tr class="tw-border-b tw-border-gray-600">
+                                                            <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">Source Log ID</td>
+                                                            <td class="tw-py-2 tw-px-2 tw-text-gray-200">#${newValues.source_log_id}</td>
+                                                        </tr>` : ''}
+                                                        <tr class="tw-border-b tw-border-gray-600">
+                                                            <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">Admin</td>
+                                                            <td class="tw-py-2 tw-px-2 tw-text-gray-200">${newValues.admin_name}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            } else if (log.action === 'create') {
                                 comparisonHtml = `
                                     <div class="tw-col-span-2">
                                         <div class="tw-bg-gray-700 tw-rounded-lg tw-p-4">
@@ -576,8 +659,8 @@
                                                 <table class="tw-w-full tw-text-sm">
                                                     <thead>
                                                         <tr class="tw-border-b tw-border-gray-600">
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Field</th>
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Value</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Field</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Value</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -586,7 +669,7 @@
                                                                 (typeof value === 'object' ? JSON.stringify(value) : value);
                                                             return `
                                                                 <tr class="tw-border-b tw-border-gray-600">
-                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium">${key}</td>
+                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">${key}</td>
                                                                     <td class="tw-py-2 tw-px-2 tw-text-green-300">${displayValue}</td>
                                                                 </tr>
                                                             `;
@@ -606,8 +689,8 @@
                                                 <table class="tw-w-full tw-text-sm">
                                                     <thead>
                                                         <tr class="tw-border-b tw-border-gray-600">
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Field</th>
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Value</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Field</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Value</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -616,7 +699,7 @@
                                                                 (typeof value === 'object' ? JSON.stringify(value) : value);
                                                             return `
                                                                 <tr class="tw-border-b tw-border-gray-600">
-                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium">${key}</td>
+                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">${key}</td>
                                                                     <td class="tw-py-2 tw-px-2 tw-text-red-300">${displayValue}</td>
                                                                 </tr>
                                                             `;
@@ -639,8 +722,8 @@
                                                 <table class="tw-w-full tw-text-sm">
                                                     <thead>
                                                         <tr class="tw-border-b tw-border-gray-600">
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Field</th>
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Value</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Field</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Value</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -655,8 +738,8 @@
                                                             
                                                             return `
                                                                 <tr class="tw-border-b tw-border-gray-600 ${changed ? 'tw-bg-red-900/20' : ''}">
-                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium">${key}</td>
-                                                                    <td class="tw-py-2 tw-px-2 ${changed ? 'tw-text-red-300' : ''}">${displayValue}</td>
+                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">${key}</td>
+                                                                    <td class="tw-py-2 tw-px-2 ${changed ? 'tw-text-red-300' : 'tw-text-gray-200'}">${displayValue}</td>
                                                                 </tr>
                                                             `;
                                                         }).join('')}
@@ -672,8 +755,8 @@
                                                 <table class="tw-w-full tw-text-sm">
                                                     <thead>
                                                         <tr class="tw-border-b tw-border-gray-600">
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Field</th>
-                                                            <th class="tw-text-left tw-py-2 tw-px-2">Value</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Field</th>
+                                                            <th class="tw-text-left tw-py-2 tw-px-2 tw-text-gray-300">Value</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -688,8 +771,8 @@
                                                             
                                                             return `
                                                                 <tr class="tw-border-b tw-border-gray-600 ${changed ? 'tw-bg-green-900/20' : ''}">
-                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium">${key}</td>
-                                                                    <td class="tw-py-2 tw-px-2 ${changed ? 'tw-text-green-300' : ''}">${displayValue}</td>
+                                                                    <td class="tw-py-2 tw-px-2 tw-font-medium tw-text-gray-200">${key}</td>
+                                                                    <td class="tw-py-2 tw-px-2 ${changed ? 'tw-text-green-300' : 'tw-text-gray-200'}">${displayValue}</td>
                                                                 </tr>
                                                             `;
                                                         }).join('')}
@@ -705,8 +788,21 @@
                             $('#logDetails').html(detailsHtml);
                             $('#valueComparison').html(comparisonHtml);
                             
-                            // Store log ID for potential restore action
-                            $('#restoreToPointBtn').data('time', log.created_at);
+                            // Handle restore button visibility based on eligibility
+                            if (log.can_restore) {
+                                $('#restoreToPointBtn').removeClass('tw-hidden').data('time', log.created_at);
+                            } else {
+                                $('#restoreToPointBtn').addClass('tw-hidden');
+                                // Show reason why restore is not available
+                                if (log.restore_reason) {
+                                    const warningHtml = `
+                                        <div class="tw-mt-4 tw-p-3 tw-bg-red-900/30 tw-border tw-border-red-700 tw-rounded-lg">
+                                            <p class="tw-text-red-300 tw-text-sm"><i class="fas fa-exclamation-circle tw-mr-2"></i>${log.restore_reason}</p>
+                                        </div>
+                                    `;
+                                    $('#valueComparison').append(warningHtml);
+                                }
+                            }
                             
                             // Show the modal
                             $('#viewLogModal').removeClass('tw-hidden');
@@ -1123,19 +1219,8 @@
         });
 
         $(document).on('click', '#restoreDatabaseBtn', function() {
-            if ($restoreForm.length) {
-                $restoreForm[0].reset();
-            }
-
-            if ($restoreDatetime.length) {
-                $restoreDatetime.attr('max', moment().format('YYYY-MM-DDTHH:mm'));
-            }
-
-            resetLogLookupState(true);
-            $('input[name="restore_method"][value="datetime"]').prop('checked', true);
-            toggleRestoreInputs('datetime');
-
-            $restoreModal.removeClass('tw-hidden');
+            // Restore button removed - use view log details modal to restore via activity log
+            console.warn('Restore database feature has been disabled. Use individual log view restore options instead.');
         });
     });
 </script>
