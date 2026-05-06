@@ -237,13 +237,9 @@ public function getAvailableTimes(Request $request)
     public function getServicesList()
     {
         try {
-            $services = Service::select(['serviceID', 'name', 'price'])
+            $services = Service::select(['serviceID', 'name', 'price', 'category', 'description', 'serviceImage'])
                 ->where('isActive', true)
-                ->where(function($query) {
-                    // Exclude services that have "Boarding" or "Daycare" in their name
-                    $query->whereRaw('LOWER(name) NOT LIKE ?', ['%boarding%'])
-                          ->whereRaw('LOWER(name) NOT LIKE ?', ['%daycare%']);
-                })
+                ->whereRaw('LOWER(category) <> ?', ['boarding'])
                 ->orderBy('name')
                 ->get();
                 

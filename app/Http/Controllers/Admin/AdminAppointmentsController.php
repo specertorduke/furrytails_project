@@ -193,11 +193,10 @@ class AdminAppointmentsController extends Controller
 
     public function listServices()
     {
-        // Get all services, excluding boarding-related services
-        $services = \App\Models\Service::where(function($query) {
-                // Exclude services that have "Boarding" in their name
-                $query->whereRaw('LOWER(name) NOT LIKE ?', ['%boarding%']);
-            })
+        // Get only active non-boarding services for appointments
+        $services = \App\Models\Service::select(['serviceID', 'name', 'price', 'category', 'description', 'serviceImage'])
+            ->where('isActive', true)
+            ->whereRaw('LOWER(category) <> ?', ['boarding'])
             ->orderBy('name')
             ->get();
             

@@ -13,7 +13,9 @@ class ServiceController extends ApiController
     public function index()
     {
         try {
-            $services = Service::select('serviceID', 'name', 'price')
+            $services = Service::select('serviceID', 'name', 'price', 'category', 'description', 'serviceImage')
+                ->where('isActive', true)
+                ->whereRaw('LOWER(category) <> ?', ['boarding'])
                 ->orderBy('name')
                 ->get();
                 

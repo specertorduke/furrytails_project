@@ -48,6 +48,29 @@
                         <option value="">Select service</option>
                     </select>
                 </div>
+
+                <!-- Selected service details -->
+                <div id="service-details-card" class="tw-mb-4 tw-hidden tw-rounded-lg tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-4">
+                    <div class="tw-flex tw-items-start tw-gap-3">
+                        <div id="service-details-image-wrap" class="tw-h-16 tw-w-16 tw-shrink-0 tw-overflow-hidden tw-rounded-lg tw-bg-gray-200 tw-flex tw-items-center tw-justify-center">
+                            <i class="fas fa-concierge-bell tw-text-xl tw-text-gray-500"></i>
+                        </div>
+                        <div class="tw-flex-1">
+                            <div class="tw-flex tw-items-start tw-justify-between tw-gap-3">
+                                <div>
+                                    <p class="tw-text-xs tw-uppercase tw-tracking-wide tw-text-gray-500">Selected Service</p>
+                                    <h4 id="service-details-name" class="tw-mt-1 tw-text-base tw-font-semibold tw-text-gray-900">-</h4>
+                                </div>
+                                <span id="service-details-category" class="tw-rounded-full tw-bg-[#24CFF4]/15 tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-text-[#0b708a]">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="service-details-description" class="tw-mt-3 tw-text-sm tw-leading-6 tw-text-gray-700">Choose a service to see the details here.</p>
+                    <div class="tw-mt-4 tw-flex tw-items-center tw-justify-between tw-border-t tw-border-gray-200 tw-pt-3">
+                        <span class="tw-text-sm tw-text-gray-500">Price</span>
+                        <span id="service-details-price" class="tw-text-base tw-font-semibold tw-text-gray-900">-</span>
+                    </div>
+                </div>
                 
                 <button type="submit" class="tw-text-black tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">
                     <svg class="tw-me-1 tw--ms-1 tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -69,6 +92,12 @@ const AppointmentModal = {
         dateInput: null,
         timeSelect: null,
         serviceSelect: null,
+        serviceDetailsCard: null,
+        serviceDetailsImageWrap: null,
+        serviceDetailsName: null,
+        serviceDetailsCategory: null,
+        serviceDetailsDescription: null,
+        serviceDetailsPrice: null,
         form: null
     },
     
@@ -76,6 +105,7 @@ const AppointmentModal = {
     appointmentData: null,
     petData: null,
     serviceData: null,
+    servicesById: {},
     
     // Submission state tracking
     isSubmitting: false,
@@ -87,12 +117,20 @@ const AppointmentModal = {
         this.elements.dateInput = document.getElementById('appointment-date');
         this.elements.timeSelect = document.getElementById('appointment-time');
         this.elements.serviceSelect = document.getElementById('service');
+        this.elements.serviceDetailsCard = document.getElementById('service-details-card');
+        this.elements.serviceDetailsImageWrap = document.getElementById('service-details-image-wrap');
+        this.elements.serviceDetailsName = document.getElementById('service-details-name');
+        this.elements.serviceDetailsCategory = document.getElementById('service-details-category');
+        this.elements.serviceDetailsDescription = document.getElementById('service-details-description');
+        this.elements.serviceDetailsPrice = document.getElementById('service-details-price');
         this.elements.form = document.getElementById('appointmentForm');
         
         // Clear date input value to ensure no default date is selected
         if (this.elements.dateInput) {
             this.elements.dateInput.value = '';
         }
+
+        this.clearServiceDetails();
 
         // Set up event handlers
         this.setupEventHandlers();
@@ -107,6 +145,10 @@ const AppointmentModal = {
         // Setup form submission
         if (this.elements.form) {
             this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+        }
+
+        if (this.elements.serviceSelect) {
+            this.elements.serviceSelect.addEventListener('change', this.handleServiceChange.bind(this));
         }
         
         // Setup modal toggle button
@@ -209,6 +251,7 @@ const AppointmentModal = {
     loadServices: function() {
         // Set loading state
         this.elements.serviceSelect.innerHTML = '<option value="">Loading services...</option>';
+        this.servicesById = {};
         
         // Fetch services from the database
         fetch(`{{ route('services.list') }}`, {
@@ -226,13 +269,69 @@ const AppointmentModal = {
         .then(data => {
             this.elements.serviceSelect.innerHTML = '<option value="">Select a service</option>';
             data.forEach(service => {
+                this.servicesById[service.serviceID] = service;
                 this.elements.serviceSelect.innerHTML += `<option value="${service.serviceID}">${service.name} - ₱${service.price}</option>`;
             });
+            this.clearServiceDetails();
         })
         .catch(err => {
             console.error('Error loading services:', err);
             this.elements.serviceSelect.innerHTML = '<option value="">Error loading services</option>';
         });
+    },
+
+    handleServiceChange: function() {
+        const selectedServiceId = this.elements.serviceSelect.value;
+        const service = this.servicesById[selectedServiceId];
+
+        if (!service) {
+            this.clearServiceDetails();
+            return;
+        }
+
+        this.elements.serviceDetailsCard.classList.remove('tw-hidden');
+        this.renderServiceImage(service);
+        this.elements.serviceDetailsName.textContent = service.name || 'Unnamed Service';
+        this.elements.serviceDetailsCategory.textContent = service.category || 'Uncategorized';
+        this.elements.serviceDetailsDescription.textContent = service.description || 'No description available for this service.';
+        this.elements.serviceDetailsPrice.textContent = `₱${Number(service.price || 0).toFixed(2)}`;
+    },
+
+    renderServiceImage: function(service) {
+        if (!this.elements.serviceDetailsImageWrap) {
+            return;
+        }
+
+        const imagePath = service.serviceImage ? String(service.serviceImage).replace(/^storage\//i, '') : '';
+        if (imagePath) {
+            this.elements.serviceDetailsImageWrap.innerHTML = `<img src="{{ asset('storage/') }}/${imagePath}" alt="${service.name || 'Service'}" class="tw-h-full tw-w-full tw-object-cover">`;
+            return;
+        }
+
+        this.elements.serviceDetailsImageWrap.innerHTML = '<i class="fas fa-concierge-bell tw-text-xl tw-text-gray-500"></i>';
+    },
+
+    clearServiceDetails: function() {
+        if (!this.elements.serviceDetailsCard) {
+            return;
+        }
+
+        this.elements.serviceDetailsCard.classList.add('tw-hidden');
+        if (this.elements.serviceDetailsImageWrap) {
+            this.elements.serviceDetailsImageWrap.innerHTML = '<i class="fas fa-concierge-bell tw-text-xl tw-text-gray-500"></i>';
+        }
+        if (this.elements.serviceDetailsName) {
+            this.elements.serviceDetailsName.textContent = '-';
+        }
+        if (this.elements.serviceDetailsCategory) {
+            this.elements.serviceDetailsCategory.textContent = '-';
+        }
+        if (this.elements.serviceDetailsDescription) {
+            this.elements.serviceDetailsDescription.textContent = 'Choose a service to see the details here.';
+        }
+        if (this.elements.serviceDetailsPrice) {
+            this.elements.serviceDetailsPrice.textContent = '-';
+        }
     },
     
     handleFormSubmit: function(e) {
@@ -325,15 +424,14 @@ const AppointmentModal = {
         }
         
         // Get service details
-        const serviceOption = this.elements.serviceSelect.options[this.elements.serviceSelect.selectedIndex];
-        const serviceText = serviceOption.text;
-        const serviceMatch = serviceText.match(/(.*) - ₱(.*)/);
-        
-        if (serviceMatch) {
+        const selectedService = this.servicesById[serviceID];
+        if (selectedService) {
             this.serviceData = {
                 serviceID: serviceID,
-                name: serviceMatch[1],
-                price: serviceMatch[2]
+                name: selectedService.name,
+                category: selectedService.category,
+                description: selectedService.description,
+                price: selectedService.price
             };
         }
         
