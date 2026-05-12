@@ -123,14 +123,14 @@ class AdminPaymentsController extends Controller
     public function show($id)
     {
         $payment = Payment::with('user')->findOrFail($id);
-        
+
         // Get related service details
         if ($payment->payable_type == 'App\Models\Appointment') {
             $payment->service = Appointment::with(['service', 'pet'])->find($payment->payable_id);
         } elseif ($payment->payable_type == 'App\Models\Boarding') {
             $payment->service = Boarding::with('pet')->find($payment->payable_id);
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => $payment
@@ -191,7 +191,7 @@ class AdminPaymentsController extends Controller
         ]);
 
         $payment->update($updateData);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Payment updated successfully',
@@ -205,14 +205,14 @@ class AdminPaymentsController extends Controller
     public function markAsRefunded(Request $request, $id)
     {
         $payment = Payment::findOrFail($id);
-        
+
         if ($payment->status !== 'Completed') {
             return response()->json([
                 'success' => false,
                 'message' => 'Only completed payments can be refunded'
             ], 400);
         }
-        
+
         // Log the change
         $admin = auth()->user();
         ActivityLog::create([
@@ -229,16 +229,16 @@ class AdminPaymentsController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
-        
+
         $payment->status = 'Refunded';
         $payment->save();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Payment has been marked as refunded'
         ]);
     }
-    
+
     /**
      * Complete an existing pending payment record
      */
@@ -271,28 +271,57 @@ class AdminPaymentsController extends Controller
             ], 422);
         }
 
+        $totalCost = $validated['payable_type'] === 'App\Models\Appointment'
+            ? $this->resolveAppointmentTotalCost($payable)
+            : $this->resolveBoardingTotalCost($payable);
+
+        $completedPayments = $payable->payments()->where('status', 'Completed');
+        $completedTotal = (float) $completedPayments->sum('amount');
+
+        // Prevent duplicate completion when booking is already fully paid.
+        if ($totalCost > 0 && $completedTotal >= $totalCost) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This booking is already fully paid.'
+            ], 422);
+        }
+
         $payment = $payable->payments()
             ->where('status', 'Pending')
             ->latest('paymentID')
             ->first();
 
-        if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No pending payment record was found for this booking.'
-            ], 422);
+        $isNewPaymentRecord = false;
+        $oldValues = null;
+
+        if ($payment) {
+            $oldValues = $payment->toArray();
+        } else {
+            // Legacy/admin-created bookings may not have an initial pending payment row.
+            $payment = new Payment();
+            $payment->userID = $validated['userID'];
+            $payment->payable_type = $validated['payable_type'];
+            $payment->payable_id = $validated['payable_id'];
+            $payment->total_cost = $totalCost;
+            $isNewPaymentRecord = true;
         }
 
-        $originalValues = $payment->toArray();
+        $payment->amount = $validated['amount'];
+        $payment->payment_method = $validated['payment_method'];
+        $payment->reference_number = $validated['payment_method'] === 'GCash'
+            ? ($validated['reference_number'] ?? null)
+            : null;
+        $payment->payment_type = $validated['payment_type']
+            ?? ($completedTotal > 0 ? 'balance' : 'full');
         $payment->status = 'Completed';
         $payment->save();
-        
-        // Log the update
+
+        // Log the create/update
         ActivityLog::create([
             'table_name' => 'payments',
             'record_id' => $payment->paymentID,
-            'action' => 'update',
-            'old_values' => json_encode($originalValues),
+            'action' => $isNewPaymentRecord ? 'create' : 'update',
+            'old_values' => $oldValues ? json_encode($oldValues) : null,
             'new_values' => json_encode($payment->toArray()),
             'userID' => auth()->id(),
             'ip_address' => $request->ip(),
@@ -355,7 +384,7 @@ class AdminPaymentsController extends Controller
                 'user_agent' => $request->userAgent()
             ]);
         }
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Payment recorded successfully',
@@ -372,49 +401,49 @@ class AdminPaymentsController extends Controller
     public function getUnpaidBookings(Request $request)
     {
         $userId = $request->query('userID');
-        
+
         if (!$userId) {
             return response()->json([
                 'success' => false,
                 'message' => 'User ID is required'
             ], 400);
         }
-        
+
         try {
             // Get appointments for user through the pets relationship
-            $appointments = Appointment::with(['service', 'pet', 'payments' => function($query) {
-                    $query->where('status', 'Completed');
-                }])
-                ->whereHas('pet', function($query) use ($userId) {
+            $appointments = Appointment::with(['service', 'pet', 'payments' => function ($query) {
+                $query->where('status', 'Completed');
+            }])
+                ->whereHas('pet', function ($query) use ($userId) {
                     $query->where('userID', $userId);
                 })
                 ->where('status', '!=', 'Cancelled')
                 ->get();
-            
+
             // Filter to only fully unpaid appointments so the admin action completes the existing pending payment.
-            $unpaidAppointments = $appointments->filter(function($appointment) {
+            $unpaidAppointments = $appointments->filter(function ($appointment) {
                 $totalPrice = $this->resolveAppointmentTotalCost($appointment);
                 $totalPaid = $appointment->payments->sum('amount');
                 return $totalPaid == 0;
             })->values();
-            
+
             // Get boardings for user
-            $boardings = Boarding::with(['pet', 'payments' => function($query) {
-                    $query->where('status', 'Completed');
-                }])
-                ->whereHas('pet', function($query) use ($userId) {
+            $boardings = Boarding::with(['pet', 'payments' => function ($query) {
+                $query->where('status', 'Completed');
+            }])
+                ->whereHas('pet', function ($query) use ($userId) {
                     $query->where('userID', $userId);
                 })
                 ->where('status', '!=', 'Cancelled')
                 ->get();
-            
+
             // Filter to only fully unpaid boardings so the admin action completes the existing pending payment.
-            $unpaidBoardings = $boardings->filter(function($boarding) {
+            $unpaidBoardings = $boardings->filter(function ($boarding) {
                 $totalPrice = $this->resolveBoardingTotalCost($boarding);
                 $totalPaid = $boarding->payments->sum('amount');
                 return $totalPaid == 0;
             })->values();
-            
+
             // Add remaining balance to each item
             foreach ($unpaidAppointments as $appointment) {
                 $totalPrice = $this->resolveAppointmentTotalCost($appointment);
@@ -423,7 +452,7 @@ class AdminPaymentsController extends Controller
                 $appointment->remaining_balance = max(0, $totalPrice - $totalPaid);
                 $appointment->is_partially_paid = false;
             }
-            
+
             foreach ($unpaidBoardings as $boarding) {
                 $totalPrice = $this->resolveBoardingTotalCost($boarding);
                 $totalPaid = $boarding->payments->sum('amount');
@@ -431,7 +460,7 @@ class AdminPaymentsController extends Controller
                 $boarding->remaining_balance = max(0, $totalPrice - $totalPaid);
                 $boarding->is_partially_paid = false;
             }
-                
+
             // Return combined data
             return response()->json([
                 'success' => true,
