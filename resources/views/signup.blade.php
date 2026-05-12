@@ -159,7 +159,7 @@
                                 <input type="password" id="password" name="password" required 
                                     class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                     placeholder="••••••••">
-                                <button type="button" onclick="togglePassword('password', 'toggleIcon')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
+                                <button type="button" tabindex="-1" onclick="togglePassword('password', 'toggleIcon')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
                                     <i class="fa-regular fa-eye-slash" id="toggleIcon"></i>
                                 </button>
                             </div>
@@ -174,7 +174,7 @@
                                 <input type="password" id="password_confirmation" name="password_confirmation" required 
                                     class="tw-flex-1 tw-border-0 tw-py-2.5 tw-px-2 focus:tw-outline-none focus:tw-ring-0 placeholder:tw-text-gray-400" 
                                     placeholder="••••••••">
-                                <button type="button" onclick="togglePassword('password_confirmation', 'toggleIconConfirm')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
+                                <button type="button" tabindex="-1" onclick="togglePassword('password_confirmation', 'toggleIconConfirm')" class="tw-px-3 tw-text-gray-400 hover:tw-text-[#24CFF4] tw-bg-transparent tw-transition-colors focus:tw-outline-none">
                                     <i class="fa-regular fa-eye-slash" id="toggleIconConfirm"></i>
                                 </button>
                             </div>
@@ -231,7 +231,7 @@
                 toggleIcon.classList.remove('fa-eye-slash');
                 toggleIcon.classList.add('fa-eye');
             } else {
-                input.type = 'password';
+                passwordInput.type = 'password';
                 toggleIcon.classList.remove('fa-eye');
                 toggleIcon.classList.add('fa-eye-slash');
             }
