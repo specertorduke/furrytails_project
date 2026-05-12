@@ -37,17 +37,26 @@
                         <label for="pet-species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Species</label>
                         <select id="pet-species" name="pet-species" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                             <option value="">Select species</option>
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Rabbit">Rabbit</option>
-                            <option value="Hamster">Hamster</option>
-                            <option value="Guinea Pig">Guinea Pig</option>
+                            <option value="Dog">🐕 Dog</option>
+                            <option value="Cat">🐈 Cat</option>
+                            <option value="Rabbit">🐰 Rabbit</option>
+                            <option value="Hamster">🐹 Hamster</option>
+                            <option value="Guinea Pig">🐹 Guinea Pig</option>
+                            <option value="Bird">🦜 Bird</option>
+                            <option value="Fish">🐠 Fish</option>
+                            <option value="Other">✏️ Other (specify)</option>
                         </select>
                     </div>
                     <div>
-                        <label for="pet-breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Breed</label>
-                        <input type="text" id="pet-breed" name="pet-breed" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" required placeholder="Breed">
+                        <label for="pet-breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Breed/Type</label>
+                        <input type="text" id="pet-breed" name="pet-breed" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" required placeholder="e.g., Golden Retriever">
                     </div>
+                </div>
+                
+                <!-- Custom species input (shown when "Other" is selected) -->
+                <div id="custom-species-container" class="tw-hidden tw-mb-4">
+                    <label for="custom-species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Specify Other Species</label>
+                    <input type="text" id="custom-species" name="pet-custom-species" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="e.g., Parrot, Snake, Ferret...">
                 </div>
                 
                 <!-- Gender and birth date -->
@@ -69,8 +78,11 @@
                 <!-- Weight and vaccination status -->
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
-                        <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Weight (kg)</label>
-                        <input type="number" id="pet-weight" name="pet-weight" step="0.5" min="0" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400">
+                        <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Weight</label>
+                        <div class="tw-relative">
+                            <input type="number" id="pet-weight" name="pet-weight" step="0.5" min="0" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 tw-pr-10 placeholder:tw-opacity-50 placeholder:tw-text-gray-400">
+                            <span class="tw-absolute tw-right-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400 tw-text-sm">kg</span>
+                        </div>
                     </div>
                     <div>
                         <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Vaccination Status</label>
@@ -91,8 +103,8 @@
                 
                 <!-- Allergies -->
                 <div class="tw-mb-4">
-                    <label for="pet-allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Allergies</label>
-                    <input type="text" id="pet-allergies" name="pet-allergies" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="List any known allergies (optional)">
+                    <label for="pet-allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Known Allergies</label>
+                    <input type="text" id="pet-allergies" name="pet-allergies" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="e.g., Chicken, Dairy, Wheat (optional)">
                 </div>
                 
                 <!-- Medical history -->
@@ -221,6 +233,32 @@
         });
     }
 
+    // Drag and drop handlers
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.add('tw-bg-gray-600', 'tw-border-[#66FF8F]');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('tw-bg-gray-600', 'tw-border-[#66FF8F]');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('tw-bg-gray-600', 'tw-border-[#66FF8F]');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    }
+
     // Cancel crop
     const cancelCropBtn = document.getElementById('pet-cancel-crop');
     if (cancelCropBtn) {
@@ -308,6 +346,24 @@
                         vaccinationDateContainer.classList.add('tw-hidden');
                         vaccinationDateInput.required = false;
                         vaccinationDateInput.value = '';
+                    }
+                });
+            }
+
+            // Setup species select handler
+            const speciesSelect = document.getElementById('pet-species');
+            if (speciesSelect) {
+                speciesSelect.addEventListener('change', function() {
+                    const customSpeciesContainer = document.getElementById('custom-species-container');
+                    const customSpeciesInput = document.getElementById('custom-species');
+                    
+                    if (this.value === 'Other') {
+                        customSpeciesContainer.classList.remove('tw-hidden');
+                        customSpeciesInput.required = true;
+                    } else {
+                        customSpeciesContainer.classList.add('tw-hidden');
+                        customSpeciesInput.required = false;
+                        customSpeciesInput.value = '';
                     }
                 });
             }
@@ -418,7 +474,15 @@
             const formData = new FormData();
             formData.append('userID', this.elements.ownerSelect.value);
             formData.append('name', this.elements.petNameInput.value);
-            formData.append('species', this.elements.speciesSelect.value);
+            
+            // Handle custom species if "Other" is selected
+            let speciesValue = this.elements.speciesSelect.value;
+            if (speciesValue === 'Other') {
+                const customSpeciesInput = document.getElementById('custom-species');
+                speciesValue = customSpeciesInput.value;
+            }
+            formData.append('species', speciesValue);
+            
             formData.append('breed', this.elements.breedInput.value);
             formData.append('gender', this.elements.genderSelect.value);
             formData.append('birthDate', this.elements.birthDateInput.value || '');

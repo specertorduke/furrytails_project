@@ -29,17 +29,26 @@
                         <label for="pet-species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Species</label>
                         <select id="pet-species" name="species" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required>
                             <option value="">Select species</option>
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Rabbit">Rabbit</option>
-                            <option value="Hamster">Hamster</option>
-                            <option value="Guinea Pig">Guinea Pig</option>
+                            <option value="Dog">🐕 Dog</option>
+                            <option value="Cat">🐈 Cat</option>
+                            <option value="Rabbit">🐰 Rabbit</option>
+                            <option value="Hamster">🐹 Hamster</option>
+                            <option value="Guinea Pig">🐹 Guinea Pig</option>
+                            <option value="Bird">🦜 Bird</option>
+                            <option value="Fish">🐠 Fish</option>
+                            <option value="Other">✏️ Other (specify)</option>
                         </select>
                     </div>
                     <div>
-                        <label for="pet-breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed</label>
-                        <input type="text" id="pet-breed" name="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required placeholder="Breed/Type">
+                        <label for="pet-breed" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Breed/Type</label>
+                        <input type="text" id="pet-breed" name="petType" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" required placeholder="e.g., Golden Retriever">
                     </div>
+                </div>
+
+                <!-- Custom species input (shown when "Other" is selected) -->
+                <div id="custom-species-container" class="tw-hidden tw-mb-4">
+                    <label for="custom-species" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Specify Other Species</label>
+                    <input type="text" id="custom-species" name="customSpecies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="e.g., Parrot, Snake, Ferret...">
                 </div>
                 
                 <!-- Gender and birth date -->
@@ -61,8 +70,11 @@
                 <!-- Weight and vaccination status -->
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
                     <div>
-                        <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Weight (kg)</label>
-                        <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="0.0" required>
+                        <label for="pet-weight" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Weight</label>
+                        <div class="tw-relative">
+                            <input type="number" id="pet-weight" name="weight" step="0.1" min="0" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 tw-pr-10 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="0.0" required>
+                            <span class="tw-absolute tw-right-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-500 tw-text-sm">kg</span>
+                        </div>
                     </div>
                     <div>
                         <label class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Vaccination Status</label>
@@ -83,8 +95,8 @@
                 
                 <!-- Allergies -->
                 <div class="tw-mb-4">
-                    <label for="pet-allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Allergies</label>
-                    <input type="text" id="pet-allergies" name="allergies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="List any known allergies (optional)">
+                    <label for="pet-allergies" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-gray-900">Known Allergies</label>
+                    <input type="text" id="pet-allergies" name="allergies" class="tw-bg-gray-50 tw-border tw-border-gray-300 tw-text-gray-900 tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-opacity-50 placeholder:tw-text-gray-400" placeholder="e.g., Chicken, Dairy, Wheat (optional)">
                 </div>
                 
                 <!-- Medical history -->
@@ -183,6 +195,12 @@
         },
         
         setupEventListeners: function() {
+            // Species select handler
+            const speciesSelect = document.getElementById('pet-species');
+            if (speciesSelect) {
+                speciesSelect.addEventListener('change', this.handleSpeciesChange.bind(this));
+            }
+            
             // Vaccination checkbox handler
             if (this.elements.vaccinatedCheckbox) {
                 this.elements.vaccinatedCheckbox.addEventListener('change', this.handleVaccinationChange.bind(this));
@@ -191,6 +209,13 @@
             // File input handler
             if (this.elements.fileInput) {
                 this.elements.fileInput.addEventListener('change', this.handleFileChange.bind(this));
+            }
+            
+            // Drag and drop handlers
+            if (this.elements.uploadArea) {
+                this.elements.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.elements.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+                this.elements.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
             }
             
             // Cropper buttons
@@ -221,6 +246,45 @@
             
             if (!isVaccinated) {
                 this.elements.vaccinationDateInput.value = '';
+            }
+        },
+        
+        handleSpeciesChange: function() {
+            const speciesSelect = document.getElementById('pet-species');
+            const customSpeciesContainer = document.getElementById('custom-species-container');
+            const customSpeciesInput = document.getElementById('custom-species');
+            const speciesInput = document.getElementById('pet-species');
+            
+            if (speciesSelect.value === 'Other') {
+                customSpeciesContainer.classList.remove('tw-hidden');
+                customSpeciesInput.required = true;
+            } else {
+                customSpeciesContainer.classList.add('tw-hidden');
+                customSpeciesInput.required = false;
+                customSpeciesInput.value = '';
+            }
+        },
+        
+        handleDragOver: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.elements.uploadArea.classList.add('tw-bg-[#e0f7ff]', 'tw-border-[#24CFF4]');
+        },
+        
+        handleDragLeave: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.elements.uploadArea.classList.remove('tw-bg-[#e0f7ff]', 'tw-border-[#24CFF4]');
+        },
+        
+        handleDrop: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.elements.uploadArea.classList.remove('tw-bg-[#e0f7ff]', 'tw-border-[#24CFF4]');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                this.elements.fileInput.files = e.dataTransfer.files;
+                this.handleFileChange({ target: this.elements.fileInput });
             }
         },
         
@@ -322,6 +386,12 @@
             this.elements.vaccinationDateContainer.classList.add('tw-hidden');
             this.elements.vaccinationDateInput.disabled = true;
             this.elements.vaccinationDateInput.required = false;
+            const customSpeciesContainer = document.getElementById('custom-species-container');
+            const customSpeciesInput = document.getElementById('custom-species');
+            if (customSpeciesContainer) {
+                customSpeciesContainer.classList.add('tw-hidden');
+                customSpeciesInput.required = false;
+            }
         },
         
         handleFormSubmit: function(e) {
@@ -364,6 +434,13 @@
             // Submit form with AJAX instead of normal submission
             const form = this.elements.form;
             const formData = new FormData(form);
+            
+            // Handle custom species if "Other" is selected
+            if (formData.get('species') === 'Other') {
+                const customSpeciesValue = formData.get('customSpecies');
+                formData.set('species', customSpeciesValue);
+            }
+            formData.delete('customSpecies');
             
             // Show loading state
             Swal.fire({
@@ -411,17 +488,16 @@
                         // Close modal
                         this.closeModal();
 
-                        // If user is on dashboard (or the dashboard widgets are present), reload page
-                        // so server-rendered dashboard reflects the new pet. This is intentionally
-                        // conservative: only reload when a dashboard pets table exists.
+                        // Reload page if on dashboard or pets page to reflect the new pet
                         try {
                             const hasDashboardPetsTable = !!document.getElementById('petsTable');
-                            if (hasDashboardPetsTable) {
+                            const hasSearchPetInput = !!document.getElementById('searchPet');
+                            if (hasDashboardPetsTable || hasSearchPetInput) {
                                 // small delay to ensure modal DOM cleanup
                                 setTimeout(() => { location.reload(); }, 150);
                             }
                         } catch (err) {
-                            console.error('Error checking dashboard presence for reload:', err);
+                            console.error('Error checking page presence for reload:', err);
                         }
                     }
                 });
