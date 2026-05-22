@@ -8,13 +8,13 @@
                 {!! __('pagination.previous') !!}
             </span>
         @else
-            <a href="{{ $paginator->previousPageUrl() }}" class="tw-relative tw-inline-flex tw-items-center tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
+            <a href="{{ $paginator->previousPageUrl() }}" onclick="if (typeof loadContent === 'function') { loadContent(event, this.href); }" class="tw-relative tw-inline-flex tw-items-center tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
                 {!! __('pagination.previous') !!}
             </a>
         @endif
 
         @if ($paginator->hasMorePages())
-            <a href="{{ $paginator->nextPageUrl() }}" class="tw-relative tw-inline-flex tw-items-center tw-px-4 tw-py-2 tw-ml-3 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
+            <a href="{{ $paginator->nextPageUrl() }}" onclick="if (typeof loadContent === 'function') { loadContent(event, this.href); }" class="tw-relative tw-inline-flex tw-items-center tw-px-4 tw-py-2 tw-ml-3 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
                 {!! __('pagination.next') !!}
             </a>
         @else
@@ -53,7 +53,7 @@
                         <i class="fas fa-chevron-left tw-text-xs"></i>
                     </span>
                 @else
-                    <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
+                    <a href="{{ $paginator->previousPageUrl() }}" rel="prev" onclick="if (typeof loadContent === 'function') { loadContent(event, this.href); }" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
                         <i class="fas fa-chevron-left tw-text-xs"></i>
                     </a>
                 @endif
@@ -69,7 +69,7 @@
                             @if ($page == $paginator->currentPage())
                                 <span class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-text-gray-900 tw-bg-[#24CFF4] tw-border tw-border-[#24CFF4] tw-cursor-default tw-rounded-lg">{{ $page }}</span>
                             @else
-                                <a href="{{ $url }}" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">{{ $page }}</a>
+                                <a href="{{ $url }}" onclick="if (typeof loadContent === 'function') { loadContent(event, this.href); }" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">{{ $page }}</a>
                             @endif
                         @endforeach
                     @endif
@@ -77,7 +77,7 @@
 
                 {{-- Next --}}
                 @if ($paginator->hasMorePages())
-                    <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
+                    <a href="{{ $paginator->nextPageUrl() }}" rel="next" onclick="if (typeof loadContent === 'function') { loadContent(event, this.href); }" class="tw-relative tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-300 tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg hover:tw-bg-gray-700 tw-transition-colors">
                         <i class="fas fa-chevron-right tw-text-xs"></i>
                     </a>
                 @else

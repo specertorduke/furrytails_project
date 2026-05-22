@@ -13,17 +13,98 @@ use Illuminate\Validation\Rule;
 
 class AdminServicesController extends Controller
 {
-    public function index()
+    private function normalizeServiceName(?string $name): string
     {
+        return preg_replace('/\s+/', ' ', trim((string) $name));
+    }
+
+    private function serviceNameKeywords(?string $category): array
+    {
+        return match ($category) {
+            'Grooming' => ['groom', 'grooming'],
+            'Boarding' => ['board', 'boarding'],
+            'Veterinary' => ['vet', 'veterinary'],
+            'Training' => ['train', 'training'],
+            default => [],
+        };
+    }
+
+    private function serviceNameMatchesCategory(string $name, ?string $category): bool
+    {
+        $keywords = $this->serviceNameKeywords($category);
+
+        if (empty($keywords)) {
+            return true;
+        }
+
+        $normalizedName = mb_strtolower($name);
+
+        foreach ($keywords as $keyword) {
+            if (str_contains($normalizedName, $keyword)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function serviceNameRules(?int $ignoreServiceId = null): array
+    {
+        $rules = [
+            'required',
+            'string',
+            'min:3',
+            'max:100',
+            'regex:/^[A-Za-z0-9](?:[A-Za-z0-9\s&\'().,-]*[A-Za-z0-9])?$/',
+        ];
+
+        $uniqueRule = Rule::unique('services', 'name');
+        if ($ignoreServiceId !== null) {
+            $uniqueRule->ignore($ignoreServiceId, 'serviceID');
+        }
+
+        $rules[] = $uniqueRule;
+
+        return $rules;
+    }
+
+    public function index(Request $request)
+    {
+        $search = trim((string) $request->query('search', ''));
+        $category = $request->query('category', 'all');
+        $sort = $request->query('sort', 'none');
+
         // Stats via direct DB queries (independent of pagination)
         $totalServices    = Service::count();
         $activeServices   = Service::where('isActive', true)->count();
         $serviceCategories = Service::select('category')->distinct()->count();
+        $existingServiceNames = Service::orderBy('name')->pluck('name')->values();
+
+        $servicesQuery = Service::query();
+
+        if ($search !== '') {
+            $servicesQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($category !== 'all' && in_array($category, ['Grooming', 'Boarding', 'Veterinary', 'Training'], true)) {
+            $servicesQuery->where('category', $category);
+        }
+
+        if ($sort === 'newest') {
+            $servicesQuery->orderByDesc('created_at')->orderBy('name');
+        } elseif ($sort === 'oldest') {
+            $servicesQuery->orderBy('created_at')->orderBy('name');
+        } else {
+            $servicesQuery->orderBy('name');
+        }
 
         // Paginated services list
-        $services = Service::orderBy('name')->paginate(8);
+        $services = $servicesQuery->paginate(8)->withQueryString();
 
-        return view('admin.services', compact('services', 'totalServices', 'activeServices', 'serviceCategories'));
+        return view('admin.services', compact('services', 'totalServices', 'activeServices', 'serviceCategories', 'existingServiceNames', 'search', 'category', 'sort'));
     }
 
     public function getServicesList()
@@ -100,9 +181,14 @@ class AdminServicesController extends Controller
         if (!auth()->user()->hasPermission('services.create')) {
             return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
         }
+        $request->merge([
+            'name' => $this->normalizeServiceName($request->input('name')),
+        ]);
+        $serviceNameHint = 'Service name should include the category word, such as Grooming, Boarding, Vet/Veterinary, or Training.';
+
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100|unique:services,name',
+            'name' => $this->serviceNameRules(),
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -110,12 +196,23 @@ class AdminServicesController extends Controller
             'isActive' => 'required|boolean',
         ], [
             'name.unique' => 'A service with this name already exists. Please choose a different name.',
+            'name.regex' => 'Service names can only use letters, numbers, spaces, and common punctuation like & , . - and apostrophes.',
+            'name.min' => 'Service name must be at least 3 characters long.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if (! $this->serviceNameMatchesCategory($request->input('name'), $request->input('category'))) {
+            return response()->json([
+                'success' => false,
+                'errors' => [
+                    'name' => [$serviceNameHint],
+                ],
             ], 422);
         }
 
@@ -179,14 +276,15 @@ class AdminServicesController extends Controller
         if (!auth()->user()->hasPermission('services.edit')) {
             return response()->json(['success' => false, 'message' => 'You do not have permission to perform this action.'], 403);
         }
+        $service = Service::findOrFail($id);
+        $request->merge([
+            'name' => $this->normalizeServiceName($request->input('name')),
+        ]);
+        $serviceNameHint = 'Service name should include the category word, such as Grooming, Boarding, Vet/Veterinary, or Training.';
+
         // Validate request including admin password
         $validator = Validator::make($request->all(), [
-            'name' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('services', 'name')->ignore($id, 'serviceID'),
-            ],
+            'name' => $this->serviceNameRules((int) $id),
             'category' => 'required|string|in:Grooming,Boarding,Veterinary,Training',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -194,6 +292,8 @@ class AdminServicesController extends Controller
             'isActive' => 'required|boolean',
         ], [
             'name.unique' => 'A service with this name already exists. Please choose a different name.',
+            'name.regex' => 'Service names can only use letters, numbers, spaces, and common punctuation like & , . - and apostrophes.',
+            'name.min' => 'Service name must be at least 3 characters long.',
         ]);
     
         if ($validator->fails()) {
@@ -203,9 +303,20 @@ class AdminServicesController extends Controller
             ], 422);
         }
 
+        $nameChanged = $request->input('name') !== $service->name;
+        $categoryChanged = $request->input('category') !== $service->category;
+
+        if (($nameChanged || $categoryChanged) && ! $this->serviceNameMatchesCategory($request->input('name'), $request->input('category'))) {
+            return response()->json([
+                'success' => false,
+                'errors' => [
+                    'name' => [$serviceNameHint],
+                ],
+            ], 422);
+        }
+
         try {
             $admin = auth()->user();
-            $service = Service::findOrFail($id);
             
             // Store original values for logging
             $originalValues = $service->toArray();

@@ -40,7 +40,7 @@ class PetController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'species' => 'required|string',
-                'petType' => 'required|string',
+                'breed' => 'required|string',
                 'gender' => 'required|string',
                 'birthDate' => 'required|date',
                 'weight' => 'nullable|numeric',

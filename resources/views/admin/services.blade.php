@@ -21,6 +21,10 @@
     }
 </style>
 <div class="tw-p-6 tw-min-h-screen tw-bg-gray-900">
+    @php
+        $currentCategory = $category ?? 'all';
+        $currentSort = $sort ?? 'none';
+    @endphp
     <!-- Header Section -->
     <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between tw-items-start md:tw-items-center tw-mb-6">
         <div>
@@ -78,34 +82,38 @@
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
             <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Search</label>
-                <input type="text" id="search-service" placeholder="Search services..." class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
+                <input type="text" id="search-service" value="{{ $search ?? '' }}" placeholder="Search services..." class="tw-w-full tw-bg-gray-700 tw-text-white tw-border-gray-600 tw-rounded-lg tw-px-3 tw-py-2">
             </div>
             <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-300 tw-mb-1">Category</label>
                 <div class="tw-flex tw-items-center tw-gap-2">
                     <div class="tw-flex tw-flex-wrap tw-gap-2 tw-flex-1" id="category-filters">
-                        <button class="category-filter active tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-[#27b5d4] tw-font-semibold tw-transition-all tw-duration-300" data-category="all" data-text="All">All</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Grooming" data-text="Grooming">Grooming</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Boarding" data-text="Boarding">Boarding</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Veterinary" data-text="Veterinary">Veterinary</button>
-                        <button class="category-filter tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300" data-category="Training" data-text="Training">Training</button>
+                        <button type="button" class="category-filter {{ $currentCategory === 'all' ? 'active tw-bg-[#27b5d4] tw-font-semibold' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-transition-all tw-duration-300" data-category="all" data-text="All">All</button>
+                        <button type="button" class="category-filter {{ $currentCategory === 'Grooming' ? 'active tw-bg-[#27b5d4] tw-font-semibold' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-transition-all tw-duration-300" data-category="Grooming" data-text="Grooming">Grooming</button>
+                        <button type="button" class="category-filter {{ $currentCategory === 'Boarding' ? 'active tw-bg-[#27b5d4] tw-font-semibold' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-transition-all tw-duration-300" data-category="Boarding" data-text="Boarding">Boarding</button>
+                        <button type="button" class="category-filter {{ $currentCategory === 'Veterinary' ? 'active tw-bg-[#27b5d4] tw-font-semibold' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-transition-all tw-duration-300" data-category="Veterinary" data-text="Veterinary">Veterinary</button>
+                        <button type="button" class="category-filter {{ $currentCategory === 'Training' ? 'active tw-bg-[#27b5d4] tw-font-semibold' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-transition-all tw-duration-300" data-category="Training" data-text="Training">Training</button>
                     </div>
                     <!-- Sort Button -->
                     <button id="sort-by-date" 
-                            class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-text-base tw-bg-gray-700 hover:tw-bg-gray-600 tw-transition-all tw-duration-300 tw-flex tw-items-center tw-justify-center" 
-                            data-sort-order="none"
-                            title="Sort by date">
-                        <i class="fas fa-sort"></i>
+                            class="tw-px-3 tw-py-1 tw-rounded-lg tw-text-white tw-text-base {{ $currentSort !== 'none' ? 'tw-bg-[#27b5d4] tw-text-black hover:tw-bg-[#1db8d9]' : 'tw-bg-gray-700 hover:tw-bg-gray-600' }} tw-transition-all tw-duration-300 tw-flex tw-items-center tw-justify-center" 
+                            data-sort-order="{{ $currentSort }}"
+                            title="{{ $currentSort === 'newest' ? 'Sort: Newest First' : ($currentSort === 'oldest' ? 'Sort: Oldest First' : 'Sort by date') }}">
+                        <i class="fas {{ $currentSort === 'newest' ? 'fa-arrow-down-short-wide' : ($currentSort === 'oldest' ? 'fa-arrow-up-short-wide' : 'fa-sort') }}"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script>
+        window.adminExistingServiceNames = @json($existingServiceNames ?? []);
+    </script>
+
     <!-- Services Grid -->
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 service-grid">
         @forelse($services ?? [] as $service)
-        <div class="service-card tw-bg-gray-800 tw-rounded-xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg" data-category="{{ $service->category }}" data-created="{{ $service->created_at }}">
+        <div class="service-card tw-bg-gray-800 tw-rounded-xl tw-overflow-hidden tw-shadow-sm tw-transition-all tw-duration-300 hover:tw-shadow-lg" data-category="{{ $service->category }}" data-created="{{ optional($service->created_at)->timestamp ?? 0 }}" data-original-index="{{ $loop->index }}">
             <div class="tw-relative">
                 <!-- Banner image takes full width -->
                 <img src="{{ asset('storage/' . $service->serviceImage) }}" 
@@ -210,8 +218,18 @@
         },
 
         setupEventListeners: function() {
-            document.getElementById('addServiceBtn')?.addEventListener('click', this.openAddServiceModal);
-            document.getElementById('noServicesAddBtn')?.addEventListener('click', this.openAddServiceModal);
+            const addButton = document.getElementById('addServiceBtn');
+            const emptyStateButton = document.getElementById('noServicesAddBtn');
+
+            if (addButton && !addButton.dataset.bound) {
+                addButton.addEventListener('click', this.openAddServiceModal.bind(this));
+                addButton.dataset.bound = 'true';
+            }
+
+            if (emptyStateButton && !emptyStateButton.dataset.bound) {
+                emptyStateButton.addEventListener('click', this.openAddServiceModal.bind(this));
+                emptyStateButton.dataset.bound = 'true';
+            }
         },
 
         setupFilters: function() {
@@ -220,12 +238,26 @@
             const sortButton = document.getElementById('sort-by-date');
             
             // Search functionality
-            if (searchInput) {
-                searchInput.addEventListener('input', this.filterServices.bind(this));
+            if (searchInput && !searchInput.dataset.bound) {
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(this.searchDebounceTimer);
+                    this.searchDebounceTimer = setTimeout(() => this.filterServices(), 250);
+                });
+                searchInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        this.filterServices();
+                    }
+                });
+                searchInput.dataset.bound = 'true';
             }
             
             // Category filtering
             categoryButtons.forEach(button => {
+                if (button.dataset.bound) {
+                    return;
+                }
+
                 button.addEventListener('click', () => {
                     categoryButtons.forEach(btn => {
                         btn.classList.remove('tw-bg-[#27b5d4]', 'active', 'tw-font-semibold');
@@ -235,10 +267,14 @@
                     button.classList.add('tw-bg-[#27b5d4]', 'active', 'tw-font-semibold');
                     this.filterServices();
                 });
+                button.dataset.bound = 'true';
             });
             
             // Sort button functionality
-            if (sortButton) {
+            if (sortButton && !sortButton.dataset.bound) {
+                sortButton.dataset.sortOrder = sortButton.dataset.sortOrder || 'none';
+                const icon = sortButton.querySelector('i');
+
                 sortButton.addEventListener('click', () => {
                     const currentOrder = sortButton.dataset.sortOrder;
                     const icon = sortButton.querySelector('i');
@@ -247,65 +283,66 @@
                     if (currentOrder === 'none') {
                         sortButton.dataset.sortOrder = 'newest';
                         sortButton.title = 'Sort: Newest First';
-                        icon.className = 'fas fa-arrow-down-short-wide';
+                        if (icon) {
+                            icon.className = 'fas fa-arrow-down-short-wide';
+                        }
                         sortButton.classList.remove('tw-bg-gray-700', 'hover:tw-bg-gray-600');
                         sortButton.classList.add('tw-bg-[#27b5d4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
                     } else if (currentOrder === 'newest') {
                         sortButton.dataset.sortOrder = 'oldest';
                         sortButton.title = 'Sort: Oldest First';
-                        icon.className = 'fas fa-arrow-up-short-wide';
+                        if (icon) {
+                            icon.className = 'fas fa-arrow-up-short-wide';
+                        }
                     } else {
                         sortButton.dataset.sortOrder = 'none';
                         sortButton.title = 'Sort by date';
-                        icon.className = 'fas fa-sort';
+                        if (icon) {
+                            icon.className = 'fas fa-sort';
+                        }
                         sortButton.classList.remove('tw-bg-[#27b5d4]', 'tw-text-black', 'hover:tw-bg-[#1db8d9]');
                         sortButton.classList.add('tw-bg-gray-700', 'hover:tw-bg-gray-600');
                     }
                     
                     this.filterServices();
                 });
+                sortButton.dataset.bound = 'true';
             }
         },
         
         filterServices: function() {
-            const searchTerm = document.getElementById('search-service').value.toLowerCase();
-            const activeCategory = document.querySelector('.category-filter.active').dataset.category;
+            const searchInput = document.getElementById('search-service');
+            const activeCategoryButton = document.querySelector('.category-filter.active');
             const sortButton = document.getElementById('sort-by-date');
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const activeCategory = activeCategoryButton ? activeCategoryButton.dataset.category : 'all';
             const sortOrder = sortButton ? sortButton.dataset.sortOrder : 'none';
-            const serviceGrid = document.querySelector('.service-grid');
-            const serviceCards = Array.from(document.querySelectorAll('.service-card'));
-            
-            // First, filter and show/hide cards based on search and category
-            serviceCards.forEach(card => {
-                const serviceName = card.querySelector('h3').textContent.toLowerCase();
-                const serviceCategory = card.dataset.category;
-                
-                const matchesSearch = serviceName.includes(searchTerm);
-                const matchesCategory = activeCategory === 'all' || serviceCategory === activeCategory;
-                
-                card.style.display = matchesSearch && matchesCategory ? 'block' : 'none';
-            });
-            
-            // Apply sorting if sort order is set
-            if (sortOrder !== 'none') {
-                const visibleCards = serviceCards.filter(card => card.style.display !== 'none');
-                
-                visibleCards.sort((a, b) => {
-                    const dateA = new Date(a.dataset.created);
-                    const dateB = new Date(b.dataset.created);
-                    
-                    if (sortOrder === 'newest') {
-                        return dateB - dateA; // Newest first (descending order)
-                    } else if (sortOrder === 'oldest') {
-                        return dateA - dateB; // Oldest first (ascending order)
-                    }
-                    return 0;
-                });
-                
-                // Re-append cards in sorted order
-                visibleCards.forEach(card => {
-                    serviceGrid.appendChild(card);
-                });
+            const url = new URL(window.location.href);
+
+            if (searchTerm) {
+                url.searchParams.set('search', searchTerm);
+            } else {
+                url.searchParams.delete('search');
+            }
+
+            if (activeCategory && activeCategory !== 'all') {
+                url.searchParams.set('category', activeCategory);
+            } else {
+                url.searchParams.delete('category');
+            }
+
+            if (sortOrder && sortOrder !== 'none') {
+                url.searchParams.set('sort', sortOrder);
+            } else {
+                url.searchParams.delete('sort');
+            }
+
+            url.searchParams.delete('page');
+
+            if (typeof window.loadContent === 'function') {
+                window.loadContent({ preventDefault() {} }, url.toString());
+            } else {
+                window.location.href = url.toString();
             }
         },
         
@@ -494,14 +531,18 @@
     };
 
     // Initialize when page loads directly
-    document.addEventListener('DOMContentLoaded', function() {
-        ServicesPage.initializeServices();
-    });
+    if (!window.__servicesPageListenersBound) {
+        window.__servicesPageListenersBound = true;
 
-    // Initialize when content is dynamically loaded
-    document.addEventListener('contentChanged', function() {
-        ServicesPage.initializeServices();
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            ServicesPage.initializeServices();
+        });
+
+        // Initialize when content is dynamically loaded
+        document.addEventListener('contentChanged', function() {
+            ServicesPage.initializeServices();
+        });
+    }
 </script>
 @endpush
 

@@ -23,7 +23,8 @@
                 <!-- Service Name -->
                 <div class="tw-mb-4">
                     <label for="edit-service-name" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Service Name</label>
-                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60"100" placeholder="Enter service name">
+                    <input type="text" name="name" id="edit-service-name" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" placeholder="Enter service name">
+                    <p id="edit-service-name-feedback" class="tw-mt-2 tw-text-xs tw-text-gray-400">Include the category word in the service name, such as Grooming, Boarding, Vet/Veterinary, or Training.</p>
                 </div>
 
                 <!-- Service Category -->
@@ -43,7 +44,7 @@
                     <label for="edit-service-price" class="tw-block tw-mb-2 tw-text-sm tw-font-medium tw-text-white">Price (₱)</label>
                     <div class="tw-relative">
                         <span class="tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-pointer-events-none tw-text-gray-400">₱</span>
-                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60"0" step="0.01" placeholder="0.00">
+                        <input type="number" name="price" id="edit-service-price" class="tw-bg-gray-700 tw-border tw-border-gray-600 tw-text-white tw-text-sm tw-rounded-lg tw-focus:tw-ring-[#24CFF4] tw-focus:tw-border-[#24CFF4] tw-block tw-w-full tw-pl-8 tw-p-2.5 placeholder:tw-text-gray-400 placeholder:tw-opacity-60" step="0.01" placeholder="0.00">
                     </div>
                 </div>
 
@@ -88,10 +89,11 @@
 
 <script>
 // Create a namespace for our service edit modal functionality
-const AdminEditServiceModal = {
+var AdminEditServiceModal = window.AdminEditServiceModal = window.AdminEditServiceModal || {
     // Store elements references
     elements: {
         nameInput: null,
+        nameFeedback: null,
         categorySelect: null,
         priceInput: null,
         descriptionInput: null,
@@ -107,11 +109,13 @@ const AdminEditServiceModal = {
     isSubmitting: false,
     currentServiceId: null,
     currentImageUrl: null,
+    currentOriginalName: '',
     
     // Initialize the modal functionality
     init: function() {
         // Get elements
         this.elements.nameInput = document.getElementById('edit-service-name');
+        this.elements.nameFeedback = document.getElementById('edit-service-name-feedback');
         this.elements.categorySelect = document.getElementById('edit-service-category');
         this.elements.priceInput = document.getElementById('edit-service-price');
         this.elements.descriptionInput = document.getElementById('edit-service-description');
@@ -121,9 +125,114 @@ const AdminEditServiceModal = {
         this.elements.form = document.getElementById('editServiceForm');
         this.elements.modal = document.getElementById('editService-modal');
         this.elements.serviceIdInput = document.getElementById('edit-service-id');
+
+        if (this.elements.modal && this.elements.modal.dataset.initialized === 'true') {
+            return;
+        }
         
         // Set up event handlers
         this.setupEventHandlers();
+        this.setupLiveValidation();
+        this.updateServiceNameValidation(false);
+
+        if (this.elements.modal) {
+            this.elements.modal.dataset.initialized = 'true';
+        }
+    },
+
+    serviceNameKeywords: function(category) {
+        const keywords = {
+            Grooming: ['groom', 'grooming'],
+            Boarding: ['board', 'boarding'],
+            Veterinary: ['vet', 'veterinary'],
+            Training: ['train', 'training']
+        };
+
+        return keywords[category] || [];
+    },
+
+    serviceNameMatchesCategory: function(name, category) {
+        const keywords = this.serviceNameKeywords(category);
+        if (!keywords.length) {
+            return true;
+        }
+
+        const normalizedName = name.toLowerCase();
+        return keywords.some(keyword => normalizedName.includes(keyword));
+    },
+
+    normalizeName: function(name) {
+        return name.trim().replace(/\s+/g, ' ').toLowerCase();
+    },
+
+    isDuplicateName: function(name) {
+        const existingNames = Array.isArray(window.adminExistingServiceNames) ? window.adminExistingServiceNames : [];
+        const normalizedName = this.normalizeName(name);
+        const originalName = this.normalizeName(this.currentOriginalName || '');
+
+        if (originalName && normalizedName === originalName) {
+            return false;
+        }
+
+        return existingNames.some(existingName => this.normalizeName(existingName) === normalizedName);
+    },
+
+    setupLiveValidation: function() {
+        if (!this.elements.nameInput || !this.elements.categorySelect) {
+            return;
+        }
+
+        if (!this.elements.nameInput.dataset.validationBound) {
+            this.elements.nameInput.addEventListener('input', this.updateServiceNameValidation.bind(this));
+            this.elements.nameInput.addEventListener('blur', this.updateServiceNameValidation.bind(this));
+            this.elements.nameInput.dataset.validationBound = 'true';
+        }
+
+        if (!this.elements.categorySelect.dataset.validationBound) {
+            this.elements.categorySelect.addEventListener('change', this.updateServiceNameValidation.bind(this));
+            this.elements.categorySelect.dataset.validationBound = 'true';
+        }
+    },
+
+    updateServiceNameValidation: function(showErrors = false) {
+        if (!this.elements.nameInput || !this.elements.nameFeedback) {
+            return true;
+        }
+
+        const rawName = this.elements.nameInput.value;
+        const trimmedName = rawName.trim().replace(/\s+/g, ' ');
+        const category = this.elements.categorySelect ? this.elements.categorySelect.value : '';
+        const serviceNamePattern = /^[A-Za-z0-9](?:[A-Za-z0-9\s&'().,-]*[A-Za-z0-9])?$/;
+        const keywords = this.serviceNameKeywords(category);
+
+        let message = 'Include the category word in the service name, such as Grooming, Boarding, Vet/Veterinary, or Training.';
+        let isValid = true;
+
+        if (!trimmedName) {
+            message = 'Include the category word in the service name, such as Grooming, Boarding, Vet/Veterinary, or Training.';
+            isValid = !showErrors;
+        } else if (trimmedName.length < 3) {
+            message = 'Service name must be at least 3 characters long.';
+            isValid = false;
+        } else if (!serviceNamePattern.test(trimmedName)) {
+            message = 'Use letters, numbers, spaces, and basic punctuation only.';
+            isValid = false;
+        } else if (this.isDuplicateName(trimmedName)) {
+            message = 'A service with this name already exists. Please choose a different name.';
+            isValid = false;
+        } else if (keywords.length && category && !this.serviceNameMatchesCategory(trimmedName, category)) {
+            message = `For ${category.toLowerCase()} services, include a keyword like ${keywords[0]}.`;
+            isValid = false;
+        }
+
+        this.elements.nameFeedback.textContent = message;
+        this.elements.nameFeedback.classList.toggle('tw-text-gray-400', !trimmedName || (!showErrors && !isValid));
+        this.elements.nameFeedback.classList.toggle('tw-text-red-400', !isValid && !!trimmedName);
+        this.elements.nameFeedback.classList.toggle('tw-text-green-400', isValid && !!trimmedName);
+        this.elements.nameInput.classList.toggle('tw-border-red-500', !isValid && !!trimmedName);
+        this.elements.nameInput.classList.toggle('tw-border-green-500', isValid && !!trimmedName);
+
+        return isValid;
     },
     
     setupEventHandlers: function() {
@@ -221,6 +330,8 @@ const AdminEditServiceModal = {
     },
     
     populateFormData: function(service) {
+        this.currentOriginalName = service.name || '';
+
         // Set form field values
         this.elements.nameInput.value = service.name || '';
         this.elements.categorySelect.value = service.category || '';
@@ -259,10 +370,7 @@ const AdminEditServiceModal = {
     },
     
     validateForm: function() {
-        // Basic validations
-        const name = this.elements.nameInput.value.trim();
-        if (!name) {
-            this.showError('Please enter a service name');
+        if (!this.updateServiceNameValidation(true)) {
             return false;
         }
         
@@ -406,15 +514,19 @@ const AdminEditServiceModal = {
     }
 };
 
-// Initialize after DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    AdminEditServiceModal.init();
-});
+if (!window.__adminEditServiceModalListenersBound) {
+    window.__adminEditServiceModalListenersBound = true;
 
-// Initialize when content is dynamically loaded
-document.addEventListener('contentChanged', function() {
-    AdminEditServiceModal.init();
-});
+    // Initialize after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        AdminEditServiceModal.init();
+    });
+
+    // Initialize when content is dynamically loaded
+    document.addEventListener('contentChanged', function() {
+        AdminEditServiceModal.init();
+    });
+}
 </script>
 
 
