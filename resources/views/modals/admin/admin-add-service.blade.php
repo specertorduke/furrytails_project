@@ -69,7 +69,7 @@
                 <!-- Service Status -->
                 <div class="tw-flex tw-items-start tw-mb-5">
                     <input checked id="service-active" name="service-active" type="checkbox" class="tw-w-4 tw-h-4 tw-mt-0.5 tw-text-blue-600 tw-bg-gray-700 tw-border-gray-600 tw-rounded">
-                    <label for="service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white tw-leading-tight">Service is active and available to customers</label>
+                    <label for="service-active" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-white tw-leading-tight">Service is available to customers</label>
                 </div>
                 
                 <button type="submit" class="tw-text-black tw-inline-flex tw-items-center tw-bg-[#24CFF4] hover:tw-bg-[#63e4fd] focus:tw-outline-none focus:tw-bg-[#038cb7] tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center">

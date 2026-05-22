@@ -134,6 +134,13 @@
             <p class="tw-text-gray-500 tw-mb-4">No history available</p>
         </div>
         @endforelse
+
+        @if(count($history) > 0)
+        <div class="tw-hidden tw-flex-col tw-items-center tw-justify-center tw-bg-white tw-rounded-2xl tw-p-8 tw-shadow-sm" id="searchEmptyState">
+            <i class="fas fa-search tw-text-5xl tw-text-gray-300 tw-mb-4"></i>
+            <p class="tw-text-gray-500 tw-mb-4">No results match your search or filters.</p>
+        </div>
+        @endif
     </div>
 
     <!-- Pagination Controls -->
@@ -274,16 +281,29 @@
             
             // Show empty state if no filtered items
             const emptyState = document.getElementById('emptyState');
+            const searchEmptyState = document.getElementById('searchEmptyState'); // The JS search one
             const paginationControls = document.getElementById('paginationControls');
             const paginationInfo = document.getElementById('paginationInfo');
             
             if (filteredItems.length === 0) {
+                // Show the appropriate empty state
                 if (emptyState) emptyState.style.display = 'flex';
+                if (searchEmptyState) {
+                    searchEmptyState.classList.remove('tw-hidden');
+                    searchEmptyState.classList.add('tw-flex');
+                }
+                
                 if (paginationControls) paginationControls.style.display = 'none';
                 if (paginationInfo) paginationInfo.style.display = 'none';
                 return;
             } else {
+                // Hide the empty states
                 if (emptyState) emptyState.style.display = 'none';
+                if (searchEmptyState) {
+                    searchEmptyState.classList.add('tw-hidden');
+                    searchEmptyState.classList.remove('tw-flex');
+                }
+                
                 if (paginationControls) paginationControls.style.display = 'flex';
                 if (paginationInfo) paginationInfo.style.display = 'block';
             }

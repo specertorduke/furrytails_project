@@ -271,18 +271,18 @@
             
             // Setup toggle status button - clone and replace to avoid duplicate listeners
             const toggleStatusBtn = document.getElementById('toggleStatusBtn');
-            const toggleStatusIcon = document.getElementById('toggleStatusIcon');
-            const toggleStatusText = document.getElementById('toggleStatusText');
+            const toggleStatusIcMakment.getElementById('toggleStatusIcon');
+            cmMake AvailablemeoundedText = document.getElementById('toggleStatusText');
             
             // Set button appearance based on current status
             if (service.isActive) {
                 toggleStatusBtn.className = 'tw-text-white tw-bg-red-600 hover:tw-bg-red-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center';
                 toggleStatusIcon.className = 'fas fa-times tw-mr-2';
-                toggleStatusText.textContent = 'Deactivate';
+                toggleStatusText.textContent = 'Make Unavailable';
             } else {
                 toggleStatusBtn.className = 'tw-text-white tw-bg-green-600 hover:tw-bg-green-700 tw-font-medium tw-rounded-lg tw-text-sm tw-px-5 tw-py-2.5 tw-text-center tw-flex tw-items-center';
                 toggleStatusIcon.className = 'fas fa-check tw-mr-2';
-                toggleStatusText.textContent = 'Activate';
+                toggleStatusText.textContent = 'Make Available';
             }
             
             const newToggleStatusBtn = toggleStatusBtn.cloneNode(true);
@@ -329,10 +329,10 @@
             
             if (isActive) {
                 statusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-green-900 tw-text-green-300';
-                statusText.innerHTML = '<i class="fas fa-check-circle tw-mr-2"></i> Active';
+                statusText.innerHTML = '<i class="fas fa-check-circle tw-mr-2"></i> Available';
             } else {
                 statusBadge.className = 'tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-bg-red-900 tw-text-red-300';
-                statusText.innerHTML = '<i class="fas fa-times-circle tw-mr-2"></i> Inactive';
+                statusText.innerHTML = '<i class="fas fa-times-circle tw-mr-2"></i> Unavailable';
             }
         }
         

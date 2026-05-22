@@ -55,8 +55,8 @@
         </div>
         <div class="tw-bg-gray-800 tw-rounded-xl tw-shadow-sm tw-p-6 tw-border-l-4 tw-border-[#FF9666] tw-transition-all tw-duration-300 hover:tw-shadow-md">
             <div class="tw-flex tw-justify-between tw-items-center">
-                <div>
-                    <p class="tw-text-gray-400 tw-text-sm">Active Services</p>
+                <div>    
+                    <p class="tw-text-gray-400 tw-text-sm">Available Services</p>
                     <h3 class="tw-text-2xl tw-font-bold tw-text-white">{{ $activeServices ?? 0 }}</h3>
                 </div>
                 <div class="tw-bg-gray-700 tw-p-3 tw-rounded-full">
@@ -131,11 +131,11 @@
                 <div class="tw-absolute tw-top-3 tw-left-3">
                     @if($service->isActive)
                     <span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-bg-green-900/80 tw-backdrop-blur-sm tw-text-green-300">
-                        <i class="fas fa-check-circle tw-mr-1"></i> Active
+                        <i class="fas fa-check-circle tw-mr-1"></i> Available
                     </span>
                     @else
                     <span class="tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-bg-red-900/80 tw-backdrop-blur-sm tw-text-red-300">
-                        <i class="fas fa-times-circle tw-mr-1"></i> Inactive
+                        <i class="fas fa-times-circle tw-mr-1"></i> Unavailable
                     </span>
                     @endif
                 </div>
@@ -400,7 +400,7 @@
     console.log('Toggling service status:', serviceId, 'to', newStatus);
     
     Swal.fire({
-        title: newStatus ? 'Activate service?' : 'Deactivate service?',
+        title: newStatus ? 'Make Service Available?' : 'Make Service Unavailable?',
         html: `
             <div class="tw-text-left tw-mb-4">
                 <p class="tw-mb-2 tw-text-white">${newStatus 
@@ -412,7 +412,7 @@
         showCancelButton: true,
         confirmButtonColor: newStatus ? '#10b981' : '#d33',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: newStatus ? 'Yes, activate it!' : 'Yes, deactivate it!',
+        confirmButtonText: newStatus ? 'Yes, make available!' : 'Yes, make unavailable!',
         background: '#374151',
         color: '#fff'
     }).then((result) => {
@@ -433,7 +433,7 @@
                 if (data.success) {
                     Swal.fire({
                         title: 'Updated!',
-                        text: `Service has been ${newStatus ? 'activated' : 'deactivated'}.`,
+                        text: `Service has been ${newStatus ? 'made available' : 'made unavailable'}.`,
                         icon: 'success',
                         confirmButtonColor: '#27b5d4',
                         background: '#374151',
