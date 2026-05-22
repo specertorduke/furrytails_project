@@ -59,10 +59,21 @@ class ContentController extends Controller
     public function servicesContent()
     {
         $services = Service::query()
-            ->where('isActive', true)
+            // Removed the ->where('isActive', true) so unavailable services actually show up
             ->orderBy('category')
             ->orderBy('name')
-            ->get(['serviceID', 'name', 'description', 'category', 'price', 'serviceImage']);
+            // Added the 3 missing columns to the get() array!
+            ->get([
+                'serviceID', 
+                'name', 
+                'description', 
+                'category', 
+                'price', 
+                'serviceImage',
+                'isActive', 
+                'unavailability_reason', 
+                'expected_return'
+            ]);
 
         return view('content.services', compact('services'));
     }

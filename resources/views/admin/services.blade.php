@@ -397,59 +397,82 @@
     };
 
     window.toggleServiceStatus = function(serviceId, newStatus) {
-    console.log('Toggling service status:', serviceId, 'to', newStatus);
-    
-    Swal.fire({
-        title: newStatus ? 'Make Service Available?' : 'Make Service Unavailable?',
-        html: `
-            <div class="tw-text-left tw-mb-4">
-                <p class="tw-mb-2 tw-text-white">${newStatus 
-                    ? "This service will be visible to customers" 
-                    : "This service will be hidden from customers"}</p>
-            </div>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: newStatus ? '#10b981' : '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: newStatus ? 'Yes, make available!' : 'Yes, make unavailable!',
-        background: '#374151',
-        color: '#fff'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Send status update request
-            fetch("{{ route('admin.services.toggle-status', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    isActive: newStatus
+        let alertConfig = {
+            title: newStatus ? 'Make service available?' : 'Make service unavailable?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: newStatus ? '#10b981' : '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: newStatus ? 'Yes, make available!' : 'Yes, make unavailable!',
+            background: '#374151',
+            color: '#fff'
+        };
+
+        // If making unavailable, add input fields to the alert
+        if (!newStatus) {
+            // Calculate current local time in YYYY-MM-DDThh:mm format for the "min" restriction
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const currentDateTime = now.toISOString().slice(0, 16);
+
+            alertConfig.html = `
+                <div class="tw-text-left tw-mb-4">
+                    <p class="tw-mb-4 tw-text-white">This service will be hidden from customers. Please provide details:</p>
+                    
+                    <label class="tw-block tw-text-sm tw-text-gray-300 tw-mb-1">Reason for unavailability (Required)</label>
+                    <input id="swal-reason" class="swal2-input tw-w-full tw-mx-0 tw-mb-4 tw-bg-gray-700 tw-text-white tw-border-gray-600 placeholder:tw-text-gray-400" placeholder="e.g., Equipment maintenance" style="width: 100%; box-sizing: border-box;">
+                    
+                    <label class="tw-block tw-text-sm tw-text-gray-300 tw-mb-1">Expected Return (Optional)</label>
+                    <input type="datetime-local" id="swal-date" min="${currentDateTime}" class="swal2-input tw-w-full tw-mx-0 tw-bg-gray-700 tw-text-white tw-border-gray-600 [color-scheme:dark]" style="width: 100%; box-sizing: border-box;">
+                </div>
+            `;
+            alertConfig.preConfirm = () => {
+                const reason = document.getElementById('swal-reason').value;
+                const date = document.getElementById('swal-date').value;
+                if (!reason) {
+                    Swal.showValidationMessage('A reason is required');
+                    return false;
+                }
+                return { reason: reason, expected_date: date };
+            };
+        } else {
+            alertConfig.html = `<div class="tw-text-left tw-mb-4"><p class="tw-mb-2 tw-text-white">This service will become visible and bookable for customers.</p></div>`;
+        }
+
+        Swal.fire(alertConfig).then((result) => {
+            if (result.isConfirmed) {
+                
+                // Prepare payload
+                let payload = { isActive: newStatus };
+                if (!newStatus && result.value) {
+                    payload.reason = result.value.reason;
+                    payload.expected_date = result.value.expected_date;
+                }
+
+                // Send status update request
+                fetch("{{ route('admin.services.toggle-status', ['id' => ':serviceId']) }}".replace(':serviceId', serviceId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Updated!',
-                        text: `Service has been ${newStatus ? 'made available' : 'made unavailable'}.`,
-                        icon: 'success',
-                        confirmButtonColor: '#27b5d4',
-                        background: '#374151',
-                        color: '#fff'
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Updated!',
+                            text: `Service has been ${newStatus ? 'made available' : 'made unavailable'}.`,
+                            icon: 'success',
+                            confirmButtonColor: '#24CFF4',
+                            background: '#374151',
+                            color: '#fff'
                         }).then(() => {
                             location.reload();
                         });
                     } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: data.message || 'Something went wrong.',
-                            icon: 'error',
-                            confirmButtonColor: '#27b5d4',
-                            background: '#374151',
-                            color: '#fff'
-                        });
+                        Swal.fire('Error!', data.message, 'error');
                     }
                 });
             }

@@ -53,7 +53,38 @@ $categories = $services->pluck('category')->filter()->unique()->values();
         $categoryLower = strtolower($service->category ?? 'uncategorized');
         @endphp
         <div class="col-12 col-md-6 col-xl-4 tw-mt-4 service-card" data-category="{{ $categoryLower }}" data-search="{{ strtolower(($service->name ?? '') . ' ' . ($service->description ?? '') . ' ' . ($service->category ?? '')) }}">
-            <div class="tw-group tw-h-full tw-overflow-hidden tw-rounded-2xl tw-bg-white tw-shadow-md tw-transition-all tw-duration-300 hover:tw--translate-y-1 hover:tw-shadow-xl">
+            
+            <div class="tw-relative tw-group tw-h-full tw-overflow-hidden tw-rounded-2xl tw-bg-white tw-shadow-md tw-transition-all tw-duration-300 hover:tw--translate-y-1 hover:tw-shadow-xl">
+                
+                @if(!$service->isActive)
+                <div class="tw-absolute tw-inset-0 tw-bg-gray-900/80 tw-backdrop-blur-[2px] tw-z-20 tw-flex tw-flex-col tw-items-center tw-justify-center tw-p-5 tw-text-center">
+                    <i class="fas fa-tools tw-text-4xl tw-text-yellow-400 tw-mb-3"></i>
+                    <h4 class="tw-text-lg tw-font-bold tw-text-white tw-mb-2">Currently Unavailable</h4>
+                    
+                    @if($service->unavailability_reason)
+                        <p class="tw-text-sm tw-text-gray-200 tw-mb-3 tw-italic">"{{ $service->unavailability_reason }}"</p>
+                    @endif
+
+                    @if($service->expected_return)
+                        <span class="tw-bg-gray-800 tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-text-[#24CFF4] tw-border tw-border-gray-700">
+                            <i class="far fa-clock tw-mr-1"></i> 
+                            @php
+                                $returnDate = \Carbon\Carbon::parse($service->expected_return);
+                            @endphp
+                            
+                            @if($returnDate->isToday())
+                                {{-- diffForHumans() automatically prints "in 45 minutes" or "in 2 hours" --}}
+                                Available {{ $returnDate->diffForHumans() }}
+                            @elseif($returnDate->isTomorrow())
+                                Available Tomorrow
+                            @else
+                                {{-- If it's further out, just show the standard date --}}
+                                Expected Return: {{ $returnDate->format('M d, Y') }}
+                            @endif
+                        </span>
+                    @endif
+                </div>
+                @endif
                 <div class="tw-relative tw-h-52 tw-w-full tw-bg-[#eafaff]">
                     @if ($imagePath)
                     <img src="{{ asset('storage/' . $imagePath) }}" alt="{{ $service->name }}" class="tw-h-full tw-w-full tw-object-cover">
@@ -75,7 +106,7 @@ $categories = $services->pluck('category')->filter()->unique()->values();
                         {{ $service->description ?: 'A quality pet care service crafted by the FurryTails team.' }}
                     </p>
                     <div class="tw-mt-auto">
-                        <button type="button" class="service-book-btn tw-w-full tw-rounded-xl tw-bg-[#24CFF4] tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-text-white tw-transition-all hover:tw-bg-[#1eb9da]" data-booking-type="{{ $categoryLower === 'boarding' ? 'boarding' : 'appointment' }}" data-service-id="{{ $service->serviceID }}">
+                        <button type="button" class="service-book-btn tw-w-full tw-rounded-xl tw-bg-[#24CFF4] tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-text-white tw-transition-all hover:tw-bg-[#1eb9da] disabled:tw-opacity-50 disabled:tw-cursor-not-allowed" data-booking-type="{{ $categoryLower === 'boarding' ? 'boarding' : 'appointment' }}" data-service-id="{{ $service->serviceID }}" {{ !$service->isActive ? 'disabled' : '' }}>
                             {{ $categoryLower === 'boarding' ? 'Book Boarding' : 'Book Appointment' }}
                         </button>
                     </div>
@@ -86,7 +117,7 @@ $categories = $services->pluck('category')->filter()->unique()->values();
         <div class="col-12 tw-mt-4">
             <div class="tw-rounded-2xl tw-bg-white tw-p-8 tw-text-center tw-shadow-md">
                 <i class="fas fa-box-open tw-mb-3 tw-text-4xl tw-text-gray-300"></i>
-                <h3 class="tw-mb-2 tw-text-xl tw-font-bold tw-text-gray-800">No Active Services Yet</h3>
+                <h3 class="tw-mb-2 tw-text-xl tw-font-bold tw-text-gray-800">No Available Services Yet</h3>
                 <p class="tw-mb-0 tw-text-gray-500">Please check back soon. We are preparing new services for your pets.</p>
             </div>
         </div>

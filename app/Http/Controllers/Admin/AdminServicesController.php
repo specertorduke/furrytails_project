@@ -389,7 +389,19 @@ class AdminServicesController extends Controller
             $service = Service::findOrFail($id);
             $originalStatus = $service->isActive;
             
-            $service->isActive = !$service->isActive;
+            // Update the status
+            $service->isActive = $request->isActive;
+
+            // If making unavailable, save the reason and date
+            if (!$request->isActive) {
+                $service->unavailability_reason = $request->reason;
+                $service->expected_return = $request->expected_date;
+            } else {
+                // If making available again, clear the reason and date
+                $service->unavailability_reason = null;
+                $service->expected_return = null;
+            }
+            
             $service->save();
 
             // Log the status change

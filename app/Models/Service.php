@@ -21,11 +21,15 @@ class Service extends Model
         'price',
         'serviceImage',
         'isActive',
+        'unavailability_reason',
+        'expected_return'
     ];
 
     protected $casts = [
         'price' => 'float',
         'isActive' => 'boolean',
+        'expected_return' => 'datetime',
+        'isActive' => 'boolean'
     ];
 
     public function appointments()
